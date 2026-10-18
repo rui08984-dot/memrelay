@@ -153,6 +153,7 @@ const IMPORT_STATUS: Readonly<Record<string, MapStatus>> = {
   '🔄': 'doing',
   '⛔': 'blocked',
   '⬜': 'todo',
+  '⏳': 'todo', // [10-19] 人写「⏳ 待办」等同 ⬜：解析器不认就等于整行消失
 };
 
 /**
@@ -1507,10 +1508,18 @@ async function importFromKanban(root: string, pageId: string, json: boolean): Pr
   const rows = readKanbanRows(root); // 复用唯一那份解析器，别在这里造第二套
   if (rows.length === 0) {
     return fail(
-      err('REFUSED', 'progress.md 里没有可解析的看板行：' + file, '状态列要以 ✅🔄⛔⬜ 开头，列序为 | 任务 | 状态 | 模块 | 明细 |'),
+      err('REFUSED', 'progress.md 里没有可解析的看板行：' + file, '状态列要以 ✅🔄⛔⬜⏳ 开头，列序为 | 任务 | 状态 | 模块 | 明细 |'),
       json,
     );
   }
+  // [10-19] 静默丢行是这里最贵的失败：解析器只认固定字形，而人写的「⏳ 待办」「⌛」
+  //   会被整行丢掉——地图少节点、看板图少行，输出里却一个字不提。
+  //   现在把被丢的行数报出来（不自动收编：字形是人的约定，机器只负责说出来）。
+  const rawTableRows = fs.readFileSync(file, 'utf8').split(/\r?\n/)
+    .map((l) => l.split('|').map((s) => s.trim()))
+    .filter((c) => c.length >= 5 && str(c[1]).trim() !== '' && str(c[1]).trim() !== '模块'
+      && !/^-+$/.test(str(c[2]).trim()) && !isMachineRow(str(c[3]).trim()));
+  const glyphDropped = rawTableRows.filter((c) => !/^[✅🔄⛔⬜⏳]/u.test(str(c[2] ?? ''))).length;
   const built = buildImportNodes(rows, file);
   if (!built.ok) return fail(err(built.code, built.msg, built.hint), json);
   const { layers, nodes, edges, skipped, truncated, unresolved, ambiguous } = built.value;
@@ -1538,6 +1547,9 @@ async function importFromKanban(root: string, pageId: string, json: boolean): Pr
       (skipped > 0 ? '；跳过 ' + String(skipped) + ' 行机器行（auto:map / auto:todos 由看板自己维护）' : '') +
       (truncated > 0
         ? '；' + String(truncated) + ' 行超长已截断（label ≤' + String(LABEL_MAX) + ' / detail ≤' + String(BODY_MAX) + '）'
+        : '') +
+      (glyphDropped > 0
+        ? '；⚠️ ' + String(glyphDropped) + ' 行状态列不是 ✅🔄⛔⬜⏳ 开头，未导入（把状态写成「⬜ 待办」或「⏳ 待办」）'
         : ''),
   );
 }

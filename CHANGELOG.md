@@ -53,7 +53,13 @@
 - **升格层（真正根因）**：`hits` 每轮采集都 +1（同一句话被重复扫描），`hits≥3 ⇒ 自动升 verified` 实际只代表「采集跑了 3 轮」，不是「反复发生的坑」。新增 `lesson_sources(lesson_id, source_ref)` 表，升格判据改成**不同出处数 ≥ 3**；`maintainLessons` 把历史上「单出处却 verified」的自动升格一次性回撤成 draft 并标 `needs_review`（只改状态、不改字）。
 - **判据层**：决策侧 v27 的语音/口吃过滤与经验侧各写一份，于是同一句碎片「决策侧拒、经验侧收」。抽成 `src/core/extract/noise.ts` **一份判据**，两侧共用；经验候选侧直接拒收。
 
-验证（真库）：`consolidate` 回撤 1 条（id 25 → draft）；连续两轮 harvest 同一出处，hits 仍为 4、状态仍 draft（旧实现会升 verified）；`brief` 的注入经验恢复为 3 条真经验。新增 7 条判据（`test/unit/lesson-noise-and-demotion.spec.ts` 6 条 + 升格语义改写 1 条），全量 **930 passed / 1 skipped**。
+验证（真库）：`consolidate` 回撤 1 条（id 25 → draft）；连续两轮 harvest 同一出处，hits 仍为 4、状态仍 draft（旧实现会升 verified）；`brief` 的注入经验恢复为 3 条真经验。新增 7 条判据（`test/unit/lesson-noise-and-demotion.spec.ts` 6 条 + 升格语义改写 1 条），全量 **930 passed / 1 skipped**。### 看板/地图：`⏳ 待办` 被整行静默丢掉（00:10）
+
+实测建一个 demo 项目：6 行计划里写了 `⏳ 待办` 的 3 行，`map import` 只导入了 3 行，**没有任何提示**。
+
+- 根因：`readKanbanRows` 只认状态列以 `✅🔄⛔⬜` 开头，其余整行过滤掉；而人写「⏳ 待办」很常见。
+- 修法：解析器与 `IMPORT_STATUS` 都接受 `⏳`（→ todo）；导入时把「因字形不认识被丢」的行数报出来（容错不许静默）。
+- 验证：demo 6 行全部导入、按依赖排出 rank 0→5 六层（数据层→摄取层→检索层→CLI→面板→发布）；全量 930 passed / 1 skipped。
 ## [1.0.0] - 2026-10-18
 
 第一个独立版本。仓库从上游 fork 独立成 memrelay，改法集中在两处：把「坏了会告诉你」做实，把「数据不会悄悄丢」做稳。
