@@ -215,7 +215,7 @@ export async function cmdDoctor(): Promise<void> {
     checks.push(c('项目注册表', 'warn', (e as Error).message));
   }
 
-  // 语义检索（R7 条件项：未启用=可选提示；启用后查依赖，回填进度在 srelay semantic status）
+  // 语义检索（R7 条件项：未启用=可选提示；启用后查依赖，回填进度在 srelay semantic --status）
   if (root) {
     const cfg = loadConfig(root);
     if (cfg.semantic?.enabled === true) {
@@ -227,7 +227,7 @@ export async function cmdDoctor(): Promise<void> {
         checks.push(c('语义检索', 'err', '已启用但 transformers.js 缺失（检索已自动降级纯字面）', 'npm i --prefix ~/.sessionrelay/semantic @huggingface/transformers@3'));
       } else if (rs.state === 'failed') {
         // [1017 夜] 静态依赖在、但**上一次真跑的时候装载失败了** —— 这条以前完全看不见
-        checks.push(c('语义检索', 'err', '已启用且依赖在，但上次装载失败（检索已降级纯字面）', '原因：' + String(rs.error).slice(0, 120) + ' · 详查 srelay semantic status'));
+        checks.push(c('语义检索', 'err', '已启用且依赖在，但上次装载失败（检索已降级纯字面）', '原因：' + String(rs.error).slice(0, 120) + ' · 详查 srelay semantic --status'));
       } else {
         checks.push(c('语义检索', 'ok', `已启用（${semanticModelOf(cfg)}）` + (rs.state === 'ready' ? ' · 上次装载成功' : '')));
       }
