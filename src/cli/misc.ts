@@ -5,8 +5,20 @@ import { confirmSession, purgePending, findSessionByPrefix } from '../store/db.j
 import { openStats } from '../core/stats/counter.js';
 import { requireRoot, openRelayDb, pc } from './ui.js';
 
-export async function cmdMode(mode: CaptureMode): Promise<void> {
+export async function cmdMode(mode?: CaptureMode): Promise<void> {
   const root = requireRoot();
+  // 不带参数 = 看当前模式（10-18 新用户实测：`srelay mode` 报「缺少参数」，而用户想要的是查询）
+  if (mode === undefined) {
+    const cur = loadConfig(root).capture?.mode ?? 'full';
+    const hints: Record<string, string> = {
+      full: '全量捕获（默认）：正文入索引，隐私靠 .sessionrelayignore 硬边界。',
+      meta: '只存元数据与统计，不存消息正文（敏感项目推荐）。',
+      off: '关闭自动捕获，仅手动 save 入库（最严格）。',
+    };
+    console.log('当前捕获模式：' + pc.green(String(cur)) + '\n  ' + (hints[String(cur)] ?? ''));
+    console.log(pc.dim('  改：srelay mode full|meta|off'));
+    return;
+  }
   if (!['full', 'meta', 'off'].includes(mode)) {
     console.log(pc.red('✗ 模式必须是 full | meta | off'));
     process.exit(2);

@@ -29,7 +29,7 @@ srelay recompute                   # 确认没问题再重算
 
 | 现象 | 大概率原因 | 怎么办 |
 |---|---|---|
-| `brief` 里一条决策都没有 | 抽取版本是旧的（`doctor` 会提示「库是 v0，当前规则 v26」） | `srelay recompute` |
+| `brief` 里一条决策都没有 | 抽取版本是旧的（`doctor` 会提示「库是 v0，当前规则 v27」） | `srelay recompute` |
 | 决策重复 | 去重键失效 | `srelay recompute`；仍重复就开 issue 带上样例 |
 | 明显是随口附和也被当决策 | 判据太宽（见下文「什么不算决策」） | 记下原句，能补进判据 |
 | 改完规则，存量没变化 | 没升 `EXTRACT_VERSION`，不触发重算 | 升版本号再 `recompute` |
@@ -73,9 +73,9 @@ meta_text（检索面，FTS 之外的另一列）
 
 ## EXTRACT_VERSION
 
-当前值 **26**（`../src/core/extract/version.ts:64`）。消费点不止一处：写派生列时给 `sessions.extracted_version` 打戳（`../src/store/db.ts:861`）；重算判据是 `extracted_version < EXTRACT_VERSION`（`../src/capture/recompute.ts:359`）；CLI 与 doctor 也读它做版本检查（`../src/bin/srelay.ts:459`、`../src/cli/doctor.ts:14`）。
+当前值 **27**（`../src/core/extract/version.ts:64`）。消费点不止一处：写派生列时给 `sessions.extracted_version` 打戳（`../src/store/db.ts:861`）；重算判据是 `extracted_version < EXTRACT_VERSION`（`../src/capture/recompute.ts:359`）；CLI 与 doctor 也读它做版本检查（`../src/bin/srelay.ts:459`、`../src/cli/doctor.ts:14`）。
 
-改规则必须递增，否则存量库不会被重算——版本号就是「这批数据是哪个规则算的」的唯一标签。v3→v26 的完整变更史（每条都带实测）在 `../src/capture/recompute.ts:28-138`，`version.ts` 只放常量，避免两处各写一份。
+改规则必须递增，否则存量库不会被重算——版本号就是「这批数据是哪个规则算的」的唯一标签。v3→v27 的完整变更史（每条都带实测）在 `../src/capture/recompute.ts:28-138`，`version.ts` 只放常量，避免两处各写一份。
 
 存量重算有两条路：
 

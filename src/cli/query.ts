@@ -117,7 +117,7 @@ export async function cmdShow(idPrefix: string, opts: { range?: string; json?: b
   stats.increment('cli_show');
   try {
     const s = findSessionByPrefix(db, idPrefix, cfg.identity.project_id ?? root);
-    if (!s) { console.log(pc.red('✗ 未找到会话：') + idPrefix); return; }
+    if (!s) { console.log(pc.red('✗ 未找到会话：') + idPrefix); process.exitCode = 1; return; }
     const [from, to] = parseRange(opts.range, s.message_count);
     if (opts.json) {
       const msgs = getMessageRange(db, s.id, from, to);
@@ -197,7 +197,7 @@ export async function cmdRelated(idPrefix: string, opts?: { limit?: string; json
   const db = openRelayDb(root);
   try {
     const anchor = findSessionByPrefix(db, idPrefix, cfg.identity.project_id ?? root) ?? getSession(db, idPrefix);
-    if (!anchor) { console.log(pc.yellow('未找到锚会话。') + pc.dim('用 srelay list 查看可用会话')); return; }
+    if (!anchor) { console.log(pc.yellow('未找到锚会话。') + pc.dim('用 srelay list 查看可用会话')); process.exitCode = 1; return; }
     const { suggestRelated, RELATED_HARD_CAP } = await import('../search-svc/related.js');
     let limit: number | undefined;
     if (opts?.limit !== undefined) {

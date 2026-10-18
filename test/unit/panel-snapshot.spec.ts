@@ -86,12 +86,12 @@ describe('面板 · 压缩图谱', () => {
     expect(c.l0?.merged).toBe(2);           // dupCount=3 ⇒ 合并掉 2 条
     expect(c.l0?.changedSessions).toBe(1);
   });
-  it('老化计划的档位与阈值和判据同源（strengthGateOf(30) = 0.667）', () => {
+  it('老化计划的档位与阈值和判据同源（strengthGateOf = 1/e）', () => {
     seedProject(2);
     const c = panelCompression(root);
     expect(c.aging?.hotDays).toBe(30);
-    expect(c.aging?.hotGate).toBe(0.667);
-    expect(c.aging?.workflowGate).toBe(0.922);
+    expect(c.aging?.hotGate).toBeCloseTo(1 / Math.E, 3);
+    expect(c.aging?.workflowGate).toBeCloseTo(1 / Math.E, 3);
     const total = (c.aging?.strengthBuckets ?? []).reduce((a, b) => a + b.count, 0);
     expect(total).toBe(2);
   });

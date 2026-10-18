@@ -229,8 +229,8 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
       const { hatchMapFromKanban, syncMapFromKanban } = await import('../cli/map.js');
       // ① 还没有地图 ⇒ 孵一张骨架
       const hatched = hatchMapFromKanban(opts.projectRoot);
-      if (!hatched.ok && !/无需孵化|已有地图|没有可解析/.test(hatched.note)) {
-        console.error('[srelay] 地图孵化未成功：' + hatched.note);
+      if (!hatched.ok && !/无需孵化|已有地图|没有可解析|解析不出任何边|只有机器行/.test(hatched.note)) {
+        console.error('[srelay] 地图孵化跳过：' + hatched.note);
       }
       // ② 已有地图 ⇒ 增量同步（用户 2026-10-18：「标签和节点一直那样」）
       //    必须挂在**守护这条路径**上，与孵化同一个道理：挂在手动命令上的功能等于从来没自动过。

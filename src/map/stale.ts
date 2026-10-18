@@ -60,6 +60,8 @@ export interface ChangesNode {
   unknown: string[];
   /** 受影响消费者：指着这个节点的**入边来源**（from 端）——它们依赖的东西变了。 */
   consumers: string[];
+  /** 这个节点声明了几个源码指纹。0 = 它没做证据声明，对账覆盖不到它（别把它算进「对账通过」）。 */
+  sources: number;
 }
 
 export interface ChangesReport {
@@ -294,6 +296,7 @@ export function checkSources(root: string, page?: string, ids?: string[]): Res<C
         changed,
         unknown,
         consumers: consumers.get(n.id) ?? [],
+        sources: sourcesOf(n).length,
       });
     }
     if (touched.size > 0) saveCache(root, cache, touched);

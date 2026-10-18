@@ -209,8 +209,8 @@ program
   .action(async (f) => { const { cmdStatus } = await import('../cli/status.js'); await cmdStatus(f); });
 
 program
-  .command('mode <full|meta|off>')
-  .description('切换捕获模式')
+  .command('mode [full|meta|off]')
+  .description('切换捕获模式（不带参数 = 看当前模式）')
   .action(async (mode) => { const { cmdMode } = await import('../cli/misc.js'); await cmdMode(mode); });
 
 program
@@ -388,7 +388,10 @@ program
     const only = typeof opts.only === 'string' && opts.only
       ? String(opts.only).split(',').map((s: string) => s.trim()).filter(Boolean) as never[]
       : undefined;
-    if (opts.status) {
+    // [10-18 新用户实测] 原来 `srelay lifecycle` 不带参数会**直接跑一整轮重活**（体检+采集+重算+老化）。
+    // 新用户想看的显然是「现在什么状态」。改成：不给任何执行类旗标 = 只看状态；要跑必须显式 --once/--force/--loop/--only/--light。
+    const wantsRun = !!(opts.once || opts.force || opts.loop !== undefined || opts.only || opts.light);
+    if (opts.status || !wantsRun) {
       const st = lifecycleStatus();
       if (opts.json) { console.log(JSON.stringify(st, null, 2)); return; }
       console.log('生命周期状态：已跑 ' + st.rounds + ' 轮' + (st.lastAt ? ' · 最近 ' + st.lastAt : ''));

@@ -122,12 +122,11 @@ export function planAging(rows: AgingRow[], o: AgingOptions): AgingPlan {
 export const ARCHIVE_CAP_PER_ROUND = 200;
 
 /**
- * 旧线性强度门：1 − 窗/90。**已不参与淘汰判定**（判据改为 strength < T=1/e，见 decay/strength.ts）。
- * 保留原因（诚实记录）：它仍被 capture/archive.ts 的判据摘要行与 panel/snapshot.ts 的展示字段
- * 引用，且 test/fork/d26-auto-archive.spec.ts 与 test/unit/panel-snapshot.spec.ts 断言了它的数值。
- * ⚠️ 已知不一致（留给后续单点修，非本任务写区）：这两处展示的是旧线性门 0.667，而真实阈值是
- * 1/e≈0.368 —— 打印值与判据不同口径。修法：archive/panel 改引 STRENGTH_RETIRE_THRESHOLD。
+ * 强度门（**展示用**）：直接返回真实阈值 T = 1/e。
+ * 历史包袱：这里曾是线性式 1 − 窗/90，于是判据摘要与面板打印 0.667、真实判据却是 0.368 ——
+ * 同一件事两个口径，人看到的数字和系统真正干的事对不上（10-18 新用户实测在 lifecycle 输出里撞到）。
+ * 窗（minAgeDays）只决定「多老才算候选」，**不改变门限**，所以参数保留只为兼容调用点。
  */
-export function strengthGateOf(minAgeDays: number): number {
-  return Number(Math.max(0, Math.min(1, 1 - minAgeDays / 90)).toFixed(3));
+export function strengthGateOf(_minAgeDays: number): number {
+  return Number(STRENGTH_RETIRE_THRESHOLD.toFixed(3));
 }

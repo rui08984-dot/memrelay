@@ -83,13 +83,14 @@ describe('fork · D26 自动归档', () => {
     expect(row.cleanup_at).toBeNull();
   });
 
-  it('[1017 合并] 强度门与窗口推导一致（strengthGateOf）', () => {
-    // strength = 1 − ageDays/90 ⇒ 窗 30d 对应阈 0.667、窗 90d 对应阈 0（越老越严，两门边界重合）
-    expect(strengthGateOf(30)).toBeCloseTo(0.667, 3);
-    expect(strengthGateOf(90)).toBe(0);
-    // 超过 90 天窗口在数学上会算出负数 → 夹到 0（只有 ≥90d 的会话能过），不许变成"全放行"
-    expect(strengthGateOf(120)).toBe(0);
-    expect(strengthGateOf(-5)).toBe(1);
+  it('强度门展示值与真实判据同源（strengthGateOf = 1/e）', () => {
+    // [10-18] 旧断言钉的是线性门 0.667/0 —— 那是**展示**口径，而淘汰判据一直是 strength < 1/e。
+    // 两个口径并存 ⇒ 人看到的数字和系统干的事对不上。现在展示值直接取真实阈值，
+    // 窗只决定「多老算候选」，不再改变门限。
+    expect(strengthGateOf(30)).toBeCloseTo(1 / Math.E, 3);
+    expect(strengthGateOf(90)).toBeCloseTo(1 / Math.E, 3);
+    expect(strengthGateOf(120)).toBeCloseTo(1 / Math.E, 3);
+    expect(strengthGateOf(-5)).toBeCloseTo(1 / Math.E, 3);
   });
 
   it('审计：cleanup_log triggered_by=auto 且明细逐会话', () => {

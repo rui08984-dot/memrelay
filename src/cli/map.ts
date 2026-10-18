@@ -60,7 +60,7 @@ import { checkSources, type ChangesReport } from '../map/stale.js';
 // kanbanLabelKey：看板里那个单元格长什么样（写侧唯一实现）。读侧必须用同一个键去对名，
 // 否则「地图自己的投影对不上自己」⇒ 永久冻结（见 bridge.ts 里的注释）。
 import { kanbanLabelKey, renderMapMermaid } from '../map/bridge.js';
-import { readDepColumn, readKanbanRows } from './kanban.js';
+import { PLACEHOLDER_ROW_LABEL, readDepColumn, readKanbanRows } from './kanban.js';
 // 开工档位（map.hatch）读的是项目配置。读不到就用默认 always —— 配置坏了不该让自动孵化停摆。
 import { loadConfig } from '../shared/config.js';
 // 依赖列 → 分层 + 真边（纯函数，test/unit/plan-graph.spec.ts 穷举过）。
@@ -549,8 +549,13 @@ function changesPayload(report: ChangesReport): { payload: Record<string, unknow
   const summary = { total: nodes.length, changed, unknown, unchanged: nodes.length - changed - unknown };
   const drifted = nodes.filter((n) => n.state !== 'unchanged');
   const lines: string[] = [];
+  const withSources = nodes.filter((n) => (n.sources ?? 0) > 0).length;
   if (drifted.length === 0) {
-    lines.push('✅ sources 对账：' + String(nodes.length) + ' 个带证据源的节点全部未变');
+    lines.push(
+      withSources === 0
+        ? 'ℹ sources 对账：本页没有配 sources 的节点（对账只覆盖声明了源码指纹的节点；没配 ≠ 通过）'
+        : '✅ sources 对账：' + String(withSources) + ' 个带证据源的节点全部未变',
+    );
   } else {
     lines.push(
       '⚠ sources 对账：' + String(drifted.length) + ' 个节点对不上（changed ' + String(changed) + ' / unknown ' + String(unknown) + '）',
@@ -1163,6 +1168,9 @@ function buildImportNodes(rows: string[][], file: string): BuiltNodes {
   let skipped = 0;
   for (const c of rows) {
     if (isMachineRow(str(c[3]).trim())) { skipped++; continue; }
+    // init 生成的模板行不是任务：它是给人看的示例（状态列怎么写、明细写什么）。
+    // 不跳过的话，每个新项目一开张就带一个假任务节点，doctor/看板/地图全被它污染。
+    if (str(c[1]).trim() === PLACEHOLDER_ROW_LABEL) { skipped++; continue; }
     // `|` 剥掉：表格分隔符不该进节点 label（会把它投影出的看板行切错格，下一轮读回成幻影人写行）。
     const labelRaw = str(c[1]).replace(/\|/g, '/').trim();
     const detailRaw = str(c[4]).trim();

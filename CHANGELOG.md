@@ -3,6 +3,23 @@
 所有显著变更将记录在此文件中。
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### 新用户路径实测（把工具当陌生框架真跑一遍）
+
+在一个空目录里从 `init` 开始，把 CLI 全部子命令、MCP（ZCode 那条 stdio）、DSH 工具、地图、简报、生命周期逐个真调了一遍。修掉的问题：
+
+- **MCP 的 `srelay_search` 把 `query` 写成必填** ⇒ `kind=decisions` / `kind=unresolved` 这类不需要检索词的调用在 ZCode 侧被参数校验直接拒掉（-32602），而同一件事在 DSH 侧是允许的。现在 `query` 可选，只在 `kind=sessions` 上要求，并给出明确报错。
+- **DSH 工具缺参时拿 `undefined` 当参数往下走**：`kind=history` 不带 `filePath` 会去搜字符串「undefined」（返回 20 个无关会话）。现在缺参直接报错并给示例。
+- **`init` 的模板占位行进地图**：新项目一开张就多一个叫「（把真实任务写在这里）」的假任务节点，doctor / 看板 / 地图全被它污染。现在孵化与导入都跳过它（模板文案仍保留给人看）。
+- **`map check` 在对账 0 个节点时撒谎**：把节点总数说成「N 个带证据源的节点全部未变」。现在报告里每个节点带 `sources` 计数，没配 sources 就明说「对账覆盖不到」。
+- **`srelay show` / `related` 找不到时退出码 0**（脚本化会把「没找到」当成功）⇒ 改成 1；`map` 早就是三分法退出码，现在对齐。
+- **`srelay lifecycle` 不带参数会直接跑一轮重活**（体检+采集+重算+老化）。新用户想看的显然是状态 ⇒ 默认只显示状态，要跑必须显式给 `--once/--force/--loop/--only/--light`。
+- **`srelay mode` 不带参数报「缺少参数」** ⇒ 改为显示当前模式（改模式仍需显式给值）。
+- **`sync` 把正常情况说成失败**：「地图孵化未成功」→「跳过」；`progress.md` 只有模板行/没有依赖列都算正常。
+- **老化强度门的展示值与真实判据不同口径**：摘要打印 `strength≤0.667`，真实淘汰判据却是 `strength < 1/e ≈ 0.368`。现在展示值直接取真实阈值（窗只决定「多老算候选」）。
+
+判据：新增 `test/unit/new-user-placeholder.spec.ts`（占位行两例）；`map-stale` / `d26-auto-archive` / `panel-snapshot` 三处断言跟着新口径更新。
 ## [1.0.0] - 2026-10-18
 
 第一个独立版本。仓库从上游 fork 独立成 memrelay，改法集中在两处：把「坏了会告诉你」做实，把「数据不会悄悄丢」做稳。

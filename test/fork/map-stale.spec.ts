@@ -85,8 +85,10 @@ describe('[T3] checkSources 三态', () => {
     if (!got.ok) return;
     expect(got.value.page).toBe('map');
     expect(got.value.nodes.map((n) => n.id)).toEqual(['base', 'proof']);
-    expect(got.value.nodes[0]).toEqual({ id: 'base', label: '被依赖的节点', state: 'unchanged', changed: [], unknown: [], consumers: ['proof'] });
-    expect(got.value.nodes[1]).toEqual({ id: 'proof', label: '有指纹的节点', state: 'unchanged', changed: [], unknown: [], consumers: [] });
+    // sources = 该节点声明了几个源码指纹。0 表示它没做证据声明 —— 对账覆盖不到它，
+    // 不能算进「对账通过」（10-18 实测就是这么撒谎的：把节点总数说成「带证据源的节点数」）。
+    expect(got.value.nodes[0]).toEqual({ id: 'base', label: '被依赖的节点', state: 'unchanged', changed: [], unknown: [], consumers: ['proof'], sources: 0 });
+    expect(got.value.nodes[1]).toEqual({ id: 'proof', label: '有指纹的节点', state: 'unchanged', changed: [], unknown: [], consumers: [], sources: 1 });
   });
 
   it('② changed：内容与基线不符', () => {

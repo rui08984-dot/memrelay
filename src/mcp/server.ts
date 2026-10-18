@@ -175,7 +175,7 @@ export function buildServer(get: () => ServeCtx, select?: (p: string) => Promise
     title: '检索项目记忆',
     description: '检索本项目历史记忆，四类内容一个入口。kind：sessions=搜会话（默认；用户问"之前/上次/我们讨论过吗"、接手项目要背景、实现前确认已有结论、报错排查怀疑有历史结论）；decisions=全部已确认技术决策（response 里 kind=negative 的是"被否掉的路"，看到就别再提议同一条）；unresolved=提出过但未解决的问题；files=某文件路径被哪些会话讨论过。何时不调：纯新问题、当前对话刚说过的内容。深入某一个会话用 srelay_show',
     inputSchema: {
-      query: z.string().describe('搜索词，支持 "短语" 精确匹配；kind=files 时传文件路径'),
+      query: z.string().optional().describe('搜索词，支持 "短语" 精确匹配；kind=files 时传文件路径。kind=decisions / unresolved 不需要它（可不传）'),
       kind: z.enum(['sessions', 'decisions', 'unresolved', 'files']).optional().describe('检索哪类内容，默认 sessions'),
       limit: z.number().optional(),
       decision_kind: z.enum(['decision', 'negative']).optional().describe('仅 kind=decisions：只看拍板采用的 / 被否掉的路'),
@@ -184,6 +184,12 @@ export function buildServer(get: () => ServeCtx, select?: (p: string) => Promise
   }, guard(async (args: { query: string; kind?: 'sessions' | 'decisions' | 'unresolved' | 'files'; limit?: number; topic?: string; source?: string; decision_kind?: 'decision' | 'negative'; project?: string } & zPredShape) => {
     const cur = get();
     const kind = args.kind ?? 'sessions';
+    // [10-18 新用户实测] query 原来是 schema 必填 ⇒ kind=decisions/unresolved 这类**不需要检索词**的调用
+    // 在 ZCode 侧被 MCP 参数校验直接拒掉（-32602），而同一件事在 DSH 侧是允许的。
+    // 两边 schema 不一致 = 用户记住一种用法、换客户端就失效。现在可选 + 在真正需要词的 kind 上明说。
+    if (kind === 'sessions' && String(args.query ?? '').trim() === '') {
+      return toolOut({ ok: false, error: 'kind=sessions 需要 query；kind=decisions / unresolved 可以不带' });
+    }
     // [1021 红队 R13] 检索命中出处补稳定主键：msg 是 seq（位置索引），会话被归档/裁剪后
     //   按它回跳会指到错的那条。这里用 seq 反查一次拿到 messages.id，一并发给调用方。
     const prov = (sessionId: string, seq: number) => {

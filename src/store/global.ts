@@ -127,16 +127,29 @@ export function addLesson(db: Database.Database, input: AddInput): { id: number;
  *      SQL 侧用 replace(lower(...), char(92), '/') 归一（**char(92) 而不是反斜杠字面量**：
  *      SQL 字符串里嵌反斜杠是这套代码踩过三次的坑），JS 侧用 workspaceKey，两侧口径必须一致。
  */
-export function visibleWhere(scopeSel: { workspaceId?: string; domain?: string }): { sql: string; params: unknown[] } {
-  const parts = ["(scope = 'global')"];
+// [1018 修] alias 参数：**JOIN 时必须传**，否则列名歧义。
+//   病历（2026-10-18 实测）：searchLessons 是 `lessons_fts f JOIN lessons l`，两张表都有
+//   domain 列；这里生成的 SQL 不带表前缀，于是只要带上门 domain 选择器（DSH 插件默认就带），
+//   就抛 `SqliteError: ambiguous column name: domain`，srelay_search(kind=lessons) 整条路直接崩。
+//   单表调用（listLessons / pickForInjection / lesson-harvest）不传 alias 也对，
+//   但**新增 JOIN 调用点必须传**——不传不会立刻报错，只会在特定选择器下崩。
+export function visibleWhere(
+  scopeSel: { workspaceId?: string; domain?: string },
+  alias?: string,
+): { sql: string; params: unknown[] } {
+  const p = alias ? `${alias}.` : '';
+  const parts = [`(${p}scope = 'global')`];
   const params: unknown[] = [];
   if (scopeSel.workspaceId) {
     // trim 两侧都要：JS 侧 workspaceKey 先 .trim()（手输 --workspace 时多一个空格很常见），
     // SQL 侧不 trim 就会出现"JS 说相等、SQL 说不等"的**同一规则两种答案**（复审 C-5 实测）。
-    parts.push("(scope = 'project' AND rtrim(replace(lower(trim(workspace_id)), char(92), '/'), '/') = ?)");
+    parts.push(`(${p}scope = 'project' AND rtrim(replace(lower(trim(${p}workspace_id)), char(92), '/'), '/') = ?)`);
     params.push(workspaceKey(scopeSel.workspaceId));
   }
-  if (scopeSel.domain) { parts.push("(scope = 'domain' AND domain = ?)"); params.push(scopeSel.domain); }
+  if (scopeSel.domain) {
+    parts.push(`(${p}scope = 'domain' AND ${p}domain = ?)`);
+    params.push(scopeSel.domain);
+  }
   return { sql: '(' + parts.join(' OR ') + ')', params };
 }
 
@@ -149,7 +162,8 @@ export function listLessons(db: Database.Database, sel: { workspaceId?: string; 
 }
 
 export function searchLessons(db: Database.Database, q: string, sel: { workspaceId?: string; domain?: string; top?: number }): LessonRow[] {
-  const w = visibleWhere(sel);
+  // 必须传 'l'：这条查询是两表 JOIN（理由见 visibleWhere 顶部病历）
+  const w = visibleWhere(sel, 'l');
   const rows = db.prepare(
     'SELECT l.* FROM lessons_fts f JOIN lessons l ON l.id = f.rowid'
     + ' WHERE lessons_fts MATCH ? AND ' + w.sql + ' ORDER BY bm25(lessons_fts) LIMIT ?'
