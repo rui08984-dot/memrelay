@@ -278,7 +278,10 @@ export function mapBriefLine(root: string, opts: { page?: string; maxChars?: num
     //   让人/AI 去抄一遍就是添麻烦。用户原话：「不要被动调用工具」。
     //   只读不写地图节点：写进节点会覆盖人写的 evidence，展示层拼起来才对。
     try {
-      const gf = path.join(root, '.sessionrelay', 'map', 'gate.json');
+      // 注意：**不能放在 map/ 下**。地图层把 map/*.json 当页面读，gate.json 的字段
+      // （at/ok/failed/dist/gates）全是未知键 ⇒ 严格读会拒绝，整层地图跟着读不出来。
+      // 2026-10-18 真实事故：doctor 报「地图读不出来」，根因就是它。
+      const gf = path.join(root, '.sessionrelay', 'gate.json');
       if (fs.existsSync(gf)) {
         const g = JSON.parse(fs.readFileSync(gf, 'utf8')) as { at?: string; ok?: boolean };
         const t = g.at ? Date.parse(g.at) : NaN;
