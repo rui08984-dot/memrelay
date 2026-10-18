@@ -246,7 +246,7 @@ Seven things bit us during development and are worth knowing before editing:
    tool means the user can say "yes" and nothing can act on it.
 5. **Resolve paths with `fileURLToPath`, never `new URL(...).pathname`.**
    `.pathname` percent-encodes non-ASCII characters, so a plugin installed under
-   a directory like `<workspace>\` resolves to
+   a directory like `D:\dsh插件  记忆\` resolves to
    `D:/dsh%E6%8F%92%E4%BB%B6%20%20%E8%AE%B0%E5%BF%86/...` and every `existsSync`
    fails. The vendored runtime is then silently skipped and the plugin falls back
    to a global install — a 62 MB payload carried for nothing. When you test this,

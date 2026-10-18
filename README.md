@@ -4,7 +4,6 @@
 
 > 仓库名 **memrelay** · memory + relay。CLI 命令仍是 `srelay`（历史原因，不折腾）。
 
-> 仓库名 **memrelay** · memory + relay。CLI 命令仍是 `srelay`（历史原因）。
 
 [![CI](https://github.com/rui08984-dot/memrelay/actions/workflows/ci.yml/badge.svg)](https://github.com/rui08984-dot/memrelay/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/Node-%E2%89%A522-339933)
@@ -12,6 +11,15 @@
 ![平台](https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-Windows_%7C_macOS_%7C_Linux-2D7DD2)
 ![语义检索](https://img.shields.io/badge/%E8%AF%AD%E4%B9%89%E6%A3%80%E7%B4%A2-%E5%8F%AF%E9%80%89-F4A261)
 ![License](https://img.shields.io/badge/License-MIT-EAC435)
+
+### 文档
+
+| 想了解 | 看这份 |
+|---|---|
+| 这东西怎么分层、数据怎么流、检索怎么排 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)（四张图） |
+| 检索效果到底多少 | [docs/EVALUATION.md](./docs/EVALUATION.md) + [数据表](./docs/eval/memrelay-eval.xlsx) |
+| 这一版改了什么 | [CHANGELOG.md](./CHANGELOG.md) |
+| 装和用 | [docs/user-guide.md](./docs/user-guide.md) |
 
 > **属于项目、不属于任何厂商的本地记忆层。**
 > Memory is always complete. Retrieval is always yours to shape.
@@ -36,6 +44,7 @@
 | 变化 | 说明 |
 | ---- | ---- |
 | **DSH 工具面 14 → 4**（v0.5.1-fork.2 起） | 不是删能力，是**合并**：`srelay_search` 吃 `kind`、`srelay_remember`（记决策/置顶）、`srelay_project`（init/bind/confirm/cancel/stats）、`srelay_show` 不变。每轮少 10 个工具的描述，能力一条没少（新工具路由到旧实现的同一份代码）。 |
+| **MCP 侧不受影响** | `srelay serve` 仍是 14 个独立工具（`srelay_search` / `srelay_show` / `srelay_lessons` / `list_sessions` / `get_stats` / `set_scope` / `annotate_session` / `save_note` / `export_handoff` / `import_handoff` / `release_quarantine` / `link_sessions` / `get_linked_sessions` / `suggest_related_sessions`）。DSH 那 4 个是**合并**，不是删能力，两边能力集合等价。 |
 | **标签图谱可视化** | 面板「图谱」页新增**力导向图**：100 节点 / 1200 边，斥力+弹簧+向心三力模拟，节点大小映射会话数，悬停高亮邻居。纯 Canvas 手写，零第三方依赖 |
 | **实时刷新** | 图谱页 15 秒轮询，改配置 / 重建图谱后无需手动刷页面 |
 | **ZCode MCP 接入** | 注册 `sessionrelay` 到 ZCode 的 `mcp.servers`，ZCode 侧从「只能被动接收简报」变成「能主动查/记」 |

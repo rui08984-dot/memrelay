@@ -22,7 +22,7 @@ export const NODE = process.execPath
 //   D:/dsh%E6%8F%92%E4%BB%B6%20%20%E8%AE%B0%E5%BF%86/...
 // 于是 fs.existsSync 必然 false，vendor 被静默跳过、回落到 npm 全局——
 // 67MB 自包含白带，且在所有非 ASCII 路径下失效（本机工作目录
-// `<workspace>\` 正是这个情况，实测踩中）。
+// `D:\dsh插件  记忆\` 正是这个情况，实测踩中）。
 // 直接从 URL 得到 vendor 入口的绝对路径。注意别再 dirname+join 拼一次——
 // 那样会多出一级（实测得到 vendor/dist/dist/srelay.js，existsSync 假 → 静默回落）。
 const VENDOR_SRELAY = fileURLToPath(new URL('../vendor/dist/srelay.js', import.meta.url))

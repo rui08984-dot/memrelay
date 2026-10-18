@@ -5,7 +5,7 @@
 // stub 测试照样全绿而真实环境崩。本测试用真实包建真实 SystemPrompt 服务，调真实 assemble()。
 //
 // [1015 债务3 修复] 从"孤立脚本"改为**可被 selftest 调用的导出函数 + 可跳过**：
-//   · 原来硬编码 `PLUGIN = <workspace>/plugins/dsh`（作者副本绝对路径）——部署副本里跑必然指错；
+//   · 原来硬编码 `PLUGIN = D:/dsh插件  记忆/plugins/dsh`（作者副本绝对路径）——部署副本里跑必然指错；
 //     现在从 `import.meta.url` 推导，**跑在哪份副本就测哪份副本**。
 //   · 原来找不到真实包就直接 `process.exit(1)`——在没装 DSH 的机器上等于把自测判死；
 //     现在返回 `{ skipped: true, reason }`，让调用方**能区分"没条件测"与"测失败"**。

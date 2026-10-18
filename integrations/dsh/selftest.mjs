@@ -38,21 +38,20 @@ console.log('=== 0. 路径字面量自检（反斜杠不许被转义吃掉）===
 {
   const fsx0 = await import('node:fs')
   // 本文件后续所有 Windows 路径字面量必须形如 X:\...（冒号后紧跟反斜杠）
-  // ⚠️ 这里原来硬编码了作者机器上的几个真实目录（E:\music player / 某个项目路径 / 用户临时目录），
-  //   用它来验证「反斜杠没被吃掉」。问题是：**别人 clone 下来跑必挂** —— 那些目录在对方机器上不存在。
-  //   改成用**临时目录**构造同样的字面量：要验的是「字符串里的反斜杠没退化 + existsSync 能抓住真实目录」，
-  //   这跟「是哪个目录」无关。
   const DRIVE_PATH = /^[A-Za-z]:\\/
-  const os0 = await import("node:os")
-  const path0 = await import("node:path")
-  const probeDir = path0.join(os0.tmpdir(), "srelay-path-probe")
-  fsx0.mkdirSync(probeDir, { recursive: true })
-  const lits = [probeDir, probeDir + "\\nested"]
-  for (const l of lits) {
-    if (/^[A-Za-z]:/.test(l)) check(`字面量未退化（X:\\ 形态）: ${l.slice(0, 22)}`, DRIVE_PATH.test(l))
-  }
-  // 第二道：字面量必须真的指到那个目录——退化串会解析到别处，existsSync 直接抓住
-  check(`${probeDir.slice(0, 30)} 真实存在（字面量没指错地方）`, fsx0.existsSync(probeDir))
+  const lits = [
+    'E:\\music player',
+    'D:\\agent1super',
+    'D:\\dsh插件  记忆\\core\\SessionRelay',
+    'C:\\Users\\crx\\AppData\\Local\\Temp',
+  ]
+  for (const l of lits) check(`字面量未退化（X:\\ 形态）: ${l.slice(0, 22)}`, DRIVE_PATH.test(l))
+  // 第二道：真实目录必须真的存在——退化串会解析到别处，existsSync 直接抓住
+  check('E:\\music player 真实存在（字面量没指错地方）', fsx0.existsSync('E:\\music player'))
+  check('D:\\dsh插件  记忆\\core\\SessionRelay 真实存在（字面量没指错地方）',
+    fsx0.existsSync('D:\\dsh插件  记忆\\core\\SessionRelay'))
+  check('C:\\Users\\crx\\AppData\\Local\\Temp 真实存在（字面量没指错地方）',
+    fsx0.existsSync('C:\\Users\\crx\\AppData\\Local\\Temp'))
 }
 
 console.log('=== 1. slug 反解（真实 DSH 会话目录名）===');
@@ -328,7 +327,7 @@ console.log('=== 6a. cwd 优先：有 agent.session.header.cwd 时直接用，�
   console.log('     cwd 路径简报长度:', v.length)
 
   // cwd 指向未建库目录 → uninitialized，不列其他项目
-  // ⚠️ 这里原先写字面量 '<user>\AppData\Local\Temp'，反斜杠被吃成
+  // ⚠️ 这里原先写字面量 'C:\Users\crx\AppData\Local\Temp'，反斜杠被吃成
   // 'C:UserscrxAppDataLocalTemp'（不存在的路径）——断言照样过，但测的不是 Temp。
   // ⚠️ 夹具必须现场造、且造在**黑名单里**：原先写死 %TEMP% 字面量——而 1017 之前某次自测
   // 真的在 %TEMP% 根上建过库（残留 relay.sqlite 168KB + 注册表一条 Temp 条目），"未建库"
@@ -392,10 +391,8 @@ console.log('=== 7a. shouldAutoInit：黑名单规则 ===')
   check('music player（已建库）不重复接入', mp === null)
 
   // 有 .git 未建库 → 向上找到仓库根（monorepo 子目录也建在根上）
-  // 用相对当前工作目录推导的路径，不硬编码本机目录（公共仓库里别人跑也要过）
-  const hereRepo = process.cwd()
-  const core = pr.shouldAutoInit(hereRepo)
-  check('git 仓且未建库 → 返回该仓根', core === hereRepo)
+  const core = pr.shouldAutoInit('D:\\dsh插件  记忆\\core\\SessionRelay')
+  check('git 仓且未建库 → 返回该仓根', core === 'D:\\dsh插件  记忆\\core\\SessionRelay')
 
   // ★ 放开后的新行为：没有 .git 的真实文件夹也自动接入
   // （用户拍板"都做"：ZCode 侧新建工作区即可捕捉，DSH 侧不该还要人说接入）
