@@ -37,8 +37,9 @@ srelay watch --install-service    # run the daemon as a user service (Windows Ru
 srelay brief                     # what the next session will actually see
 ```
 
-> **The npm package is not published yet.** `npm install -g memrelay` and `npx memrelay` return 404 — the first
-> release is in progress. Until then the clone path above is the only one that works.
+One command. No npm account, no clone, no build step — the tarball above already contains compiled output.
+
+> First time here? Read **[Getting started](./docs/GETTING-STARTED.en.md)** — what to check before installing, how to read the doctor report, and why it looks empty right after install.
 
 ![srelay brief — real output from a live project](./docs/diagrams/demo-brief.png)
 
@@ -75,6 +76,23 @@ synonym expansion, question-shell stripping, pure RRF, and the semantic arm. The
 "that thing where the DB kept growing" into terms that appear in the transcripts.
 
 Full method and per-arm numbers: [docs/EVALUATION.md](./docs/EVALUATION.md) and [the workbook](./docs/eval/memrelay-eval.xlsx).
+
+---
+
+## Documentation
+
+| Want to know | Read |
+|---|---|
+| **First run, from zero** | **[docs/GETTING-STARTED.en.md](./docs/GETTING-STARTED.en.md)** |
+| Architecture, how the layers fit | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
+| Capture: six sources, cursors, rewrite detection | [docs/CAPTURE.md](./docs/CAPTURE.md) |
+| Extraction: decisions, topics, files, open questions | [docs/EXTRACT.md](./docs/EXTRACT.md) |
+| Storage: two databases, schema, FTS5 | [docs/STORE.md](./docs/STORE.md) |
+| Retrieval: four paths, measured numbers, negative results | [docs/SEARCH.md](./docs/SEARCH.md) |
+| Lifecycle: 11 stages and their cadence | [docs/LIFECYCLE.md](./docs/LIFECYCLE.md) |
+| Map: structural truth, auto-hatch, topological layering | [docs/MAP.md](./docs/MAP.md) |
+| Interfaces: CLI / MCP / DSH plugin / panel | [docs/INTERFACES.md](./docs/INTERFACES.md) |
+| Evaluation method and per-arm numbers | [docs/EVALUATION.md](./docs/EVALUATION.md) |
 
 ---
 
