@@ -37,6 +37,15 @@
 - 用法行补上 `--note <id>` 形式；两个选项的说明改成「不给位置参数时，这个 id 也可直接当目标」。
 
 验证：临时项目里 `note` 建一条笔记 → `forget --note <id> --yes` 成功遗忘；全量 923 passed / 1 skipped。
+### 包名迁移收尾：`@ewanjasper/sessionrelay` → `memrelay`（23:45）
+
+10-17 的会话里留过一条决策：「包名没改，因为改了会连锁出事」。连锁确实存在——43 处工具链引用旧名，其中两处是**运行时**的：DSH 插件 vendor 缺失时的 CLI 兜底、ZCode hook 的 CLI 解析。这次一次做完：
+
+- 全局安装换成 `memrelay`（Release tarball），`srelay` 命令指向它；旧包已卸载、目录删除，只剩一份全局安装。
+- 插件 `cli.js` 兜底顺序：vendor → `memrelay` → 旧名（旧名只留给还没迁移的机器，不是长期方案）。
+- ZCode hook（`brief.mjs` / `engine.mjs`）候选路径 `memrelay` 在前；维护脚本（`check-versions` / `_mirror_dist` / `_install_zcode_mcp` / `ses-install` / `ses-panel-install`）同步。
+
+验证：门禁 A 段 5 份运行时指纹完全一致（`ca156a305da8`）；hook 冒烟正常输出简报 JSON；`srelay --version` = 1.0.0；插件 selftest PASS。
 ## [1.0.0] - 2026-10-18
 
 第一个独立版本。仓库从上游 fork 独立成 memrelay，改法集中在两处：把「坏了会告诉你」做实，把「数据不会悄悄丢」做稳。

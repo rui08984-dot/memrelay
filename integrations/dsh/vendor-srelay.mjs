@@ -22,7 +22,7 @@ import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
 const VENDOR = path.join(HERE, 'vendor')
-const PKG = '@ewanjasper/sessionrelay'
+const PKG = 'memrelay' // 旧名 @ewanjasper/sessionrelay 已退役；离线用 --from <内核目录>
 
 const args = process.argv.slice(2)
 const fromIdx = args.indexOf('--from')

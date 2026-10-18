@@ -27,9 +27,16 @@ export const NODE = process.execPath
 // 那样会多出一级（实测得到 vendor/dist/dist/srelay.js，existsSync 假 → 静默回落）。
 const VENDOR_SRELAY = fileURLToPath(new URL('../vendor/dist/srelay.js', import.meta.url))
 
+// [10-18 包名迁移] 包已改名 memrelay（tarball 装进 node_modules/memrelay）。
+//   vendor 优先不变；vendor 缺失时依次找 memrelay → 旧名 @ewanjasper/sessionrelay。
+//   旧名只留作兜底：还没迁移的机器仍能跑，不会因为改名把已有环境跑挂。
+const GLOBAL_FALLBACKS = [
+  join(process.env.APPDATA || '', 'npm', 'node_modules', 'memrelay', 'dist', 'srelay.js'),
+  join(process.env.APPDATA || '', 'npm', 'node_modules', '@ewanjasper', 'sessionrelay', 'dist', 'srelay.js'),
+]
 export const SRELAY = process.env.SRELAY_CLI_PATH
   || (fs.existsSync(VENDOR_SRELAY) ? VENDOR_SRELAY
-      : join(process.env.APPDATA || '', 'npm', 'node_modules', '@ewanjasper', 'sessionrelay', 'dist', 'srelay.js'))
+      : (GLOBAL_FALLBACKS.find((p) => { try { return fs.existsSync(p) } catch { return false } }) || GLOBAL_FALLBACKS[0]))
 
 /** 过滤终端 ANSI 颜色控制字符 */
 export function stripAnsi(s) {
