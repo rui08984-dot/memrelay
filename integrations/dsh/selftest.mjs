@@ -13,7 +13,7 @@
 // （v2 就是硬编码的，结果部署副本里的测试文件形同虚设）。
 const HERE = new URL('./', import.meta.url).href;
 const { fileURLToPath } = await import('node:url');
-const { existsSync, mkdirSync, rmSync } = await import('node:fs');
+const { existsSync, mkdirSync, rmSync, readFileSync } = await import('node:fs');
 const { join } = await import('node:path');
 
 // 注意：import 声明是静态的，不接受 `HERE + 'x'` 这种表达式，所以这里必须用
@@ -165,6 +165,13 @@ if (tools2.length) {
   check('包含 srelay_show', toolNames.includes('srelay_show'));
   check('包含 srelay_record', toolNames.includes('srelay_record'));
   check('包含 srelay_cancel_bind_project', toolNames.includes('srelay_cancel_bind_project'));
+
+  // [10-18 实测修复的判据] remember 的写通道必须与 MCP 的 save_note 同源（createNoteSession）。
+  // 病历：原来调 `save --recent 1d --summary` —— 摘要落进会话的 summary 字段，不进 decisions，
+  // 于是「报成功 → 查不到 → pin 匹配不到」。这条断言防的是它被改回去而没人发现。
+  const toolsSrc = readFileSync(fileURLToPath(HERE) + 'src/tools.js', 'utf8')
+  check('srelay_record 走 note 通道（与 MCP save_note 同源）', /cliArgs = \['note'/.test(toolsSrc))
+  check('srelay_record 不再走 save --recent 1d 的伪记录', !/--recent', '1d'/.test(toolsSrc))
 
   const bindTool = tools2.find(t => (t.name ?? t.spec?.name) === 'srelay_bind_project');
   const spec0 = bindTool?.spec ?? bindTool;

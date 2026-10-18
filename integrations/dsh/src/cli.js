@@ -66,7 +66,12 @@ export function execSrelay(args, { cwd, timeoutMs = 15000 } = {}) {
         if (settled) return
         settled = true
         const out = stripAnsi(stdout || '')
-        const err = stripAnsi(stderr || (error ? String(error.message) : ''))
+        // [10-18 实测] 非零退出时 execFile 的 error.message 是「Command failed: <整条命令>」——
+        //   对用户毫无信息量；而 CLI 的失败信息常常打在 stdout（console.log 后设 exitCode=1，
+        //   例如 show 未找到会话），stderr 是空的。于是工具里只显示一坨命令行。
+        //   顺序改为：stderr > stdout 最后一个非空行 > error.message。
+        const lastOut = out.trim().split(/\r?\n/).filter(Boolean).slice(-1)[0] || ''
+        const err = stripAnsi(stderr || lastOut || (error ? String(error.message) : ''))
         if (error) {
           resolve({
             ok: false,

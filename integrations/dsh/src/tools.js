@@ -132,6 +132,15 @@ export const searchTool = defineTool({
     //   为什么不是复制实现：判据只许有一份。这里路由到 legacySpec 扣下来的**原始 spec**，
     //   走的是和旧工具逐字相同的那条 execute —— 合并只改「怎么找」，不改「查到什么」。
     const kind = String(args?.kind ?? 'sessions').trim().toLowerCase() || 'sessions'
+    // [10-18 新用户实测] 原来缺 filePath / sessionIdPrefix 时会拿 undefined 往下走：
+    //   kind=history 变成「搜字符串 "undefined"」（返回 20 个无关会话），kind=related 只回一句提示。
+    //   参数缺失是**调用方错误**，要明说，别让它变成一次看起来成功的检索。
+    if ((kind === 'history' || kind === 'files') && String(args?.filePath ?? '').trim() === '') {
+      return { ok: false, payload: '', error: 'kind=' + kind + ' 需要 filePath（例如 {"kind":"history","filePath":"src/map/bridge.ts"}）' }
+    }
+    if (kind === 'related' && String(args?.sessionIdPrefix ?? '').trim() === '') {
+      return { ok: false, payload: '', error: 'kind=related 需要 sessionIdPrefix（会话 ID 前缀，可先用 kind=sessions 找到）' }
+    }
     if (kind !== 'sessions') {
       const ROUTE = {
         decisions: 'srelay_decisions',
@@ -227,6 +236,15 @@ export const showTool = defineTool({
   },
 })
 
+/** 把一段摘要收成一个笔记标题：取第一行、剥掉列表符号、最多 40 字。
+ *  为什么不用整段当标题：note 的 title 是会话标题，会出现在 list/search/brief 里，
+ *  一屏能扫完才有用（`srelay note` 本身要求 title 至少 2 字，这里给兜底）。 */
+function noteTitleOf(text) {
+  const first = String(text).split(/\r?\n/).map((s) => s.trim()).find(Boolean) || ''
+  const t = first.replace(/^[#>*\-–—\d.、)）\s]+/, '').replace(/[。；;，,]+$/, '').trim()
+  return (t.length >= 2 ? t : '结论笔记').slice(0, 40)
+}
+
 /**
  * 3. srelay_record
  * 主动记录重要技术决策与备忘笔记到当前项目记忆库
@@ -237,7 +255,7 @@ export const recordTool = defineTool({
   parameters: {
     summary: { type: 'string', required: true, description: '已确定的技术决策内容、方案结论或备忘总结' },
     tag: { type: 'string', description: '分类标签，多个标签用英文逗号分隔（如 "architecture,database"，可选）' },
-    sessionId: { type: 'string', description: '关联的特定会话 ID 前缀（可选，缺省时自动关联最近 1 天内的活跃会话）' },
+    sessionId: { type: 'string', description: '（已废弃，保留兼容）note 通道写的是独立笔记会话，不再关联某个旧会话' },
   },
   output: {
     schema: resultSchema,
@@ -249,14 +267,17 @@ export const recordTool = defineTool({
   async execute(args, exec) {
     const summary = String(args?.summary ?? '').trim()
     if (!summary) return { ok: false, payload: '', error: 'summary 决策摘要不能为空' }
-
-    const cliArgs = ['save']
-    if (args.sessionId) {
-      cliArgs.push(String(args.sessionId).trim())
-    } else {
-      cliArgs.push('--recent', '1d')
+    // [10-18 实测修复] 这里原来调的是 `srelay save --recent 1d --summary ...`：
+    //   那是「把最近一天的会话重新存一遍并附个摘要」，摘要落进会话的 summary 字段，
+    //   **不进 decisions**。于是 remember 报成功、decisions 查不到、pin 也匹配不到——写与读对不上。
+    //   改走 `srelay note`（→ createNoteSession），和 MCP 的 save_note 是同一条路：
+    //   写一场 source=note 的会话、立即 confirmed、走正常抽取。
+    //   两个客户端从此共用一个通道，不会再出现「一边对、一边假成功」。
+    if (summary.length < 4) {
+      return { ok: false, payload: '', error: 'summary 太短（至少 4 个字）：结论没成形就先别记，等它成形' }
     }
-    cliArgs.push('--summary', summary)
+    const title = noteTitleOf(summary)
+    const cliArgs = ['note', '--title', title, '--content', summary]
     if (args.tag) {
       cliArgs.push('--tag', String(args.tag).trim())
     }
@@ -273,14 +294,16 @@ export const recordTool = defineTool({
     try {
       const parsed = JSON.parse(res.stdout.trim())
       report = [
-        `✓ 决策笔记已成功记录至项目记忆库：`,
+        `✓ 已写入结论笔记（source=note，已确认；正文里的决策句式会进决策库）`,
         `- 工作区：${cwd}`,
-        `- 决策摘要：${summary}`,
-        `- 标签：${parsed.tags?.join(', ') || args.tag || '无'}`,
-        `- 确认会话数：${parsed.saved ?? 1}`,
+        `- 标题：${parsed.title ?? title}`,
+        `- 正文：${summary}`,
+        `- 标签：${(parsed.tags ?? []).join(', ') || '无'}`,
+        `- 笔记会话：${parsed.sessionId ?? '?'}（srelay show <id> 可回看原文）`,
+        `- 查证：srelay decisions / srelay pin "<片段>"`,
       ].join('\n')
     } catch {
-      report = res.stdout.trim() || `✓ 决策笔记已记录：${summary}`
+      report = res.stdout.trim() || `✓ 已写入结论笔记：${summary}`
     }
 
     return {

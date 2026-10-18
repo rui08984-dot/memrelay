@@ -20,6 +20,15 @@
 - **老化强度门的展示值与真实判据不同口径**：摘要打印 `strength≤0.667`，真实淘汰判据却是 `strength < 1/e ≈ 0.368`。现在展示值直接取真实阈值（窗只决定「多老算候选」）。
 
 判据：新增 `test/unit/new-user-placeholder.spec.ts`（占位行两例）；`map-stale` / `d26-auto-archive` / `panel-snapshot` 三处断言跟着新口径更新。
+### 插件工具实测第二轮（23:30）
+
+把 DSH 侧四个工具当陌生工具逐个真调，发现上一轮「修好」的 `srelay_remember` 实际没生效：
+
+- **`srelay_remember` 的修复只出现在 CLI 层，插件没改**：`4ed43c4` 加了 `srelay note` 命令，但 `integrations/dsh/src/tools.js` 里的 `srelay_record` 仍调 `save --recent 1d --summary`。所以 remember 依旧「报成功、decisions 查不到、pin 匹配不到」。这次真改：走 `note` 通道（与 MCP `save_note` 同源），并在插件 selftest 里加两条断言防回退。
+- **参数校验被并发提交改回旧版**：`fe32880` 重写 `tools.js` 时把 `824c745` 里的 `kind=history/related` 缺参校验 diff 掉了，于是 `kind=history` 不带 `filePath` 又会去搜字符串「undefined」。这次恢复。
+- **工具里只显示一坨命令行**：`show` 未找到会话时，CLI 把错误打在 stdout（`✗ 未找到会话：…`）而退出码非零，`execFile` 的 `error.message` 是 `Command failed: <整条命令>`。`execSrelay` 的兜底顺序改为 stderr > stdout 最后非空行 > error.message。
+
+验证：临时项目里真跑插件 `recordTool.execute` → 写入后 `srelay decisions` 立刻能看到该条（source=note）；插件 selftest PASS（含新增两条断言）；`check-versions` 全绿；vendor 已重建。
 ## [1.0.0] - 2026-10-18
 
 第一个独立版本。仓库从上游 fork 独立成 memrelay，改法集中在两处：把「坏了会告诉你」做实，把「数据不会悄悄丢」做稳。
