@@ -31,7 +31,8 @@
 |---|---|
 | **[GETTING-STARTED.md](./GETTING-STARTED.md)** | **从零到看见第一份简报**：装之前确认什么、医生报告怎么读、为什么刚装完是空的、六个常见问题 |
 | [GETTING-STARTED.en.md](./GETTING-STARTED.en.md) | 同上，英文版（含「CLI 输出是中文」的说明） |
-| [user-guide.md](./user-guide.md) | 安装、初始化、日常命令、守护、MCP 接入、常见故障 |
+| [user-guide.md](./user-guide.md) | 安装、初始化、日常命令、守护、MCP 接入、常见故障（按场景组织） |
+| [COMMANDS.md](./COMMANDS.md) | **35 个子命令的全量参数参考**（参数取自 `--help` 实际输出） |
 | [import-export-guide.md](./import-export-guide.md) | 交接协议 `hop/1.0` 与导入导出的用法 |
 | [EVALUATION.md](./EVALUATION.md) | 305 题评测方法、逐格数字、统计口径与局限 |
 | [eval/memrelay-eval.xlsx](./eval/memrelay-eval.xlsx) | 同一批数字的表格版（含图表，可直接改数据看变化） |

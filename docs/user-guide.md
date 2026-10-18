@@ -61,7 +61,7 @@ graph TB
 10. [隐私控制](#十隐私控制)
 11. [自定义适配器](#十一自定义适配器)
 12. [常见问题](#十二常见问题)
-13. [快速参考卡](#十三快速参考卡)
+13. [命令参考](#十三命令参考)
 
 ---
 
@@ -72,21 +72,22 @@ graph TB
 - **Node.js ≥ 22**（Windows / macOS / Linux）
 - 至少一个支持的 AI 编程工具
 
-### npm 安装（推荐）
+### 安装（推荐）
 
 ```bash
-npm install -g memrelay
-
-# 或零安装试用
-npx memrelay init
+npm install -g https://github.com/rui08984-dot/memrelay/releases/download/v1.0.0/memrelay-1.0.0.tgz
 ```
 
-### 从源码安装
+一条命令。不用注册 npm 账号，不用 clone，不用编译——tarball 里已经是构建好的产物。
+
+> **npm 包还没发布**：`npm install -g memrelay` 和 `npx memrelay` 会 404。发版在走流程。
+
+### 从源码安装（想改代码时）
 
 ```bash
 git clone https://github.com/rui08984-dot/memrelay.git
-cd SessionRelay
-npm install
+cd memrelay
+npm ci
 npm run build
 npm link          # 之后全局可用 srelay 命令
 ```
@@ -610,59 +611,17 @@ module.exports = {
 
 ---
 
-## 十三、快速参考卡
+## 十三、命令参考
+
+现在有 [COMMANDS.md](./COMMANDS.md)——35 个子命令的全量参考，参数来自 `srelay <cmd> --help` 的实际输出。
+
+那份是按「查参数」组织的；这份手册是按「什么时候该用哪个」组织的。两个一起看：先在这本里找到场景，再去那份查准确写法。
 
 ```bash
-# ═══ 初始化 ═══
-srelay init                              # 交互式初始化
-srelay init --sources zcode,claude-code  # 指定来源
-srelay sync --backfill all               # 全量回填
-
-# ═══ 查询 ═══
-srelay search <关键词>                    # 中文搜索
-srelay decisions [--topic T]             # 决策列表
-srelay unresolved                        # 未决问题
-srelay history <文件路径>                 # 文件讨论史
-srelay list [--source S] [--json]        # 列出会话
-srelay show <ID> [--range a:b]           # 查看对话
-srelay status [--json]                   # 总览面板
-srelay doctor                            # 环境自检
-
-# ═══ 守护 ═══
-srelay watch --install-service           # 注册自启动
-srelay watch --status                    # 状态 + 守护日志尾部
-
-# ═══ 交接 ═══
-srelay export --all                      # 导出交接包
-srelay export --format markdown          # HANDOFF.md
-srelay import <file>.hop --from 名字     # 导入
-srelay team status                       # 贡献统计
-
-# ═══ 归档 ═══
-srelay archive --days 90 --dry-run       # 预览
-srelay archive --days 90                 # 归档
-srelay archive --history --verbose       # 审计历史
-srelay rebuild --force                   # 从源恢复
-
-# ═══ 遗忘（删除权在人，AI 无删除工具） ═══
-srelay forget <id|前缀>                  # 预览
-srelay forget <id|前缀> --yes            # 执行（不可逆）
-srelay forget --history                  # 遗忘审计
-srelay forget --all --confirm <项目id>   # 整库重置
-
-# ═══ 相关推荐 ═══
-srelay related <id|前缀>                  # 以会话为锚找相关讨论
-
-# ═══ 语义检索（可选） ═══
-srelay semantic --enable                 # 启用（装依赖+模型+回填）
-srelay semantic --test "查询"            # 对比效果
-srelay semantic --status                 # 状态
-
-# ═══ 隐私 ═══
-srelay mode <full|meta|off>              # 捕获模式
-# .sessionrelayignore                    # 排除规则
+srelay --help            # 全部命令一览
+srelay <cmd> --help      # 单个命令的完整参数
 ```
 
 ---
 
-*相关文档：[导入导出指南](import-export-guide.md) · [Adapter SDK](adapters/README.md) · [HOP 协议规格](../spec/hop-1.0.md) · [隐私与数据生命周期设计](privacy-and-lifecycle-design.md)*
+*相关文档：[命令参考](COMMANDS.md) · [导入导出指南](import-export-guide.md) · [Adapter SDK](adapters/README.md) · [HOP 协议规格](../spec/hop-1.0.md) · [隐私与数据生命周期设计](privacy-and-lifecycle-design.md)*
