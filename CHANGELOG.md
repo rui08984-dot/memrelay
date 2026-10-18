@@ -25,8 +25,8 @@
 - `doctor` 提示写成不存在的子命令 `srelay semantic enable` ⇒ 改为 `srelay semantic --enable`。
 - 时间衰减默认值的注释漂移：代码 `DEFAULT_DECAY.enabled = true`，注释写「默认关」⇒ 注明以代码为准。
 - `src/mcp/server.ts` 注释「第 16 个工具」⇒ 14；`src/map/bridge.ts` 注释里承诺的 `map.rows_max` 配置键并不存在 ⇒ 改正为「由调用方传」。
-- 删除误入仓库的空目录 `integrations/srelay-autoinit-*`；补 `.github/workflows/ci.yml`
-  （README 徽章此前指向一个**不存在**的 workflow）。
+- 删除误入仓库的空目录 `integrations/srelay-autoinit-*`；**删掉 README 的 CI 徽章**——它此前指向一个不存在的 workflow。
+  CI 本身先不上：Windows runner 上原生模块（better-sqlite3）装不起来，试过两版都红，与其挂个常红徽章，不如明说没有 CI。
 
 ## [0.5.1-fork.2] - 2026-10-18
 

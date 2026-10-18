@@ -4,7 +4,6 @@
 
 > Repo name **memrelay** (memory + relay). The CLI is still `srelay` — historical naming, not worth churn.
 
-[![CI](https://github.com/rui08984-dot/memrelay/actions/workflows/ci.yml/badge.svg)](https://github.com/rui08984-dot/memrelay/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/Node-%E2%89%A522-339933)
 ![License](https://img.shields.io/badge/License-MIT-EAC435)
 

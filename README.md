@@ -4,7 +4,6 @@
 
 > 仓库名 **memrelay** · memory + relay。CLI 命令仍是 `srelay`（历史原因，不折腾）。
 
-[![CI](https://github.com/rui08984-dot/memrelay/actions/workflows/ci.yml/badge.svg)](https://github.com/rui08984-dot/memrelay/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/Node-%E2%89%A522-339933)
 ![平台](https://img.shields.io/badge/%E5%B9%B3%E5%8F%B0-Windows_%7C_macOS_%7C_Linux-2D7DD2)
 ![License](https://img.shields.io/badge/License-MIT-EAC435)
@@ -264,7 +263,7 @@ srelay semantic --disable  # 关回去（向量保留，检索立刻回退纯字
 |---|---|
 | 测试 | 95 个 spec 文件，`npm test` 全绿（精确条数以每次运行为准） |
 | 类型 | `npm run typecheck` 零错误 |
-| 构建 | `npm run build`（tsup → `dist/`）；CI 在 [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)，**先只在 Windows × Node 22 上跑**——测试里有大量路径/编码相关断言，其它平台没测过就说没测过 |
+| 构建 | `npm run build`（tsup → `dist/`）。**没有 CI**：先解决 Windows runner 上原生模块装不起来的问题再说，不给一个会常红的徽章 |
 | 评测 | 305 题基线 + 配对比较框架（McNemar + 簇级重采样），见 [docs/EVALUATION.md](./docs/EVALUATION.md) |
 | 负结果 | 语义检索、同义词族、问句外壳剥离、纯 RRF：试过、记录过、都没默认开（见 §五） |
 
