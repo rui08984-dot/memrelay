@@ -1,6 +1,35 @@
 # 接口面
 
-这块负责：把「外面能调到什么」数清楚——CLI、MCP Server、DSH 插件、面板、ZCode/Codex 接入，以及每个面**读哪份数据、写哪份数据**。不负责：排序与检索算法（见 [SEARCH.md](./SEARCH.md)）、采集与抽取内部（见 [ARCHITECTURE.md](./ARCHITECTURE.md)）。文中数字都是按源码数出来的，与 README 不一致处列在最后一节。
+**读这篇你会知道**：CLI / MCP / DSH 插件 / 面板各能做什么、14 个和 4 个是什么关系、以及为什么合并入口不等于砍能力。
+
+**什么时候该读**：想接进自己的工具、工具列表对不上、或者要改某个面的行为。
+
+---
+
+## 先上手：三个入口各试一次
+
+```bash
+srelay search 关键词        # CLI
+srelay serve                # 起 MCP Server（stdio），给 agent 用
+srelay --help               # 全部 39 个子命令
+```
+
+DSH 插件是另一条路：它注册 4 个工具，并在会话开场自动注入简报。装法见 [adapters](./adapters/README.md)。
+
+---
+
+## 出问题了先看这张表
+
+| 现象 | 大概率原因 | 怎么办 |
+|---|---|---|
+| MCP 客户端看不到工具 | `serve` 没起，或客户端配置路径不对 | 先手跑 `srelay serve` 看有没有输出 |
+| DSH 插件工具数是 4，文档写 14 | 两套不同的面：MCP 14 个，DSH 合并成 4 个 | 见下文对照表 |
+| 工具名在 README 里找不到 | 文档漏更新（曾有判据假绿半年） | 开 issue；门禁现在会拦 |
+| 插件改了没生效 | **改完没重新 vendor**，插件跑的是旧副本 | 重跑 vendor，再跑插件 selftest |
+
+---
+
+这块负责把「外面能调到什么」数清楚：把「外面能调到什么」数清楚——CLI、MCP Server、DSH 插件、面板、ZCode/Codex 接入，以及每个面**读哪份数据、写哪份数据**。不负责：排序与检索算法（见 [SEARCH.md](./SEARCH.md)）、采集与抽取内部（见 [ARCHITECTURE.md](./ARCHITECTURE.md)）。文中数字都是按源码数出来的，与 README 不一致处列在最后一节。
 
 ![三个入口共用同一个内核；DSH 的合并是合并不是删能力](./diagrams/interfaces.png)
 

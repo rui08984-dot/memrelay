@@ -1,52 +1,113 @@
 # 贡献指南
 
-感谢你对会话接力的关注！
+这个项目对「改坏了」这件事比较敏感——它管的是别人的会话历史，一旦丢数据就没有第二份。
+所以下面这套自检不是形式，是准入条件。
 
-## 开发环境
+---
+
+## 一、把代码跑起来
 
 ```bash
-git clone https://github.com/EwanJasper/SessionRelay.git
-cd SessionRelay
-npm install
-npm test          # 207 测试
-npm run build     # 构建 dist/
-npm run typecheck # tsc --noEmit
+git clone https://github.com/rui08984-dot/memrelay.git
+cd memrelay
+npm ci
+npm run build
+node dist/srelay.js --version    # 应该打印 1.0.0
 ```
 
-## 提交规范
+想让它变成全局命令：`npm link`，之后直接 `srelay <命令>`。
 
-- 每个 PR 描述引用设计文档的章节号和决策编号（如 D20 / T34）
-- 新功能必须附带测试（参考 `test/integration/deep.spec.ts` 的风格）
-- `npm test` + `npm run typecheck` 必须全绿
-- CI 会跑三平台 × Node 22/24 矩阵
+---
 
-## 设计决策文档
+## 二、提交前必须跑的三条
 
-PR 引用决策编号（D20 / T34）时，出处在这里：
+任何改动，不分大小，这三条全绿才有讨论的前提：
 
-- [产品与技术指导方针 v3.1](docs/product/sessionRelay-指导方针v3.1.md)——25 条产品决策 D1-D25
-- [技术方案 v1.1](docs/product/sessionRelay-技术方案v1.1.md)——38 条技术决策 T1-T38
-- [MCP 上下文安全设计笔记](docs/design-notes-mcp-context-safety.md)——会话级存储 vs 碎片存储、反幻觉架构
+```bash
+npm run typecheck    # tsc --noEmit
+npm run build        # 产物要能出来
+npx vitest run       # 913 条基线，1 条跳过
+```
 
-## 贡献方向
+`npx vitest run` 的数字比基线少，说明有测试被跳过或被删了；比基线多没问题。
 
-### 🤖 编写新适配器
+### 按改动范围加跑
 
-最欢迎的贡献！参照 [Adapter SDK](docs/adapters/README.md)，最小实现 7 行代码。
-优先方向：通义灵码、DSH、Windsurf、Cursor（hooks beta）。
+| 你改了 | 还要跑 | 为什么 |
+|---|---|---|
+| `src/map/` | `npx vitest run test/map` | 地图有不变量：边必须严格跨层向下，环会被整批拒绝 |
+| `src/core/extract/` | 先升 `EXTRACT_VERSION`，再跑全量测试 | 不升版本，存量库不会重算，改动等于没生效 |
+| `src/db/` 或 schema | 全量 + 手测一次老库升级 | 会影响存量数据，得确认迁移路径 |
+| `integrations/dsh/` | `node integrations/dsh/selftest.mjs` | **改完必须重新 vendor**，否则插件自测跑的是旧副本 |
+| `src/search-svc/` | `npx vitest run test/search` | 排序改动很容易让 hit@1 悄悄变差 |
+| 文档 | 不用跑测试，但改命令示例要真跑一遍 | 写错的命令比没写更糟 |
 
-### 🌐 文档翻译
+---
 
-README 和用户手册的英文翻译。
+## 三、维护者本地还有九道门禁
 
-### 🔍 搜索优化
+仓库外有一套更严的检查（版本一致性、简报过滤、不变量、插件自测、面板依赖、面板自测、简报端到端、产物断言、类型检查）。
+它是维护环境的私有工具，外部拿不到，所以不作为 PR 的准入条件——但你提交的东西会被它检查。
 
-中文分词调优、排序权重改进、snippet 质量提升。
+它主要盯这些事：
 
-### 🧪 测试补充
+- **版本号三处一致**：`package.json` / `CHANGELOG.md` 顶部 / 文档里的版本引用
+- **文档工具名全覆盖**：`src/mcp/server.ts` 里注册的每个工具名，必须在 `README.md` 和 `docs/user-guide.md` 出现。漏一个就红——这条曾经因为判据自己漂移而假绿了半年
+- **产物指纹**：`dist/` 的指纹要和源码对得上，防止「代码改了但产物是旧的」
 
-边界用例、并发测试、真实 agent 格式 fixture。
+---
 
-## 行为准则
+## 四、几条硬规矩
 
-保持尊重和专业。这是一个开源社区项目。
+**判据只许写一份。** 同一个判断在两个地方各写一遍，迟早会漂。这个项目踩过两次：
+
+- 工具清单写了两份，其中一份漏了一个名字，于是白名单的完整性校验**静默失效**
+- `auto:todos` 的判断，一处用模块列精确匹配、另一处用整行子串匹配，结果人的计划被当成机器行删掉
+
+**容错不许静默。** 能降级的地方可以降级，但必须留下痕迹。`guard` / `repair` 曾经失败了只写进 note、`ok` 还是 true——等于链路坏了你也看不见。
+
+**别改地图 JSON。** 写入只走 `srelay map apply`（原子 + revision 校验 + 页级锁）。手改轻则 revision 漂移，重则整页被拒。
+
+**别在读取侧做清洗。** 曾经为了「看起来干净」，在读取时把管道符 `|` 从消息里剥掉——结果原文被改写，检索命中变差。脏数据要在写入侧治理。
+
+---
+
+## 五、提交规范
+
+- 一个 PR 只做一件事。混着改，出问题没法只回滚一半
+- 描述里写**为什么**，不要只写改了什么——diff 已经说明改了什么
+- 涉及设计取舍的，引用对应文档章节
+- 新功能带测试。测试要能失败：先写一个会红的断言，再让它变绿，比写完代码补测试可靠
+
+---
+
+## 六、最欢迎的贡献
+
+### 新适配器
+
+参照 [Adapter SDK](./docs/adapters/README.md)，最小实现两百行左右。
+需要的只有两个函数：`discover()` 列出有哪些会话、`readNew(cursor)` 读增量。
+
+写完跑 `srelay doctor`，确认「采集源覆盖」那行里出现了你的源。
+
+### 中文检索的坏例子
+
+比新功能更有用。如果你用 `srelay search` 搜不到本该搜到的东西：
+
+1. 记下查询词、期望命中的会话、实际返回了什么
+2. 跑 `srelay search <词> --debug` 看四条路各自给了几个候选
+3. 开个 issue 贴上去
+
+这类反馈能直接改进分词和权重，比泛泛说「搜不准」有用得多。
+
+### 文档
+
+英文翻译、错别字、跑不通的命令示例。**命令示例写错比没写更糟**，所以改示例请真的跑一遍。
+
+---
+
+## 七、行为准则
+
+技术讨论可以尖锐，对人不行。
+
+不懂就问，没人因为问「这个函数干什么的」被嘲笑过。反过来，装作懂了去改自己没看懂的代码，是这个项目最不欢迎的行为。

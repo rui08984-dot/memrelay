@@ -1,5 +1,67 @@
 # 存储层
 
+**读这篇你会知道**：数据落在哪两个文件里、为什么不能合成一个、`decisions` 这类东西到底是不是表、以及库变大了怎么收回空间。
+
+**什么时候该读**：搜不到东西、库占了几百 MB、想直接翻数据库看原始记录、或者要改 schema。
+
+---
+
+## 先上手：三分钟看清你的库
+
+不用写代码，用 `srelay` 自带命令就能看个大概：
+
+```bash
+srelay status              # 会话数 / 消息数 / 库大小
+srelay maintain --fts      # 干跑：算一下 FTS 有多少空间可回收（不写库）
+```
+
+想看更细的，直接查 SQLite（**只读打开，别用写模式**）：
+
+```bash
+sqlite3 .sessionrelay/relay.sqlite "
+  select count(*) sessions from sessions;
+  select count(*) messages from messages;
+  pragma page_size;   pragma page_count;   pragma freelist_count;
+"
+```
+
+没有 `sqlite3` 命令的话，Node 一行也行（在仓库目录里跑）：
+
+```js
+const D = require('better-sqlite3');
+const d = new D('.sessionrelay/relay.sqlite', { readonly: true });
+console.log(d.prepare('select count(*) c from sessions').get());
+console.log(d.prepare('pragma freelist_count').get());   // 空洞大小
+```
+
+实测一个中等项目的库长这样：
+
+```
+size=58.2MB  free=0.1MB
+sessions=651
+messages=31356
+sample=7e53f4d56ccf | 安卓模拟器运行APK并汇总问题
+  decisions=[{"text":"改用截图坐标×1.2…","seq":46,"kind":"negative"}, …]
+```
+
+最后那行就是本文档要说的关键——**`decisions` 是一列 JSON 文本，不是一张表**。
+
+---
+
+## 出问题了先看这张表
+
+| 现象 | 大概率原因 | 怎么办 |
+|---|---|---|
+| 数据明明在，但搜不到 | FTS 索引与内容分叉（触发器漏了，或 rebuild 后没重建索引） | `srelay maintain --fts --apply` |
+| 库占几百 MB，但消息没多少 | FTS 影子表没回收；或 freelist 空洞 | 先 `srelay maintain --fts` 干跑看能回收多少，真要动加 `--apply`（低于阈值还想收就再加 `--force`） |
+| 删了很多会话，库没变小 | 删消息只写 delete 标记，要 merge/optimize/rebuild 才真回收 | 同上；`optimize` 不够，要 `rebuild` + `VACUUM` |
+| 某场会话正文没了，只剩结论 | 被 `aging` 归档了（唯一会删正文的阶段） | 原文在客户端会话文件里；归档不可逆 |
+| 打开库报 schema 版本错 | 库是更新版本的 srelay 建的，schema 只向前兼容 | 别降级；升级 srelay |
+| `SQLITE_BUSY` | 守护和 CLI 同时写，且缺 `busy_timeout` | 等几秒重试；持续出现就看是不是起了两个守护 |
+| 决策里有重复项 | 抽取去重失效（曾实测 423 条里 74 条重复，最高重复 24 次） | `srelay recompute` 重算抽取 |
+
+---
+
 存储层负责把采集结果落成可查询的结构：两块物理隔离的 SQLite 库、以 `sessions` 为中心的一组表、两张 FTS5 外部内容索引，以及两条**会真动数据**的路径（归档 aging、重建 rebuild）。它**不负责**检索排序与融合（[`../src/search-svc/engine.ts`](../src/search-svc/engine.ts) 的 `searchSessions`，:485；内部按需落到 `fusedSearch`）、不负责调度（[`../src/core/lifecycle/runner.ts`](../src/core/lifecycle/runner.ts) 的 `runLifecycle`，:112）、也不产生原文——正文的最终来源始终是客户端那边的会话文件。
 
 ![双库：项目库存原文与派生，全局库存经验与生命周期](./diagrams/store-map.png)

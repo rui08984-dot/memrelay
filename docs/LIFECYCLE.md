@@ -1,5 +1,33 @@
 # 生命周期
 
+**读这篇你会知道**：11 个阶段各自什么时候跑、干什么、哪个会删数据、以及「一排全绿」到底有多大信息量。
+
+**什么时候该读**：`srelay status` 里某个阶段一直失败、库越来越大、或者担心数据被删。
+
+---
+
+## 先上手：看它跑得怎么样
+
+```bash
+srelay lifecycle           # 手动跑一轮完整流水线（守护每 5 分钟检查到期）
+srelay lifecycle --only guard    # 只跑一个阶段；多个用 --only guard,repair
+srelay status              # 各阶段最近一次结果
+```
+
+---
+
+## 出问题了先看这张表
+
+| 现象 | 大概率原因 | 怎么办 |
+|---|---|---|
+| 某个阶段一直失败 | 该阶段的熔断在冷却 | 等冷却期过；持续失败看 `health_events` |
+| 库一直变大 | `cleanup` / `compact` 没跑或没生效 | 手动 `srelay lifecycle --only cleanup` |
+| 正文不见了，只剩决策 | `aging` 归档了（唯一会删正文的阶段） | 原文在客户端；归档不可逆，重要的先 `pin` |
+| 「11 阶段全 OK」但实际有问题 | `guard`/`repair` 曾恒真（已修） | 现在能真变红了；别只看绿勾，看具体计数 |
+| 两个守护同时在跑 | `--install-service` 装了两遍 | `srelay status` 看进程数，多余的杀掉 |
+
+---
+
 生命周期是框架内的一条流水线：11 个阶段按各自的节奏跑，状态与错误落进全局库，每次运行有单写入方锁，坏阶段进熔断冷却。它由守护进程（`srelay watch`）每 5 分钟检查一次「哪些阶段到期」来驱动（`../src/capture/watch.ts:485-500`），也可以手动 `srelay lifecycle` 跑一轮（`../src/bin/srelay.ts:377`）。
 
 **不负责**：采集适配器本身的格式解析（那在 `../src/adapters/`）、检索打分、部署物。面板 HTML / 导出这类东西由宿主通过 `opts.distribute` 注入，内核不知道 DSH 面板是什么（`../src/core/lifecycle/runner.ts:499-502`）。

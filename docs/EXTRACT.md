@@ -1,5 +1,42 @@
 # 抽取层
 
+**读这篇你会知道**：决策/话题/文件/未决这四样怎么从对话里抽出来、什么不算决策、改了规则怎么让存量重算、以及为什么抽错了不该手改库。
+
+**什么时候该读**：`brief` 里出现不该出现的决策、该抽的没抽到、或者要改抽取规则。
+
+---
+
+## 先上手：看抽出来什么
+
+```bash
+srelay decisions        # 所有已确认决策（含出处会话）
+srelay unresolved       # 未解决问题
+srelay brief            # 开场简报：决策 + 未决 + 高频文件
+```
+
+改了规则之后，先用这套对比新旧差异，别直接全量重算：
+
+```bash
+srelay bench-extract --save        # 存当前抽取结果当基线
+# 改规则、升 EXTRACT_VERSION
+srelay bench-extract --diff latest  # 谁被剔除、谁被新增，逐个看
+srelay recompute                   # 确认没问题再重算
+```
+
+---
+
+## 出问题了先看这张表
+
+| 现象 | 大概率原因 | 怎么办 |
+|---|---|---|
+| `brief` 里一条决策都没有 | 抽取版本是旧的（`doctor` 会提示「库是 v0，当前规则 v26」） | `srelay recompute` |
+| 决策重复 | 去重键失效 | `srelay recompute`；仍重复就开 issue 带上样例 |
+| 明显是随口附和也被当决策 | 判据太宽（见下文「什么不算决策」） | 记下原句，能补进判据 |
+| 改完规则，存量没变化 | 没升 `EXTRACT_VERSION`，不触发重算 | 升版本号再 `recompute` |
+| 抽出来的文件路径是错的 | 路径识别只认白名单后缀 | 见下文「涉及文件」的判据 |
+
+---
+
 抽取层把 `messages` 里的原始对话正文，变成会话级的派生字段：**决策**、**未决问题**、**话题**、**涉及文件**（外加代码块计数与关键往返）。全部是正则 + 结构守卫，不调用任何模型。
 
 **不负责**：采集（`../src/capture/sync.ts`）、检索打分（`../src/search-svc/`）、简报渲染期的文本过滤（`../src/cli/brief-filter.ts` 与客户端侧的同判据副本）、经验库采集（`../src/core/extract/lesson-harvest.ts` 是另一条路，写全局库 `lessons` 草稿）。它也不写 `messages.search_text`——那是消息入库时写的派生列，规则变了要刷新得用 `srelay recompute --search-text`（`../src/bin/srelay.ts:521`）。

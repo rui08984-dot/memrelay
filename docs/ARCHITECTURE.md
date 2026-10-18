@@ -2,6 +2,22 @@
 
 这份文档回答四个问题：系统分成哪几块、一次会话怎么变成记忆、记忆怎么被找回来、以及想改一块代码该从哪进。
 
+## 按你的目的选读法
+
+| 你想做什么 | 直接看 | 不用看 |
+|---|---|---|
+| 先把它装上跑起来 | [GETTING-STARTED.md](./GETTING-STARTED.md) | 本文全部 |
+| 搞懂它是怎么设计的 | §一 分层 → §三 数据流 → §五 检索 | §七 地图、§八 接口 |
+| 改代码 | 先看 §九「想改代码从哪看」，再跳对应子系统文档 | 本文其余 |
+| 判断它靠不靠谱 | §五 的实测数字 + [EVALUATION.md](./EVALUATION.md) | 设计细节 |
+| 想知道它跟别的方案差在哪 | §十 三条纪律 | 分层图 |
+
+每块都有独立文档，本文只讲分工和边界。想看某一块的细节：
+
+[CAPTURE](./CAPTURE.md) · [EXTRACT](./EXTRACT.md) · [STORE](./STORE.md) · [SEARCH](./SEARCH.md) · [LIFECYCLE](./LIFECYCLE.md) · [MAP](./MAP.md) · [INTERFACES](./INTERFACES.md)
+
+---
+
 ---
 
 ## 一、分层

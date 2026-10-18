@@ -1,5 +1,35 @@
 # 地图层（`srelay map`）
 
+**读这篇你会知道**：计划结构存在哪、为什么边只能跨层向下、自动孵化能长出什么、以及为什么 8 个项目里只有 2 个长出了边。
+
+**什么时候该读**：想让 AI 知道项目结构、看板里的依赖推不出来、或者要手改地图。
+
+---
+
+## 先上手：读图、查图、出图
+
+```bash
+srelay map read                     # 读默认页（nodes / edges / layers）
+srelay map read --resource nodes --status doing   # 只看进行中的节点
+srelay map check                    # 源码指纹对账，不符的打「待复验」
+srelay map export                   # 出图 / 快照
+srelay kanban graph                 # 看板全图（Mermaid，--html 附离线页面）
+```
+
+---
+
+## 出问题了先看这张表
+
+| 现象 | 大概率原因 | 怎么办 |
+|---|---|---|
+| 自动孵化没建出图 | 项目没 `progress.md`，或档位是 `manual` | 看 `map.hatch` 配置；`srelay map init` 可手动建空图 |
+| 图建了但一条边都没有 | `progress.md` 没有依赖列，或那列写的是环境前置条件 | 这是正常结果，见 §七的真实数据 |
+| `map apply` 被拒 | 边跨层方向错、id 含下划线、或 revision 不符 | 看返回的 REFUSED 原因；先 `map read` 拿最新 revision |
+| 写操作报 BUSY（退出码 2） | 并发写拿到页锁失败 | 重试即可，这是刻意区分的「稍后再试」 |
+| 手改了 JSON，后续全 CONFLICT | revision 漂移 | 别再手改；用 `map apply` |
+
+---
+
 项目的**计划结构**存在 `.sessionrelay/map/map.json` 里：哪些事分成哪几层、谁依赖谁、每件事现在到哪一步。
 它不是给人读的看板——看板（`progress.md`）是人写的流水，地图是**结构真值**。两者单向投影：地图 → 看板，不反向。
 
