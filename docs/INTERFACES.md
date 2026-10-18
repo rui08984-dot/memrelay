@@ -2,6 +2,10 @@
 
 这块负责：把「外面能调到什么」数清楚——CLI、MCP Server、DSH 插件、面板、ZCode/Codex 接入，以及每个面**读哪份数据、写哪份数据**。不负责：排序与检索算法（见 [SEARCH.md](./SEARCH.md)）、采集与抽取内部（见 [ARCHITECTURE.md](./ARCHITECTURE.md)）。文中数字都是按源码数出来的，与 README 不一致处列在最后一节。
 
+![三个入口共用同一个内核；DSH 的合并是合并不是删能力](./diagrams/interfaces.png)
+
+<sub>图源 [diagrams/interfaces.mmd](./diagrams/interfaces.mmd)</sub>
+
 ## CLI：39 个顶层子命令
 
 注册点唯一：`src/bin/srelay.ts`。commander 自带的 `help` / `-V` 不计入。

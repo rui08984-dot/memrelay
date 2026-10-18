@@ -5,11 +5,15 @@
 | 文件 | 画的是什么 | 数据来源 |
 |---|---|---|
 | `layered.png` | 分层架构：源 → 适配器 → 项目库 / 全局库 → 注入层 | 手绘（设计图） |
-| `session-flow.png` | 一次会话怎么进来：discover → 三重过滤 → 增量读 → upsert → 抽取 | 手绘（时序图） |
-| `retrieval.png` | 一次查询走四条路 → 融合 → 排序（含实测数字） | 手绘（设计图） |
-| `lifecycle.png` | 生命周期 11 个阶段的分组与节奏 | 手绘（设计图） |
-| `map-real.png` | **真实**地图：agent1super 13 节点 / 6 层 / 17 条边 | `renderMapMermaid(root, [])` 直接导出 |
-| `map-hatch.png` | 自动孵化：依赖列 → 拓扑分层 → 真边 | 手绘（贴 `src/map/plan-graph.ts` 实现） |
+| `session-flow.png` | 一次会话怎么进来 | 手绘（时序图） |
+| `capture-flow.png` | **采集**：发现 → 三重过滤 → 增量读 → 落库 → 触发抽取 | 贴 `src/capture/` 实现 |
+| `extract-flow.png` | **抽取**：规则引擎四个产出（决策/话题/文件/未决） | 贴 `src/core/extract/` |
+| `retrieval.png` | **检索**：四条路 → 融合 → 排序（含实测数字） | 手绘 + 实测 |
+| `store-map.png` | **存储**：双库表结构与单向沉降 | 贴 `src/db/` |
+| `lifecycle.png` | **生命周期**：11 阶段五组、节奏、职责 | 贴 `src/core/lifecycle/stages.ts` |
+| `interfaces.png` | **接口**：三个入口共用内核，14 与 4 的关系 | 手绘 |
+| `map-real.png` | **真实地图**：agent1super 13 节点 / 6 层 / 17 边 | `renderMapMermaid` 导出 |
+| `map-hatch.png` | **自动孵化**：依赖列 → 拓扑分层 → 真边 | 手绘（贴 `src/map/plan-graph.ts`） |
 
 ## 重新渲染
 

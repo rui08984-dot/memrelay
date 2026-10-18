@@ -1,0 +1,39 @@
+flowchart TB
+    subgraph ENT["三个入口 · 能力等价"]
+        direction LR
+        CLI["CLI<br/>━━━━<br/>srelay &lt;cmd&gt;<br/>脚本与人工"]
+        MCP["MCP serve<br/>━━━━<br/>14 个独立工具<br/>ZCode / Codex / Claude"]
+        DSH["DSH 插件<br/>━━━━<br/>4 个合并工具<br/>+ 开场简报注入"]
+    end
+
+    subgraph KER["同一个内核"]
+        direction TB
+        K1["检索<br/>search-svc"]
+        K2["采集<br/>capture"]
+        K3["抽取<br/>core/extract"]
+        K4["生命周期<br/>core/lifecycle"]
+        K5["地图<br/>map"]
+    end
+
+    subgraph DATA["存储"]
+        direction LR
+        D1[("项目库")]
+        D2[("全局库")]
+    end
+
+    CLI --> KER
+    MCP --> KER
+    DSH --> KER
+    KER --> DATA
+
+    NOTE["合并 ≠ 砍能力<br/>━━━━<br/>DSH 的 search 一个入口吃 kind 参数<br/>覆盖原来 7 个工具的能力<br/>MCP 侧保持 14 个，不动"]
+    DSH -.-> NOTE
+
+    classDef ent fill:#2c5282,color:#bee3f8,stroke:#3182ce
+    classDef ker fill:#22543d,color:#c6f6d5,stroke:#2f855a
+    classDef data fill:#553c9a,color:#e9d8fd,stroke:#805ad5
+    classDef note fill:#744210,color:#fefcbf,stroke:#b7791f
+    class CLI,MCP,DSH ent
+    class K1,K2,K3,K4,K5 ker
+    class D1,D2 data
+    class NOTE note

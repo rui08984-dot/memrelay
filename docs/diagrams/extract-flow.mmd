@@ -1,0 +1,44 @@
+flowchart TD
+    subgraph TRIG["什么时候跑"]
+        direction LR
+        T1["会话收尾"]
+        T2["EXTRACT_VERSION 变了<br/>整库重算"]
+        T3["手工 srelay extract"]
+    end
+
+    subgraph SRC["读什么"]
+        S1[("messages 原文<br/>只读，不改一个字")]
+    end
+
+    subgraph RULES["规则引擎 · 版本化"]
+        direction TB
+        RU["正则 + 中文句式<br/>当前 v26"]
+        RD["决策<br/>━━━━<br/>肯定：换掉了 / 就用这个<br/>否定：不要 / 撤掉<br/>待定：再想想"]
+        RT["话题<br/>━━━━<br/>名词短语抽取<br/>去停用词"]
+        RF["涉及文件<br/>━━━━<br/>路径模式 + 后缀白名单"]
+        RN["未决问题<br/>━━━━<br/>问句且没有后续回答"]
+        RU --> RD
+        RU --> RT
+        RU --> RF
+        RU --> RN
+    end
+
+    subgraph OUT["回写 · 派生列"]
+        direction LR
+        O1[("decisions")]
+        O2[("topics")]
+        O3[("files")]
+        O4[("unresolved")]
+        O5["meta_text<br/>供检索用的合成串"]
+    end
+
+    TRIG --> SRC --> RULES --> OUT
+
+    classDef trig fill:#2c5282,color:#bee3f8,stroke:#3182ce
+    classDef src fill:#2d3748,color:#e2e8f0,stroke:#4a5568
+    classDef rule fill:#744210,color:#fefcbf,stroke:#b7791f
+    classDef out fill:#22543d,color:#c6f6d5,stroke:#2f855a
+    class T1,T2,T3 trig
+    class S1 src
+    class RU,RD,RT,RF,RN rule
+    class O1,O2,O3,O4,O5 out

@@ -1,0 +1,32 @@
+flowchart TB
+    subgraph P["项目库 relay.sqlite —— 每个项目一份"]
+        direction TB
+        P1[("sessions<br/>会话元数据")]
+        P2[("messages<br/>原文 + seq + 代数")]
+        P3[("FTS5<br/>触发器自动同步")]
+        P4[("decisions / topics<br/>files / unresolved<br/>抽取产物")]
+        P5[("quarantine<br/>导入隔离区")]
+        P1 --> P2 --> P3
+        P2 --> P4
+    end
+
+    subgraph G["全局库 global.sqlite —— 跨项目"]
+        direction TB
+        G1[("lessons<br/>经验库")]
+        G2[("lifecycle_state<br/>各阶段水位与熔断")]
+        G3[("health_events<br/>告警与体检记录")]
+        G4[("project_registry<br/>项目路径 → id")]
+    end
+
+    P -. "旧会话沉降<br/>（harvest）" .-> G1
+    G1 -. "注入到每次开场" .-> P
+
+    DEL["forget 只删项目库<br/>经验留在全局库"]
+    DEL -.-> P
+
+    classDef proj fill:#22543d,color:#c6f6d5,stroke:#2f855a
+    classDef glob fill:#553c9a,color:#e9d8fd,stroke:#805ad5
+    classDef del fill:#742a2a,color:#fed7d7,stroke:#c53030
+    class P1,P2,P3,P4,P5 proj
+    class G1,G2,G3,G4 glob
+    class DEL del

@@ -4,6 +4,10 @@
 
 **不负责**：采集适配器本身的格式解析（那在 `../src/adapters/`）、检索打分、部署物。面板 HTML / 导出这类东西由宿主通过 `opts.distribute` 注入，内核不知道 DSH 面板是什么（`../src/core/lifecycle/runner.ts:499-502`）。
 
+![生命周期 11 阶段：五组、节奏、职责，aging 是唯一删正文的](./diagrams/lifecycle.png)
+
+<sub>图源 [diagrams/lifecycle.mmd](./diagrams/lifecycle.mmd)，改完重渲染</sub>
+
 ## 阶段表（唯一权威）
 
 以下全部来自 `../src/core/lifecycle/stages.ts:31-53`，插件 worker 与 CLI 读同一张表。`weight` 决定它能不能跑在宿主进程内：`heavy` = 全量重放/整库重写，只许独立进程跑。

@@ -2,6 +2,10 @@
 
 存储层负责把采集结果落成可查询的结构：两块物理隔离的 SQLite 库、以 `sessions` 为中心的一组表、两张 FTS5 外部内容索引，以及两条**会真动数据**的路径（归档 aging、重建 rebuild）。它**不负责**检索排序与融合（[`../src/search-svc/engine.ts`](../src/search-svc/engine.ts) 的 `searchSessions`，:485；内部按需落到 `fusedSearch`）、不负责调度（[`../src/core/lifecycle/runner.ts`](../src/core/lifecycle/runner.ts) 的 `runLifecycle`，:112）、也不产生原文——正文的最终来源始终是客户端那边的会话文件。
 
+![双库：项目库存原文与派生，全局库存经验与生命周期](./diagrams/store-map.png)
+
+<sub>图源 [diagrams/store-map.mmd](./diagrams/store-map.mmd)，改完重渲染</sub>
+
 ## 一、两个库的硬边界
 
 | 库 | 路径 | 放什么 |

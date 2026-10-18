@@ -2,6 +2,10 @@
 
 这块负责：把一条查询变成**会话级的有序结果**——分词、多路召回、融合、排序、长度惩罚、时间衰减，以及跨项目库的名次合并。不负责：采集与抽取（`src/capture/`、`src/core/extract/`）、结果如何进入模型上下文（见 [INTERFACES.md](./INTERFACES.md)）、嵌入模型本身的选型（`src/search-svc/semantic.ts` 只是可选补充路）。
 
+![四条检索路径汇到融合，末端是实测 hit@1 / hit@10](./diagrams/retrieval.png)
+
+<sub>图源 [diagrams/retrieval.mmd](./diagrams/retrieval.mmd)，改完重渲染</sub>
+
 ## 一次查询走哪几条路
 
 ```

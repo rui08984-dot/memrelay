@@ -4,6 +4,10 @@
 
 **不负责**：采集（`../src/capture/sync.ts`）、检索打分（`../src/search-svc/`）、简报渲染期的文本过滤（`../src/cli/brief-filter.ts` 与客户端侧的同判据副本）、经验库采集（`../src/core/extract/lesson-harvest.ts` 是另一条路，写全局库 `lessons` 草稿）。它也不写 `messages.search_text`——那是消息入库时写的派生列，规则变了要刷新得用 `srelay recompute --search-text`（`../src/bin/srelay.ts:521`）。
 
+![抽取：规则引擎四个产出，全部回写成派生列](./diagrams/extract-flow.png)
+
+<sub>图源 [diagrams/extract-flow.mmd](./diagrams/extract-flow.mmd)，改完重渲染</sub>
+
 ## 数据流
 
 ```

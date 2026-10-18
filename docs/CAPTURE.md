@@ -4,6 +4,10 @@
 
 入口是 [`../src/capture/sync.ts`](../src/capture/sync.ts) 的 `runSync`（:82），守护与 `srelay sync` 走的是同一份。
 
+![采集流程：发现 → 三重过滤 → 增量读 → 落库 → 触发抽取](./diagrams/capture-flow.png)
+
+<sub>图源 [diagrams/capture-flow.mmd](./diagrams/capture-flow.mmd)，改完重渲染</sub>
+
 ## 一、源与各自读什么
 
 适配器契约在 [`../src/adapters/types.ts`](../src/adapters/types.ts) 的 `SessionSourceAdapter`（:10）：`discover` / `readNew` 必选，`watchRoots` / `healthCheck` / `detectCompaction` / `changeProbe` 可选。内置源在 [`../src/adapters/registry.ts`](../src/adapters/registry.ts) 注册了六个（:157）：

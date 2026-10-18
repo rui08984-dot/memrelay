@@ -1,0 +1,49 @@
+flowchart TD
+    subgraph DISC["① 发现 · discover()"]
+        direction LR
+        D1["列会话清单<br/>id / mtime / size / 指纹"]
+        D2["哪些算「新」？<br/>不认修改时间，认内容签名"]
+    end
+
+    subgraph FILT["② 三重过滤 —— 顺序不能换"]
+        direction TB
+        F1["墓碑<br/>━━━━<br/>forget 过的 id<br/>挡住复活"]
+        F2["ignore 规则<br/>━━━━<br/>子代理 / 空会话<br/>/ 指定模式"]
+        F3["水位线<br/>━━━━<br/>内容签名没变<br/>整场跳过"]
+    end
+
+    subgraph READ["③ 增量读 · readNew(游标)"]
+        direction LR
+        R1["只取新增字节"]
+        R2["整段重写？<br/>新内容进独立 seq 代际"]
+    end
+
+    subgraph WRITE["④ 落库"]
+        direction TB
+        W1["upsertMessage<br/>同 seq 才谈覆盖"]
+        W2[("messages 表")]
+        W3["FTS5 触发器<br/>自动同步索引"]
+        W1 --> W2 --> W3
+    end
+
+    subgraph EXTR["⑤ 收尾"]
+        direction LR
+        E1["会话结束？"]
+        E2["触发抽取<br/>（另一条可重算的路径）"]
+        E1 --> E2
+    end
+
+    DISC --> FILT --> READ --> WRITE --> EXTR
+    F1 -. "挡下的不复活" .-> F2
+    F2 -. "挡下的不采集" .-> F3
+
+    classDef disc fill:#2c5282,color:#bee3f8,stroke:#3182ce
+    classDef filt fill:#742a2a,color:#fed7d7,stroke:#c53030
+    classDef read fill:#744210,color:#fefcbf,stroke:#b7791f
+    classDef write fill:#22543d,color:#c6f6d5,stroke:#2f855a
+    classDef extr fill:#553c9a,color:#e9d8fd,stroke:#805ad5
+    class D1,D2 disc
+    class F1,F2,F3 filt
+    class R1,R2 read
+    class W1,W2,W3 write
+    class E1,E2 extr
