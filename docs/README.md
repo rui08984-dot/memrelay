@@ -1,12 +1,19 @@
 # 文档地图
 
-先看根目录 [README.md](../README.md) 弄清它是什么；要动手改代码，从 [ARCHITECTURE.md](./ARCHITECTURE.md) 开始。
+这是一张地图，不是入口。按你的身份选：
+
+| 你是谁 | 从哪开始 |
+|---|---|
+| 第一次用，想先跑起来 | [GETTING-STARTED.md](./GETTING-STARTED.md)（[English](./GETTING-STARTED.en.md)） |
+| 想改代码 | [ARCHITECTURE.md](./ARCHITECTURE.md) → 对应子系统 |
+| 想知道它是什么 | 根目录 [README.md](../README.md) |
+| 想提 PR | [CONTRIBUTING.md](../CONTRIBUTING.md) 里的自检清单 |
 
 ## 一、讲「现在的实现」的（改代码前该读的）
 
 | 文档 | 覆盖 | 什么时候读 |
 |---|---|---|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | 分层 / 数据流 / 六块子系统 / 从哪改代码 | 第一份 |
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | 分层 / 数据流 / 七块子系统 / 按目的选读法 / 从哪改代码 | 第一份 |
 | [CAPTURE.md](./CAPTURE.md) | 六个源、增量游标、重写识别、失败可见 | 采集漏了 / 加新源 |
 | [EXTRACT.md](./EXTRACT.md) | 决策·话题·文件·未决四件套、判据清单、规则版本 | 抽错了 / 想加判据 |
 | [STORE.md](./STORE.md) | 两个库、schema、FTS5、归档与重建 | 数据长什么样 / 迁移 |
@@ -22,6 +29,8 @@
 
 | 文档 | 覆盖 |
 |---|---|
+| **[GETTING-STARTED.md](./GETTING-STARTED.md)** | **从零到看见第一份简报**：装之前确认什么、医生报告怎么读、为什么刚装完是空的、六个常见问题 |
+| [GETTING-STARTED.en.md](./GETTING-STARTED.en.md) | 同上，英文版（含「CLI 输出是中文」的说明） |
 | [user-guide.md](./user-guide.md) | 安装、初始化、日常命令、守护、MCP 接入、常见故障 |
 | [import-export-guide.md](./import-export-guide.md) | 交接协议 `hop/1.0` 与导入导出的用法 |
 | [EVALUATION.md](./EVALUATION.md) | 305 题评测方法、逐格数字、统计口径与局限 |
