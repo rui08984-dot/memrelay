@@ -264,7 +264,7 @@ srelay semantic --disable  # 关回去（向量保留，检索立刻回退纯字
 |---|---|
 | 测试 | 95 个 spec 文件，`npm test` 全绿（精确条数以每次运行为准） |
 | 类型 | `npm run typecheck` 零错误 |
-| 构建 | `npm run build`（tsup → `dist/`）；CI 配置在 [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)（三平台 × Node 22，首次推送后开始跑） |
+| 构建 | `npm run build`（tsup → `dist/`）；CI 在 [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)，**先只在 Windows × Node 22 上跑**——测试里有大量路径/编码相关断言，其它平台没测过就说没测过 |
 | 评测 | 305 题基线 + 配对比较框架（McNemar + 簇级重采样），见 [docs/EVALUATION.md](./docs/EVALUATION.md) |
 | 负结果 | 语义检索、同义词族、问句外壳剥离、纯 RRF：试过、记录过、都没默认开（见 §五） |
 
