@@ -29,6 +29,14 @@
 - **工具里只显示一坨命令行**：`show` 未找到会话时，CLI 把错误打在 stdout（`✗ 未找到会话：…`）而退出码非零，`execFile` 的 `error.message` 是 `Command failed: <整条命令>`。`execSrelay` 的兜底顺序改为 stderr > stdout 最后非空行 > error.message。
 
 验证：临时项目里真跑插件 `recordTool.execute` → 写入后 `srelay decisions` 立刻能看到该条（source=note）；插件 selftest PASS（含新增两条断言）；`check-versions` 全绿；vendor 已重建。
+### `forget` 的 help 教错了用法（23:37）
+
+`srelay forget --help` 写着 `--note <id> 限定笔记`，照它调用 `srelay forget --note <id> --yes` 会直接打在用法上退出——`--note` 只是**类型过滤器**，目标必须放在位置参数里。help 教错比功能缺失更伤人：用户会以为软件坏了，而不是自己用错了。
+
+- 现在：位置参数优先；没给就把 `--note` / `--session` 里的 id 当目标。它们**仍然**是类型过滤器（`typeFilterMismatch` 会核对目标是不是笔记/捕获会话），语义没有变宽。
+- 用法行补上 `--note <id>` 形式；两个选项的说明改成「不给位置参数时，这个 id 也可直接当目标」。
+
+验证：临时项目里 `note` 建一条笔记 → `forget --note <id> --yes` 成功遗忘；全量 923 passed / 1 skipped。
 ## [1.0.0] - 2026-10-18
 
 第一个独立版本。仓库从上游 fork 独立成 memrelay，改法集中在两处：把「坏了会告诉你」做实，把「数据不会悄悄丢」做稳。

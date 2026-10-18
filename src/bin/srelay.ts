@@ -170,8 +170,8 @@ program
 program
   .command('forget [id]')
   .description('彻底遗忘：整条会话（含决策）从本库消失、永不复活。省空间用 archive，彻底消失才用它')
-  .option('--session <id>', '限定捕获会话（防误删笔记）')
-  .option('--note <id>', '限定笔记')
+  .option('--session <id>', '限定目标是捕获会话（不给位置参数时，这个 id 也可直接当目标）')
+  .option('--note <id>', '限定目标是笔记（不给位置参数时，这个 id 也可直接当目标）')
   .option('--all', '整库重置（需 --confirm <projectId>，守护运行中拒绝）')
   .option('--confirm <projectId>', '--all 的逐字确认（本项目 id）')
   .option('--yes', '执行（无 --yes 仅预览）')

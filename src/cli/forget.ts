@@ -145,20 +145,25 @@ export async function cmdForget(f: ForgetFlags, refArg?: string): Promise<void> 
   }
 
   // ── 单会话删除 ──
-  if (!refArg) {
-    console.log(pc.red('用法：srelay forget <id|前缀> [--yes] | --all --confirm <projectId> | --history'));
+  // [10-18 实测] help 写的是「--note <id> 限定笔记」，但只给 --note、不给位置参数时直接打在用法上退出。
+  //   用户照 help 的写法调用（`srelay forget --note <id> --yes`）必然被拒——这是文档教错了，不是用户错。
+  //   现在：位置参数优先；没给就把 --note / --session 里的 id 当目标。它们**仍然**是类型过滤器
+  //   （typeFilterMismatch 会核对目标是不是笔记/捕获会话），所以语义没有变宽。
+  const ref = refArg ?? f.note ?? f.session
+  if (!ref) {
+    console.log(pc.red('用法：srelay forget <id|前缀> [--yes] | --note <id> [--yes] | --all --confirm <projectId> | --history'));
     process.exit(2);
   }
 
   const db = openExisting(dbFile(root));
   try {
-    const resolved = resolveRef(db, refArg);
+    const resolved = resolveRef(db, ref);
     if (!resolved.ok) {
       if (resolved.reason === 'not_found') {
-        die(`未找到会话：${refArg}`, '用 srelay list 查看完整 id');
+        die(`未找到会话：${ref}`, '用 srelay list 查看完整 id');
       }
       // 歧义：表格化候选（设计 §3.5 评审 D2），不用一句话 error 打发
-      console.log(pc.red(`✗ 前缀「${refArg}」匹配 ${resolved.candidates.length}${resolved.candidates.length === 10 ? '+' : ''} 个会话，拒绝执行：`));
+      console.log(pc.red(`✗ 前缀「${ref}」匹配 ${resolved.candidates.length}${resolved.candidates.length === 10 ? '+' : ''} 个会话，拒绝执行：`));
       for (const c of resolved.candidates) {
         console.log(`  ${c.id}  「${(c.title ?? '').slice(0, 24)}」 · ${c.source} · ${(c.createdAt ?? '').slice(0, 10)} · ${c.messageCount}msg`);
       }
@@ -220,7 +225,7 @@ export async function cmdForget(f: ForgetFlags, refArg?: string): Promise<void> 
 
     const now = new Date().toISOString();
     const del = db.transaction(() => {
-      const logId = insertForgetLog(db, { triggeredBy: 'cli:forget', mode: isNote ? 'note' : 'session', criteria: refArg });
+      const logId = insertForgetLog(db, { triggeredBy: 'cli:forget', mode: isNote ? 'note' : 'session', criteria: ref });
       insertForgetDetail(db, {
         forgetLogId: logId, sessionId: row.id, title: row.title, source: row.source,
         messageCount: row.messageCount, createdAt: row.createdAt,
