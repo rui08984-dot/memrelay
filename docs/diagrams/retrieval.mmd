@@ -1,0 +1,26 @@
+flowchart LR
+    Q["查询"] --> T["分词<br/>jieba"]
+
+    T --> P1["主路<br/>FTS5 AND<br/>━━━━<br/>覆盖面窄、精确"]
+    T --> P2["同义扩展<br/>手写词族 + bigram<br/>━━━━<br/>只能往队尾补"]
+    T --> P3["子串<br/>LIKE<br/>━━━━<br/>短语查询时关闭"]
+    T --> P4["标签扩展<br/>图谱跳 1 跳<br/>━━━━<br/>专名命中率高"]
+
+    P1 --> F["融合<br/>━━━━<br/>归一化分数<br/>+ 长度惩罚"]
+    P2 --> F
+    P3 --> F
+    P4 --> F
+
+    F --> OUT["top N<br/>━━━━<br/>hit@1  11.5%<br/>hit@10 45.6%"]
+    OUT --> GAP["落差 34 个百分点<br/>━━━━<br/>能找回来<br/>但排不对"]
+
+    classDef q fill:#2d3748,color:#e2e8f0,stroke:#4a5568
+    classDef main fill:#22543d,color:#c6f6d5,stroke:#2f855a
+    classDef weak fill:#3d3d3d,color:#d0d0d0,stroke:#555
+    classDef f fill:#744210,color:#fefcbf,stroke:#b7791f
+    classDef gap fill:#742a2a,color:#fed7d7,stroke:#c53030
+    class Q q
+    class P1 main
+    class P2,P3,P4 weak
+    class F,OUT f
+    class GAP gap

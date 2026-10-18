@@ -1,0 +1,57 @@
+flowchart TD
+    subgraph SRC["5 个源 · 格式全不一样"]
+        direction LR
+        S1["Claude Code<br/>JSONL"]
+        S2["Codex<br/>JSONL"]
+        S3["ZCode<br/>SQLite"]
+        S4["DSH<br/>JSONL"]
+        S5["Qoder<br/>JSONL"]
+    end
+
+    subgraph ADP["适配器 · 格式差异只在这里被吃掉"]
+        direction LR
+        A1["discover<br/>有哪些会话"]
+        A2["readNew<br/>只取增量"]
+        A3["rewrite<br/>识别整段重写"]
+    end
+
+    subgraph PROJ["项目库 relay.sqlite"]
+        direction TB
+        M[("消息原文")]
+        M --> F[("FTS5 索引")]
+        M --> EX["抽取"]
+        EX --> D["决策"]
+        EX --> T["话题"]
+        EX --> FM["涉及文件"]
+        EX --> U["未决问题"]
+    end
+
+    subgraph GLOB["全局库 global.sqlite"]
+        direction TB
+        L["经验库<br/>跨项目沉降"]
+        LC["生命周期状态"]
+        HE["健康事件"]
+    end
+
+    subgraph INJ["注入层 · 没人开口也会发生"]
+        direction LR
+        B["开场简报<br/>48h 窗口"]
+        R["检索"]
+        SE["经验注入<br/>保底 3 条"]
+    end
+
+    SRC --> ADP --> PROJ
+    PROJ -. "旧会话沉降成经验" .-> GLOB
+    GLOB -. 注入 .-> INJ
+    PROJ --> INJ
+
+    classDef src fill:#2d3748,color:#e2e8f0,stroke:#4a5568
+    classDef adp fill:#744210,color:#fefcbf,stroke:#b7791f
+    classDef proj fill:#22543d,color:#c6f6d5,stroke:#2f855a
+    classDef glob fill:#553c9a,color:#e9d8fd,stroke:#805ad5
+    classDef inj fill:#2c5282,color:#bee3f8,stroke:#3182ce
+    class S1,S2,S3,S4,S5 src
+    class A1,A2,A3 adp
+    class M,F,EX,D,T,FM,U proj
+    class L,LC,HE glob
+    class B,R,SE inj

@@ -1,0 +1,44 @@
+flowchart TB
+    subgraph READ["① 健康 · 每 15 分钟 / 每小时"]
+        direction LR
+        G["guard<br/>━━━━<br/>完整性体检<br/>内容连续性<br/>只看不改"]
+        R["repair<br/>━━━━<br/>真损坏才动手<br/>改名留证 → 重放<br/>busy 一律不动"]
+    end
+
+    subgraph INGEST["② 入仓 · 采集驱动"]
+        direction LR
+        C["capture<br/>━━━━<br/>水位线跳过已处理<br/>墓碑挡复活<br/>ignore 规则"]
+        E["extract<br/>━━━━<br/>decisions / topics<br/>files / unresolved<br/>按版本整体重算"]
+    end
+
+    subgraph KNOW["③ 提炼 · 5 小时 / 1 小时"]
+        direction LR
+        H["harvest<br/>━━━━<br/>旧会话 → 经验<br/>跨项目沉降"]
+        CO["consolidate<br/>━━━━<br/>年龄衰减<br/>低分退休<br/>反复出现升格"]
+    end
+
+    subgraph SPACE["④ 收敛 · 45 分钟 ~ 12 小时"]
+        direction LR
+        CP["compact<br/>━━━━<br/>L0 精确去重<br/>L1b 近重复合并"]
+        CL["cleanup<br/>━━━━<br/>派生列去噪<br/>FTS 空洞回收"]
+        TG["tags<br/>━━━━<br/>标签图谱<br/>检索扩展用"]
+    end
+
+    subgraph DESTR["⑤ 唯一会删正文的阶段"]
+        AG["aging<br/>━━━━<br/>强度低于阈值才归档<br/>决策骨架保留、正文蒸发<br/>保护名单豁免"]
+    end
+
+    OUT["distribute<br/>分发钩子"]
+
+    READ --> INGEST --> KNOW --> SPACE --> DESTR --> OUT
+    G -. "只报不修" .-> R
+    C -. "会话收尾后" .-> E
+    E -. "决策骨架" .-> H
+
+    classDef safe fill:#22543d,color:#c6f6d5,stroke:#2f855a
+    classDef warm fill:#744210,color:#fefcbf,stroke:#b7791f
+    classDef danger fill:#742a2a,color:#fed7d7,stroke:#c53030
+    classDef out fill:#2c5282,color:#bee3f8,stroke:#3182ce
+    class G,R,C,E,H,CO,CP,CL,TG safe
+    class AG danger
+    class OUT out

@@ -149,7 +149,7 @@
 
 下面这段是上游时期的演示，讲的是**记忆层本身**怎么工作；界面部分以上面的实拍为准。
 
-![会话接力 SessionRelay 演示](assets/demo-zh.gif)
+![memrelay 数据分层：5 个源 → 适配器 → 项目库 → 全局库 → 注入层](./docs/diagrams/layered.png)
 
 GIF 无声音——完整配音版（中文/英文 + 手机竖版）在 [Releases · v0.2.2](https://github.com/rui08984-dot/memrelay/releases)
 

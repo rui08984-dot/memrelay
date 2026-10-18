@@ -8,62 +8,12 @@
 
 从上往下，每一层只依赖它下面那层。越界依赖（比如检索层直接读适配器）是刻意禁止的，因为那会让「哪份数据从哪来」变得说不清。
 
-```mermaid
-flowchart TD
-    subgraph HOST["宿主（各家的 AI 工具）"]
-        DSH[DSH]
-        ZC[ZCode]
-        CX[Codex]
-        CC[Claude Code]
-        QD[Qoder]
-    end
+![
 
-    subgraph IFACE["接口层 · 三种入口，同一个内核"]
-        CLI["CLI<br/><small>srelay &lt;cmd&gt;</small>"]
-        MCP["MCP serve<br/><small>14 个工具</small>"]
-        PLG["DSH 插件<br/><small>4 个工具 + 简报注入</small>"]
-    end
+![分层架构](./diagrams/layered.png)
 
-    subgraph SVC["服务层"]
-        SEARCH[检索引擎]
-        BRIEF[简报]
-        KANBAN[看板投影]
-        MAP[地图]
-    end
+<sub>图源：[docs/diagrams/layered.mmd](./diagrams/layered.mmd)（可改后重渲染）· PPTX 同目录</sub>
 
-    subgraph CORE["核心层"]
-        CAP[采集 / 同步]
-        EXTRACT[抽取]
-        LIFE[生命周期 11 阶段]
-        COMPACT[压缩 / 衰减]
-    end
-
-    subgraph STORE["存储层 · SQLite"]
-        PDB[("项目库<br/>relay.sqlite")]
-        GDB[("全局库<br/>global.sqlite")]
-        FTS[("FTS5 索引")]
-    end
-
-    subgraph ADP["适配器层 · 各源格式差异的唯一隔离点"]
-        A1[claude-code]
-        A2[codex]
-        A3[zcode]
-        A4[dsh]
-        A5[qoder]
-    end
-
-    HOST --> IFACE
-    IFACE --> SVC
-    SVC --> CORE
-    CORE --> STORE
-    CORE --> ADP
-    ADP -.读取.-> HOST
-
-    classDef store fill:#1f6f43,color:#fff
-    classDef hot fill:#8a5a00,color:#fff
-    class PDB,GDB,FTS store
-    class SEARCH,BRIEF hot
-```
 
 两个库分工是硬边界：**项目库**只放这个项目的会话和消息，**全局库**只放跨项目的东西（经验、生命周期状态）。
 分开的理由很实际——项目库会被 `forget` 整个删掉，而跨项目经验不该跟着消失。
@@ -110,28 +60,12 @@ sequenceDiagram
 
 一次查询会同时走四条路，然后按归一化分数融合。不是每条路都能贡献 hit@1，这点后面会说。
 
-```mermaid
-flowchart LR
-    Q["用户查询"] --> T["分词<br/><small>jieba</small>"]
+![
 
-    T --> P1["主路<br/><small>FTS5 AND</small>"]
-    T --> P2["同义扩展路<br/><small>手写同义词族 + bigram</small>"]
-    T --> P3["子串路<br/><small>LIKE（短语查询时关闭）</small>"]
-    T --> P4["标签扩展路<br/><small>标签图谱跳 1 跳</small>"]
+![检索四路融合](./diagrams/retrieval.png)
 
-    P1 --> F["融合"]
-    P2 --> F
-    P3 --> F
-    P4 --> F
+<sub>图源：[docs/diagrams/retrieval.mmd](./diagrams/retrieval.mmd)（可改后重渲染）· PPTX 同目录</sub>
 
-    F --> PEN["长度惩罚<br/><small>长会话天然命中更多词，不打折就霸榜</small>"]
-    PEN --> TOP["top N"]
-
-    classDef main fill:#1f6f43,color:#fff
-    classDef weak fill:#5a5a5a,color:#fff
-    class P1 main
-    class P2,P3,P4 weak
-```
 
 实测的形状很能说明问题：
 
@@ -150,38 +84,12 @@ flowchart LR
 
 守护进程按各自的节奏跑 11 个阶段。不是流水线，是各自独立的定时任务——一个失败不该拖垮别的。
 
-```mermaid
-flowchart TD
-    subgraph READ["只读 / 体检"]
-        G["guard<br/><small>每 15 分钟 · 完整性体检</small>"]
-        R["repair<br/><small>每小时 · 坏了才重建</small>"]
-    end
-    subgraph WRITE["写 / 搬数据"]
-        C["capture<br/><small>采集</small>"]
-        E["extract<br/><small>按版本重算</small>"]
-        H["harvest<br/><small>经验沉降</small>"]
-        CO["consolidate<br/><small>衰减 / 退休</small>"]
-        CP["compact<br/><small>L0 / L1b 去重压缩</small>"]
-        CL["cleanup<br/><small>派生列噪声 + FTS 回收</small>"]
-        TG["tags<br/><small>标签图谱</small>"]
-        AG["aging<br/><small>归档旧会话正文</small>"]
-        DI["distribute<br/><small>分发钩子</small>"]
-    end
+![
 
-    G -.异常才触发.-> R
-    R --> C
-    C --> E
-    E --> H
-    H --> CO
-    CO --> CP
-    CP --> CL
-    CL --> TG
-    TG --> AG
-    AG --> DI
+![生命周期 11 阶段](./diagrams/lifecycle.png)
 
-    classDef danger fill:#8a2020,color:#fff
-    class AG danger
-```
+<sub>图源：[docs/diagrams/lifecycle.mmd](./diagrams/lifecycle.mmd)（可改后重渲染）· PPTX 同目录</sub>
+
 
 `aging` 是唯一会**删正文**的阶段，所以它的判据写得最紧：只有强度低于阈值、且不在保护名单里的会话才会被归档；归档前把决策和话题的骨架留下来，正文蒸发。
 

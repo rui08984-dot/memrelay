@@ -116,7 +116,7 @@ The `auto:todos` rows refresh on every capture cycle (human-written rows are nev
 
 The clip below is from the upstream period and explains how the **memory layer itself** works; for the UI, trust the screenshots above.
 
-![SessionRelay demo](assets/demo-en.gif)
+![memrelay data layers: 5 sources → adapters → project DB → global DB → injection](./docs/diagrams/layered.png)
 
 The GIF is silent — full narrated versions (English / 中文, plus a 9:16 vertical cut) are playable directly in [Releases · v0.2.2](https://github.com/rui08984-dot/memrelay/releases).
 
