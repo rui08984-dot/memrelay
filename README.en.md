@@ -28,13 +28,20 @@ Local files only. No account, no server. One SQLite database per project, plus o
 ## Quick start
 
 ```bash
-npm install -g memrelay          # or: npx memrelay init
+git clone https://github.com/rui08984-dot/memrelay.git
+cd memrelay && npm ci && npm run build && npm link
+
 cd <your-project>
 srelay init                      # creates .sessionrelay/ inside this project
 srelay doctor                    # health check: sources, daemon, DB integrity, extractor version
 srelay watch --install-service    # run the daemon as a user service (Windows Run key / launchd / systemd --user)
 srelay brief                     # what the next session will actually see
 ```
+
+> **The npm package is not published yet.** `npm install -g memrelay` and `npx memrelay` return 404 — the first
+> release is in progress. Until then the clone path above is the only one that works.
+
+![srelay brief — real output from a live project](./docs/diagrams/demo-brief.png)
 
 ---
 
