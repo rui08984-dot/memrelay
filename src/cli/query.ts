@@ -210,7 +210,7 @@ export async function cmdRelated(idPrefix: string, opts?: { limit?: string; json
     });
     if (opts?.json) { console.log(JSON.stringify({ anchor: { sessionId: anchor.id, title: anchor.title }, count: items.length, suggestions: items }, null, 2)); return; }
     console.log(`与「${(anchor.title ?? anchor.id).slice(0, 36)}」相关的会话：`);
-    if (items.length === 0) { console.log(pc.dim('（无——共享话题/文件/向量相似度都不够；语义未启用时可 srelay semantic enable 增强）')); return; }
+    if (items.length === 0) { console.log(pc.dim('（无——共享话题/文件/向量相似度都不够；语义未启用时可 srelay semantic --enable 增强）')); return; }
     for (const it of items) {
       console.log(`  ${String(it.score).padEnd(6)} 「${(it.title ?? '').slice(0, 32)}」 ${pc.dim(`${it.source} · ${it.state} · ${it.reason}`)} ${pc.dim(it.sessionId)}`);
     }

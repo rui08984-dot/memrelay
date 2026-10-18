@@ -70,12 +70,12 @@ export async function cmdSemantic(f: SemanticFlags): Promise<void> {
 
   // ── backfill：只补嵌，不动开关（扫描/换模型后补向量用） ──
   if (f.backfill || f.reembed) {
-    if (cfg.semantic?.enabled !== true) { console.log(pc.yellow('语义检索未启用 —— 先 srelay semantic enable（回填只对启用的档有意义）')); return; }
+    if (cfg.semantic?.enabled !== true) { console.log(pc.yellow('语义检索未启用 —— 先 srelay semantic --enable（回填只对启用的档有意义）')); return; }
     const model = cfg.semantic?.model ?? DEFAULT_MODEL;
     const embedder = await getEmbedder(cfg);
     if (!embedder) {
       const rs = readSemanticStatus();
-      die('模型不可用，回填中止（不留半开状态）', (rs.error ? '上次失败：' + rs.error : '') + '\n  依赖检查：srelay semantic status；重装：srelay semantic enable');
+      die('模型不可用，回填中止（不留半开状态）', (rs.error ? '上次失败：' + rs.error : '') + '\n  依赖检查：srelay semantic --status；重装：srelay semantic --enable');
     }
     if (f.reembed) {
       const db0 = openExisting(dbFile(root));
@@ -153,10 +153,10 @@ export async function cmdSemantic(f: SemanticFlags): Promise<void> {
   try {
     const enabled = cfg.semantic?.enabled === true;
     const model = cfg.semantic?.model ?? DEFAULT_MODEL;
-    console.log(`语义检索    ${enabled ? pc.green('已启用') : pc.dim('未启用（可选增强，srelay semantic enable）')}`);
+    console.log(`语义检索    ${enabled ? pc.green('已启用') : pc.dim('未启用（可选增强，srelay semantic --enable）')}`);
     if (enabled) {
       console.log(`  模型      ${model}`);
-      console.log(`  依赖      ${resolveTransformersEntry() ? pc.green('transformers.js 可用') : pc.yellow('缺失（检索自动降级纯 FTS；重装见 srelay semantic enable）')}`);
+      console.log(`  依赖      ${resolveTransformersEntry() ? pc.green('transformers.js 可用') : pc.yellow('缺失（检索自动降级纯 FTS；重装见 srelay semantic --enable）')}`);
       if (db) {
         const sig = vectorSignature(db, model);
         const backlog = countSemanticBacklog(db, model);

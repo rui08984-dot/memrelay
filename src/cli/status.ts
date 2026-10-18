@@ -63,9 +63,9 @@ export async function cmdStatus(opts?: { json?: boolean }): Promise<void> {
     if (cfg.semantic?.enabled === true) {
       const model = cfg.semantic?.model ?? 'Xenova/bge-small-zh-v1.5';
       const vecN = (db.prepare('SELECT COUNT(*) n FROM session_vectors WHERE model = ?').get(model) as { n: number }).n;
-      console.log(`语义    ${pc.green('开')} · ${vecN} 向量${pc.dim('（srelay semantic status 详情）')}`);
+      console.log(`语义    ${pc.green('开')} · ${vecN} 向量${pc.dim('（srelay semantic --status 详情）')}`);
     } else {
-      console.log(`语义    ${pc.dim('关（可选：srelay semantic enable）')}`);
+      console.log(`语义    ${pc.dim('关（可选：srelay semantic --enable）')}`);
     }
     console.log(`体积    relay.sqlite ${(size / 1024 / 1024).toFixed(1)} MB`);
     if (recent.length > 0) {
