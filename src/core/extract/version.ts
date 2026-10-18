@@ -61,4 +61,4 @@
 //   → ④ 副本上验一次 → ⑤ 才允许解冻到 26。解冻前不许改这个数字。
 // 2026-10-18 解冻：R2（quarantine + 默认干跑）与 R3（失败行不打戳）已修并测试，
 //   副本实测通过后才放开。干跑确认「会删 0 条」再让守护真跑。
-export const EXTRACT_VERSION = 26;
+export const EXTRACT_VERSION = 27;
