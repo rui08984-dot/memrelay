@@ -659,6 +659,15 @@ program
   });
 
 program
+  .command('note')
+  .description('写入一条结论笔记（source=note，立即确认并抽取；笔记里的决策句式会进决策库）')
+  .option('--title <t>', '标题（至少 2 字）')
+  .option('--content <c>', '正文（至少 4 字）')
+  .option('--tag <tags>', '逗号分隔的标签')
+  .option('--json', '机器格式')
+  .action(async (f) => { const { cmdNote } = await import('../cli/note.js'); await cmdNote(f); });
+
+program
   .command('confirm <sessionIdPrefix>')
   .description('手动强制会话为 confirmed（触发提取与摘要）')
   .action(async (id) => { const { cmdConfirm } = await import('../cli/misc.js'); await cmdConfirm(id); });
