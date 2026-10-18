@@ -132,15 +132,6 @@ export const searchTool = defineTool({
     //   为什么不是复制实现：判据只许有一份。这里路由到 legacySpec 扣下来的**原始 spec**，
     //   走的是和旧工具逐字相同的那条 execute —— 合并只改「怎么找」，不改「查到什么」。
     const kind = String(args?.kind ?? 'sessions').trim().toLowerCase() || 'sessions'
-    // [10-18 新用户实测] 原来缺 filePath / sessionIdPrefix 时会拿 undefined 往下走：
-    //   kind=history 变成「搜字符串 "undefined"」（返回 20 个无关会话），kind=related 只回一句提示。
-    //   参数缺失是**调用方错误**，要明说，别让它变成一次看起来成功的检索。
-    if ((kind === 'history' || kind === 'files') && String(args?.filePath ?? '').trim() === '') {
-      return { ok: false, payload: '', error: 'kind=' + kind + ' 需要 filePath（例如 {"kind":"history","filePath":"src/map/bridge.ts"}）' }
-    }
-    if (kind === 'related' && String(args?.sessionIdPrefix ?? '').trim() === '') {
-      return { ok: false, payload: '', error: 'kind=related 需要 sessionIdPrefix（会话 ID 前缀，可先用 kind=sessions 找到）' }
-    }
     if (kind !== 'sessions') {
       const ROUTE = {
         decisions: 'srelay_decisions',
