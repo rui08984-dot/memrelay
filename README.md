@@ -50,6 +50,8 @@ npm install -g https://github.com/rui08984-dot/memrelay/releases/download/v1.0.0
 
 一条命令。不用注册 npm 账号，不用 clone，不用自己编译——这个 tarball 里已经是构建好的产物。
 
+> 第一次用、想一步步来的，看 **[从零开始](./docs/GETTING-STARTED.md)**：装之前要确认什么、医生报告怎么读、为什么刚装完是空的。
+
 <details>
 <summary>不想装全局，或者想改代码</summary>
 
@@ -300,6 +302,7 @@ srelay semantic --disable  # 关回去（向量保留，检索立刻回退纯字
 | 地图：结构真值、自动孵化、拓扑分层 | [docs/MAP.md](./docs/MAP.md) · [map-cli 手册](./docs/map-cli.md) |
 | 接口面：CLI / MCP / DSH / 面板 | [docs/INTERFACES.md](./docs/INTERFACES.md) |
 | 评测方法与逐格数字 | [docs/EVALUATION.md](./docs/EVALUATION.md) · [数据表](./docs/eval/memrelay-eval.xlsx) |
+| **第一次用，从零开始** | **[docs/GETTING-STARTED.md](./docs/GETTING-STARTED.md)** ← 五分钟，含「为什么是空的」排查 |
 | 装与用 | [docs/user-guide.md](./docs/user-guide.md) |
 | 出厂默认值 | [docs/默认配置.md](./docs/默认配置.md) |
 | 自定义适配器 | [docs/adapters/README.md](./docs/adapters/README.md) |
