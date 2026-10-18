@@ -45,14 +45,21 @@ memrelay 干的事只有一件：**把这些对话在本地收下来，整理成
 ## 二、快速开始
 
 ```bash
-git clone https://github.com/rui08984-dot/memrelay.git
-cd memrelay
-npm ci && npm run build
-npm link          # 让 srelay 进 PATH。不想动全局环境，用 node dist/srelay.js 代替下面所有 srelay
+npm install -g https://github.com/rui08984-dot/memrelay/releases/download/v1.0.0/memrelay-1.0.0.tgz
 ```
 
-> **npm 包还没发布**。`npm install -g memrelay` 和 `npx memrelay` 现在会 404——第一次发版在走流程，
-> 发出来会在 Release 页注明。在那之前，上面这几条是唯一能跑通的路径。
+一条命令。不用注册 npm 账号，不用 clone，不用自己编译——这个 tarball 里已经是构建好的产物。
+
+<details>
+<summary>不想装全局，或者想改代码</summary>
+
+```bash
+git clone https://github.com/rui08984-dot/memrelay.git
+cd memrelay && npm ci && npm run build
+node dist/srelay.js <命令>     # 用这个代替下面的 srelay
+```
+
+</details>
 
 ```bash
 cd <你的项目>

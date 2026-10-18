@@ -28,8 +28,7 @@ Local files only. No account, no server. One SQLite database per project, plus o
 ## Quick start
 
 ```bash
-git clone https://github.com/rui08984-dot/memrelay.git
-cd memrelay && npm ci && npm run build && npm link
+npm install -g https://github.com/rui08984-dot/memrelay/releases/download/v1.0.0/memrelay-1.0.0.tgz
 
 cd <your-project>
 srelay init                      # creates .sessionrelay/ inside this project

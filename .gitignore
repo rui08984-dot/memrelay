@@ -9,6 +9,9 @@ integrations/dsh/vendor/
 # 测试临时目录
 test/.tmp/
 
+# 发布产物（打出来的 tarball 传 Release，不进仓库）
+*.tgz
+
 # 日志与本地残留
 *.log
 *.tmp
