@@ -1,0 +1,82 @@
+{
+  "name": "memrelay",
+  "version": "0.5.1-fork.2",
+  "description": "会话接力 SessionRelay — 属于项目、不属于任何厂商的本地记忆层（跨 Agent 会话记忆 / 中文检索 / MCP / HOP 交接协议）· 独立维护版",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "e2e:pack": "node scripts/pack-e2e.mjs",
+    "release": "node scripts/release.mjs",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "s1": "vitest run test/unit/tokenize test/integration/search.spec.ts",
+    "s2": "vitest run test/integration/tail-resume.spec.ts",
+    "s3": "vitest run test/unit/state",
+    "s4": "vitest run test/unit/scope",
+    "s5": "vitest run test/integration/capture.spec.ts",
+    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsup",
+    "check:artifacts": "node scripts/check-artifacts.mjs",
+    "prepublishOnly": "npm run typecheck && npm run check:artifacts && npm run build && npm test"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.7.0",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@node-rs/jieba": "^2.0.2",
+    "better-sqlite3": "^13.0.3",
+    "commander": "^14.0.3",
+    "fflate": "^0.8.3",
+    "picocolors": "1.1.1",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.20.1",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  },
+  "bin": {
+    "srelay": "dist/srelay.js",
+    "sessionrelay": "dist/srelay.js"
+  },
+  "files": [
+    "dist",
+    "docs/user-guide.md",
+    "docs/import-export-guide.md",
+    "docs/adapters/README.md",
+    "spec",
+    "README.md",
+    "README.en.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "claude-code",
+    "zcode",
+    "session-memory",
+    "cross-agent",
+    "ai-memory",
+    "local-first",
+    "handoff",
+    "agent-memory",
+    "knowledge-graph",
+    "force-directed",
+    "dsh",
+    "session-handoff"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rui08984-dot/memrelay.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rui08984-dot/memrelay/issues"
+  },
+  "homepage": "https://github.com/rui08984-dot/memrelay#readme"
+}

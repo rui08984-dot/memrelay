@@ -1,0 +1,19 @@
+# 依赖与构建产物
+node_modules/
+dist/
+integrations/dsh/vendor/
+
+# 本地记忆库（每台机器自己生成，绝不进版本库）
+.sessionrelay/
+
+# 测试临时目录
+test/.tmp/
+
+# 日志与本地残留
+*.log
+*.tmp
+.tmp-*
+
+# 环境与密钥
+.env
+.env.*

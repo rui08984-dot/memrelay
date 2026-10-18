@@ -1,0 +1,98 @@
+{
+  "at": "2026-10-17T12:52:34.392Z",
+  "dbPath": "<workspace>/tmp/graph-bench-snapshot.sqlite",
+  "rewrite": true,
+  "limit": 10,
+  "acc": {
+    "K": {
+      "n": 68,
+      "h1": 7,
+      "h3": 17,
+      "h10": 32,
+      "satTop1": 2
+    },
+    "S": {
+      "n": 68,
+      "h1": 13,
+      "h3": 21,
+      "h10": 38,
+      "satTop1": 4
+    },
+    "M": {
+      "n": 68,
+      "h1": 17,
+      "h3": 26,
+      "h10": 43,
+      "satTop1": 4
+    },
+    "Ks": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ss": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ms": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ke": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Se": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Me": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    }
+  },
+  "knobs": {
+    "semantic": false,
+    "threshold": 0.4,
+    "reserve": 3,
+    "topk": 5,
+    "dtype": null,
+    "fusion": "default",
+    "lengthnorm": false,
+    "expand": false,
+    "tagreserve": 0,
+    "taghops": 1,
+    "tagterms": 4,
+    "tagfusion": false
+  },
+  "expStats": {
+    "n": 0,
+    "seeded": 0,
+    "expanded": 0,
+    "terms": 0,
+    "pathHits": 0,
+    "ms": 0,
+    "baseMs": 2592,
+    "sample": []
+  },
+  "semReady": false,
+  "semWhy": "",
+  "rows": []
+}

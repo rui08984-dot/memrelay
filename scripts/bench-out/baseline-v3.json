@@ -1,0 +1,1336 @@
+{
+  "at": "2026-10-17T20:31:35.977Z",
+  "dbPath": "<workspace>/tmp/graph-bench-snapshot.sqlite",
+  "rewrite": true,
+  "limit": 10,
+  "acc": {
+    "K": {
+      "n": 41,
+      "h1": 15,
+      "h3": 20,
+      "h10": 22,
+      "satTop1": 2
+    },
+    "S": {
+      "n": 41,
+      "h1": 6,
+      "h3": 9,
+      "h10": 16,
+      "satTop1": 0
+    },
+    "M": {
+      "n": 41,
+      "h1": 6,
+      "h3": 11,
+      "h10": 21,
+      "satTop1": 0
+    },
+    "Ks": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ss": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ms": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ke": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Se": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Me": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "toJSON": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    }
+  },
+  "knobs": {
+    "semantic": false,
+    "threshold": 0.4,
+    "reserve": 3,
+    "topk": 5,
+    "dtype": null,
+    "fusion": "default",
+    "lengthnorm": true,
+    "expand": false,
+    "tagreserve": 0,
+    "taghops": 1,
+    "tagterms": 4,
+    "tagfusion": false
+  },
+  "expStats": {
+    "n": 0,
+    "seeded": 0,
+    "expanded": 0,
+    "terms": 0,
+    "pathHits": 0,
+    "ms": 0,
+    "baseMs": 1892,
+    "sample": []
+  },
+  "semReady": false,
+  "semWhy": "",
+  "rows": [
+    {
+      "arm": "K",
+      "query": "满足要求",
+      "target": "99b7d699d665f586",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 173
+    },
+    {
+      "arm": "S",
+      "query": "补充 几点",
+      "target": "99b7d699d665f586",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 5
+    },
+    {
+      "arm": "M",
+      "query": "补充 几点 比如说",
+      "target": "99b7d699d665f586",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 8
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "356958fe2c807bef",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "356958fe2c807bef",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 19
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "356958fe2c807bef",
+      "lex": 6,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 7
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "28d4df393824ea02",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "28d4df393824ea02",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 20
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "28d4df393824ea02",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 6
+    },
+    {
+      "arm": "K",
+      "query": "管太多",
+      "target": "ee28bbcac74d7410",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "而且 对于",
+      "target": "ee28bbcac74d7410",
+      "lex": 8,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 30
+    },
+    {
+      "arm": "M",
+      "query": "而且 对于 框架",
+      "target": "ee28bbcac74d7410",
+      "lex": 7,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 14
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "4ab918bd6310aaa8",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "4ab918bd6310aaa8",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 21
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "4ab918bd6310aaa8",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 8
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "32678c283eef26ae",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "32678c283eef26ae",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 17
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "32678c283eef26ae",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 7
+    },
+    {
+      "arm": "K",
+      "query": "azure",
+      "target": "a08110930a5d22ad",
+      "lex": 4,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "S",
+      "query": "功能 整体",
+      "target": "a08110930a5d22ad",
+      "lex": 6,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 22
+    },
+    {
+      "arm": "M",
+      "query": "功能 整体 来说",
+      "target": "a08110930a5d22ad",
+      "lex": 4,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 9
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "bbe0229c88709362",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 4
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "bbe0229c88709362",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 16
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "bbe0229c88709362",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 7
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "473adf91f642a899",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "473adf91f642a899",
+      "lex": 9,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 14
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "473adf91f642a899",
+      "lex": 4,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 5
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "eb32bf4fc514a757",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "eb32bf4fc514a757",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 13
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "eb32bf4fc514a757",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 4
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "fd7a268a26d34847",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "fd7a268a26d34847",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 14
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "fd7a268a26d34847",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 7
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "7d211565188ec63b",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "7d211565188ec63b",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 11
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "7d211565188ec63b",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 5
+    },
+    {
+      "arm": "K",
+      "query": "长长的",
+      "target": "c0f6f811753ef8e6",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 95
+    },
+    {
+      "arm": "S",
+      "query": "那边 歌曲",
+      "target": "c0f6f811753ef8e6",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 6
+    },
+    {
+      "arm": "M",
+      "query": "那边 歌曲 展示",
+      "target": "c0f6f811753ef8e6",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 5
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "061b3409dd467317",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "061b3409dd467317",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 11
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "061b3409dd467317",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 5
+    },
+    {
+      "arm": "K",
+      "query": "测一测",
+      "target": "646f6bd8b9b63e88",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "主要 dsh",
+      "target": "646f6bd8b9b63e88",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 22
+    },
+    {
+      "arm": "M",
+      "query": "主要 dsh 测一测",
+      "target": "646f6bd8b9b63e88",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 10
+    },
+    {
+      "arm": "K",
+      "query": "honeys",
+      "target": "d5c9843eb13e5388",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "首先 这份",
+      "target": "d5c9843eb13e5388",
+      "lex": 4,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 6
+    },
+    {
+      "arm": "M",
+      "query": "首先 这份 报告",
+      "target": "d5c9843eb13e5388",
+      "lex": 4,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 10
+    },
+    {
+      "arm": "K",
+      "query": "folia-qq",
+      "target": "45e025e56acb1790",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "folia-qq 发现",
+      "target": "45e025e56acb1790",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 15
+    },
+    {
+      "arm": "M",
+      "query": "folia-qq 发现 交接",
+      "target": "45e025e56acb1790",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 12
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "cacb49f09218dd6c",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "cacb49f09218dd6c",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 13
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "cacb49f09218dd6c",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 5
+    },
+    {
+      "arm": "K",
+      "query": "方便管理",
+      "target": "9d061832d5a139ce",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 119
+    },
+    {
+      "arm": "S",
+      "query": "看看 发给你",
+      "target": "9d061832d5a139ce",
+      "lex": 2,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 6
+    },
+    {
+      "arm": "M",
+      "query": "看看 发给你 上下文",
+      "target": "9d061832d5a139ce",
+      "lex": 2,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 11
+    },
+    {
+      "arm": "K",
+      "query": "comad",
+      "target": "4914d7b7d2f63a89",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "S",
+      "query": "deepseek-v4-flash comad",
+      "target": "4914d7b7d2f63a89",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 3
+    },
+    {
+      "arm": "M",
+      "query": "deepseek-v4-flash comad deepseek-v4-flash",
+      "target": "4914d7b7d2f63a89",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 3
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "c3a62be16af3e8b9",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "c3a62be16af3e8b9",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 10
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "c3a62be16af3e8b9",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "K",
+      "query": "summarized",
+      "target": "54e4846d58a21971",
+      "lex": 7,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "note users",
+      "target": "54e4846d58a21971",
+      "lex": 9,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 11
+    },
+    {
+      "arm": "M",
+      "query": "note users crx",
+      "target": "54e4846d58a21971",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 7
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "cee9bf412f264861",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "cee9bf412f264861",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 14
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "cee9bf412f264861",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 4
+    },
+    {
+      "arm": "K",
+      "query": "能不输",
+      "target": "5b58a704925ad3ac",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 86
+    },
+    {
+      "arm": "S",
+      "query": "配置 很多",
+      "target": "5b58a704925ad3ac",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 17
+    },
+    {
+      "arm": "M",
+      "query": "配置 很多 那种",
+      "target": "5b58a704925ad3ac",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 9
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "98273a2560e4dc8a",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "98273a2560e4dc8a",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 7
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "98273a2560e4dc8a",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 4
+    },
+    {
+      "arm": "K",
+      "query": "exec_513c32ac-1590-484f-ae30-db577289e50e",
+      "target": "270161f5ca553fa7",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 91
+    },
+    {
+      "arm": "S",
+      "query": "启动 记录",
+      "target": "270161f5ca553fa7",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 22
+    },
+    {
+      "arm": "M",
+      "query": "启动 记录 起点",
+      "target": "270161f5ca553fa7",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 6
+    },
+    {
+      "arm": "K",
+      "query": "有的是",
+      "target": "cb50ec73876412ce",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "直接 那些",
+      "target": "cb50ec73876412ce",
+      "lex": 2,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 23
+    },
+    {
+      "arm": "M",
+      "query": "直接 那些 砍掉",
+      "target": "cb50ec73876412ce",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 10
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "774fb6b4793a4f15",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "774fb6b4793a4f15",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 10
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "774fb6b4793a4f15",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 6
+    },
+    {
+      "arm": "K",
+      "query": "使用手册",
+      "target": "3086914cb95ac891",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "users crx",
+      "target": "3086914cb95ac891",
+      "lex": 7,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 18
+    },
+    {
+      "arm": "M",
+      "query": "users crx desktop",
+      "target": "3086914cb95ac891",
+      "lex": 4,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 8
+    },
+    {
+      "arm": "K",
+      "query": "不太对",
+      "target": "cd61ddb51cc5fd3d",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 0
+    },
+    {
+      "arm": "S",
+      "query": "我要 干嘛",
+      "target": "cd61ddb51cc5fd3d",
+      "lex": 5,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 5
+    },
+    {
+      "arm": "M",
+      "query": "我要 干嘛 那边",
+      "target": "cd61ddb51cc5fd3d",
+      "lex": 5,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 5
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "ef00ec195e312052",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "ef00ec195e312052",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 8
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "ef00ec195e312052",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 5
+    },
+    {
+      "arm": "K",
+      "query": "国际版",
+      "target": "a220277a92acdd79",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 99
+    },
+    {
+      "arm": "S",
+      "query": "qoder 接入",
+      "target": "a220277a92acdd79",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 9
+    },
+    {
+      "arm": "M",
+      "query": "qoder 接入 9router",
+      "target": "a220277a92acdd79",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 3
+    },
+    {
+      "arm": "K",
+      "query": "boba-server-ssh.bat",
+      "target": "cc9566218c29eda9",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 85
+    },
+    {
+      "arm": "S",
+      "query": "users crx",
+      "target": "cc9566218c29eda9",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 16
+    },
+    {
+      "arm": "M",
+      "query": "users crx desktop",
+      "target": "cc9566218c29eda9",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 11
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "b23082289e016ac8",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "b23082289e016ac8",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 12
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "b23082289e016ac8",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "f78ffe84eb7bceca",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "f78ffe84eb7bceca",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 8
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "f78ffe84eb7bceca",
+      "lex": 5,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 4
+    },
+    {
+      "arm": "K",
+      "query": "自行车",
+      "target": "29246406e4d4af63",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "生成 一个",
+      "target": "29246406e4d4af63",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 35
+    },
+    {
+      "arm": "M",
+      "query": "生成 一个 文件",
+      "target": "29246406e4d4af63",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 51
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "e7a286f4167ab22e",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "e7a286f4167ab22e",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 9
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "e7a286f4167ab22e",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 3
+    },
+    {
+      "arm": "K",
+      "query": "转换成",
+      "target": "400836d1d9b7510b",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 84
+    },
+    {
+      "arm": "S",
+      "query": "整个 时间",
+      "target": "400836d1d9b7510b",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 11
+    },
+    {
+      "arm": "M",
+      "query": "整个 时间 关键",
+      "target": "400836d1d9b7510b",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 21
+    },
+    {
+      "arm": "K",
+      "query": "qwen3.827",
+      "target": "e640a0153c0833d8",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 77
+    },
+    {
+      "arm": "S",
+      "query": "感觉 没差",
+      "target": "e640a0153c0833d8",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 3
+    },
+    {
+      "arm": "M",
+      "query": "感觉 没差 模型",
+      "target": "e640a0153c0833d8",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 21
+    },
+    {
+      "arm": "K",
+      "query": "qwen-image-2.1",
+      "target": "e86052317e440eed",
+      "lex": 2,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 2
+    },
+    {
+      "arm": "S",
+      "query": "模型 配置",
+      "target": "e86052317e440eed",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 34
+    },
+    {
+      "arm": "M",
+      "query": "模型 配置 上面",
+      "target": "e86052317e440eed",
+      "lex": 3,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 13
+    },
+    {
+      "arm": "K",
+      "query": "recently.",
+      "target": "41e4fdb5b9512ea4",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 1
+    },
+    {
+      "arm": "S",
+      "query": "todowrite tool",
+      "target": "41e4fdb5b9512ea4",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 8
+    },
+    {
+      "arm": "M",
+      "query": "todowrite tool hasn",
+      "target": "41e4fdb5b9512ea4",
+      "lex": 7,
+      "sem": -1,
+      "exp": -1,
+      "lit": true,
+      "ms": 4
+    }
+  ]
+}

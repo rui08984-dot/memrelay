@@ -1,0 +1,360 @@
+{
+  "at": "2026-10-17T20:31:00.723Z",
+  "dbPath": "<workspace>/tmp/graph-bench-snapshot.sqlite",
+  "rewrite": true,
+  "limit": 10,
+  "acc": {
+    "K": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "S": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "M": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ks": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ss": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ms": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Ke": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Se": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "Me": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    },
+    "P": {
+      "n": 21,
+      "h1": 3,
+      "h3": 10,
+      "h10": 13,
+      "satTop1": 0
+    },
+    "X": {
+      "n": 3,
+      "h1": 0,
+      "h3": 1,
+      "h10": 1,
+      "satTop1": 0
+    },
+    "toJSON": {
+      "n": 0,
+      "h1": 0,
+      "h3": 0,
+      "h10": 0,
+      "satTop1": 0
+    }
+  },
+  "knobs": {
+    "semantic": false,
+    "threshold": 0.4,
+    "reserve": 3,
+    "topk": 5,
+    "dtype": null,
+    "fusion": "default",
+    "lengthnorm": true,
+    "expand": false,
+    "tagreserve": 0,
+    "taghops": 1,
+    "tagterms": 4,
+    "tagfusion": false
+  },
+  "expStats": {
+    "n": 0,
+    "seeded": 0,
+    "expanded": 0,
+    "terms": 0,
+    "pathHits": 0,
+    "ms": 0,
+    "baseMs": 4443,
+    "sample": []
+  },
+  "semReady": false,
+  "semWhy": "",
+  "rows": [
+    {
+      "arm": "P",
+      "query": "C盘快满了怎么清理的",
+      "target": "0f482250fa809f52",
+      "lex": 2,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 159
+    },
+    {
+      "arm": "P",
+      "query": "可视化界面那个脚本是哪个文件，只允许改一处",
+      "target": "4edb2e852e6805f5",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 53
+    },
+    {
+      "arm": "P",
+      "query": "让人逐条判读准确率那次评审",
+      "target": "20da588beef538de",
+      "lex": 4,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 8
+    },
+    {
+      "arm": "P",
+      "query": "把某条结论固定住一直显示的功能",
+      "target": "fd7a268a26d34847",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 26
+    },
+    {
+      "arm": "P",
+      "query": "每开一个会话就起一个服务且不回收的毛病",
+      "target": "646f6bd8b9b63e88",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 45
+    },
+    {
+      "arm": "P",
+      "query": "用挑刺的方式看这两批改动对不对",
+      "target": "faef416a2315a39a",
+      "lex": 2,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 12
+    },
+    {
+      "arm": "P",
+      "query": "两个互不知情的评审分别看同一份代码",
+      "target": "d550fa3108d9a88e",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 752
+    },
+    {
+      "arm": "P",
+      "query": "红队B那个子代理派去干什么",
+      "target": "7cd6e66f654e1567",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 38
+    },
+    {
+      "arm": "P",
+      "query": "接着上一份交接往下做别从头来",
+      "target": "5407c1efae4428dd",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 667
+    },
+    {
+      "arm": "P",
+      "query": "先别动手，把主交接文件通读一遍",
+      "target": "732adf1bc9055e9d",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 41
+    },
+    {
+      "arm": "P",
+      "query": "目录名中间两个空格这事强调过吗",
+      "target": "22ea720ad2fe7300",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 22
+    },
+    {
+      "arm": "P",
+      "query": "手机连电脑后共享网络不管用怎么调",
+      "target": "c483a0acd7cdefc5",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 18
+    },
+    {
+      "arm": "P",
+      "query": "如果快离开世界会留下什么，结合整个工作区说说",
+      "target": "a54eac68b51a1c03",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 44
+    },
+    {
+      "arm": "P",
+      "query": "AI 微调的交接文档是唯一入口那份",
+      "target": "734f3cc50b8c2fe2",
+      "lex": 3,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 42
+    },
+    {
+      "arm": "P",
+      "query": "本地大模型部署可行性那个调研接到哪了",
+      "target": "cd61ddb51cc5fd3d",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 53
+    },
+    {
+      "arm": "P",
+      "query": "folia qq 发现页交接文件续作",
+      "target": "0eed0a09f936bde0",
+      "lex": 2,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 64
+    },
+    {
+      "arm": "P",
+      "query": "command 这个模型端点图片不响应但平台显示正常",
+      "target": "a08110930a5d22ad",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 76
+    },
+    {
+      "arm": "P",
+      "query": "语音把安装清单识别成了列车车票那次澄清",
+      "target": "061b3409dd467317",
+      "lex": 0,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 17
+    },
+    {
+      "arm": "P",
+      "query": "核实我们这套零接触上下文接续框架是否真达到效果",
+      "target": "68e7553a361907e7",
+      "lex": 2,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 36
+    },
+    {
+      "arm": "P",
+      "query": "modmind 那个 stdio 程序路径在哪",
+      "target": "4ab918bd6310aaa8",
+      "lex": 5,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 36
+    },
+    {
+      "arm": "X",
+      "query": "新对话入口交接文件，哪些开局按它续作",
+      "target": "5407c1efae4428dd",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 758
+    },
+    {
+      "arm": "X",
+      "query": "十月十五号主交接文件，哪些会话读过",
+      "target": "732adf1bc9055e9d",
+      "lex": 1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 821
+    },
+    {
+      "arm": "X",
+      "query": "给 ZCode 的问题清单，在哪些会话处理过",
+      "target": "646f6bd8b9b63e88",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 102
+    },
+    {
+      "arm": "P",
+      "query": "十月十七号那天关于交接续作讨论了什么",
+      "target": "5407c1efae4428dd",
+      "lex": -1,
+      "sem": -1,
+      "exp": -1,
+      "lit": false,
+      "ms": 553
+    }
+  ]
+}
