@@ -1,6 +1,6 @@
 {
   "name": "memrelay",
-  "version": "0.5.1-fork.2",
+  "version": "1.0.0",
   "description": "属于项目、不属于任何厂商的本地记忆层。跨 AI 工具的会话记忆与检索（MIT，独立演进自 SessionRelay）",
   "license": "MIT",
   "type": "module",

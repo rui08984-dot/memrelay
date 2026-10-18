@@ -94,7 +94,7 @@ npm link          # 之后全局可用 srelay 命令
 ### 验证
 
 ```bash
-srelay --version   # 0.5.1-fork.2
+srelay --version   # 1.0.0
 srelay doctor      # 环境自检（含语义检索、守护日志等条件项）
 ```
 

@@ -3,6 +3,24 @@
 所有显著变更将记录在此文件中。
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [1.0.0] - 2026-10-18
+
+第一个独立版本。仓库从上游 fork 独立成 memrelay，改法集中在两处：把「坏了会告诉你」做实，把「数据不会悄悄丢」做稳。
+
+### 破的（对外可见）
+
+- DSH 工具面 14 → 4。`srelay_search` 吃 `kind` 参数覆盖原来 7 个工具的能力，`remember` / `project` 各自合并。MCP 侧 `srelay serve` 保持 14 个不动。
+- 包名 `@ewanjasper/sessionrelay` → `memrelay`（npm 尚未发布）。
+
+### 修的（26 条，分四轮验证）
+
+静默类 6 条、数据丢失类 7 条、项目隔离 1 条、地图 8 条、边界 4 条。逐条见 [docs/EVALUATION.md](./docs/EVALUATION.md) 与 CHANGELOG 下文。
+
+### 判据
+
+913 条测试通过 / 1 跳过；九道门禁全绿。
+
+---
 ## [Unreleased]
 
 ### 文档（整仓重写，不再沿用上游叙述）

@@ -11,6 +11,8 @@
 **把 AI 会话存成本地记忆库，让下一个会话开场就带着上一个会话的结论。**
 属于项目，不属于任何厂商——数据在你自己的磁盘上，检索边界由你划定。
 
+![srelay brief：下一场会话开场看到的真实输出](./docs/diagrams/demo-brief.png)
+
 ---
 
 ## 一、它是什么，不是什么
@@ -43,16 +45,14 @@ memrelay 干的事只有一件：**把这些对话在本地收下来，整理成
 ## 二、快速开始
 
 ```bash
-# 方式一：npm 安装（推荐）
-npm install -g memrelay
-
-# 方式二：零安装试用
-npx memrelay init
-
-# 方式三：从源码
 git clone https://github.com/rui08984-dot/memrelay.git
-cd memrelay && npm ci && npm run build && node dist/srelay.js init
+cd memrelay
+npm ci && npm run build
+npm link          # 让 srelay 进 PATH。不想动全局环境，用 node dist/srelay.js 代替下面所有 srelay
 ```
+
+> **npm 包还没发布**。`npm install -g memrelay` 和 `npx memrelay` 现在会 404——第一次发版在走流程，
+> 发出来会在 Release 页注明。在那之前，上面这几条是唯一能跑通的路径。
 
 ```bash
 cd <你的项目>
