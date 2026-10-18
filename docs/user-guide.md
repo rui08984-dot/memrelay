@@ -75,16 +75,16 @@ graph TB
 ### npm 安装（推荐）
 
 ```bash
-npm install -g @ewanjasper/sessionrelay
+npm install -g memrelay
 
 # 或零安装试用
-npx @ewanjasper/sessionrelay init
+npx memrelay init
 ```
 
 ### 从源码安装
 
 ```bash
-git clone https://github.com/EwanJasper/SessionRelay.git
+git clone https://github.com/rui08984-dot/memrelay.git
 cd SessionRelay
 npm install
 npm run build
@@ -94,7 +94,7 @@ npm link          # 之后全局可用 srelay 命令
 ### 验证
 
 ```bash
-srelay --version   # 0.1.0
+srelay --version   # 0.5.1-fork.2
 srelay doctor      # 环境自检（含语义检索、守护日志等条件项）
 ```
 
@@ -269,10 +269,10 @@ srelay history src/db/schema.sql # 某文件的跨会话讨论史
 字面检索搜不到换过说法的讨论——搜「认证」找不到只说了「登录」的会话。语义检索补上这条路：把每个已确认会话嵌入成向量，查询时按语义相似度**补充**召回（本地 CPU 推理，零云端依赖）。
 
 ```bash
-srelay semantic enable                 # 一键启用：装依赖 + 下载模型 + 存量回填
-srelay semantic test "换一种说法的查询"  # 对比：纯字面 vs 字面+语义 的命中差异
-srelay semantic status                 # 向量数 / 待嵌积压 / 模型状态
-srelay semantic disable                # 停用（向量保留，检索立即回退纯字面）
+srelay semantic --enable               # 一键启用：装依赖 + 下载模型 + 存量回填
+srelay semantic --test "换一种说法的查询"  # 对比：纯字面 vs 字面+语义 的命中差异
+srelay semantic --status               # 向量数 / 待嵌积压 / 模型状态
+srelay semantic --disable              # 停用（向量保留，检索立即回退纯字面）
 ```
 
 **启用前你需要知道的**：
@@ -423,7 +423,7 @@ sequenceDiagram
     小王->>包: srelay import xxx.hop --from 张三
     Note over 小王: 自动：校验完整性<br/>归化 project_id<br/>记入审计
     小王->>AI: "为什么数据库选了 PG？"
-    AI->>包: get_decisions()
+    AI->>包: srelay_search(kind=decisions)
     包-->>AI: "决定采用 PostgreSQL（出处：张三 08-20 会话）"
     AI-->>小王: 带出处的完整回答
 ```
@@ -654,9 +654,9 @@ srelay forget --all --confirm <项目id>   # 整库重置
 srelay related <id|前缀>                  # 以会话为锚找相关讨论
 
 # ═══ 语义检索（可选） ═══
-srelay semantic enable                   # 启用（装依赖+模型+回填）
-srelay semantic test "查询"              # 对比效果
-srelay semantic status                   # 状态
+srelay semantic --enable                 # 启用（装依赖+模型+回填）
+srelay semantic --test "查询"            # 对比效果
+srelay semantic --status                 # 状态
 
 # ═══ 隐私 ═══
 srelay mode <full|meta|off>              # 捕获模式

@@ -1,526 +1,90 @@
-# SessionRelay 会话接力
+# memrelay
+
+[简体中文](./README.md) | English
+
+> Repo name **memrelay** (memory + relay). The CLI is still `srelay` — historical naming, not worth churn.
 
 [![CI](https://github.com/rui08984-dot/memrelay/actions/workflows/ci.yml/badge.svg)](https://github.com/rui08984-dot/memrelay/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/Node-%E2%89%A522-339933)
-![MCP](https://img.shields.io/badge/MCP-16_tools-6C5CE7)
-![Platform](https://img.shields.io/badge/Platform-Windows_%7C_macOS_%7C_Linux-2D7DD2)
-![Semantic](https://img.shields.io/badge/Semantic_Search-optional-F4A261)
 ![License](https://img.shields.io/badge/License-MIT-EAC435)
 
-> **A local memory layer that belongs to your project — not to any vendor.**
-> Memory is always complete. Retrieval is always yours to shape.
+**A local memory layer for AI coding sessions.** It records what you and your agents actually decided, extracts the
+structure (decisions, topics, touched files, open questions), and puts the relevant part back in front of the next session.
 
-You spent three days settling an architecture with your AI. That shouldn't vanish when the window closes. It belongs to the project — and to whoever picks it up next.
+Local files only. No account, no server. One SQLite database per project, plus one global database for cross-project lessons.
 
-> 📖 中文文档：[README.md](./README.md)
+---
 
-## About this repository
+## What it is not
 
-> **Independently maintained**: https://github.com/rui08984-dot/memrelay
->
-> This project started from [EwanJasper/SessionRelay](https://github.com/EwanJasper/SessionRelay) (MIT)
-> but has since **diverged** — code, docs, tool surface and bug fixes no longer track upstream.
-> Please file issues against **this** repository, not upstream.
+| Not | Why |
+|---|---|
+| Not a cloud memory service | Two SQLite files are the entire state; nothing is uploaded |
+| Not a vector database | Main path is FTS5 + Chinese tokenizer + length penalty. The semantic arm is optional and currently **off** (measured: 2.15× slower, no recall gain) |
+| Not a transcript exporter | Export is a side effect; the value is the extracted structure being injected into the next session |
+| Not a shared knowledge base | One database per project, never merged. `forget` deletes a project database; cross-project lessons survive |
 
-### What this repository adds
-
-| Area | Change |
-| ---- | ------ |
-| **DSH panel tools 7 → 14** | Aligned with the MCP server (`srelay serve`). New: `srelay_related` (anchor a session and find related history — fixes "same thing, different wording"), `srelay_history`, `srelay_decisions`, `srelay_unresolved`, `srelay_stats`, `srelay_pin`, `srelay_lessons` (query the cross-project lesson library — auto-injection only guarantees 3; use this to dig deeper as the library grows). All wrap existing CLI commands; **no new core logic** |
-| **Tag-graph visualisation** | The panel gains a **force-directed graph**: 100 nodes / 1200 edges, repulsion + spring + centering, node radius mapped to session count, hover highlights neighbours. Hand-written Canvas, zero dependencies |
-| **Live refresh** | The graph page polls every 15s — no manual page reload after config changes or a graph rebuild |
-| **Codex adapter** | Same brief at session start + the 13 MCP tools + the optional skill. **Codex requires a manual `/hooks` trust step** — see [integrations/codex/README.md](integrations/codex/README.md) |
-| **ZCode MCP wiring** | `sessionrelay` registered in ZCode's `mcp.servers`, turning ZCode from "passive brief only" into "can actively query and record" |
-
-### Bugs fixed (all of the same shape: silently reporting "all good")
-
-| Symptom | Consequence |
-| ------- | ----------- |
-| Graph query referenced non-existent columns (`e.tag_a`/`e.tag_b`; the real ones are `a`/`b`/`w`) | **The graph page never rendered a single time** — the error was swallowed into `null` and the panel said "not built yet" while 5037 tags sat in the DB |
-| `export { X } from` treated as a local binding | The ZCode brief threw `ReferenceError`, swallowed by the "failure = empty output" contract → **no brief was ever injected** since that refactor |
-| The gate treated "skipped" as success | Two `ERR_MODULE_NOT_FOUND` during a dist rebuild still printed "all consistent" |
-| `watchdogOnline` swallowed read errors via `() => undefined` | "Global DB unreadable" was rendered as "daemon offline" |
-| Panel "unresolved" counted **all** `key_questions` (including answered ones) | The same fact read as 686 / 55 / 4 / 1 from four entry points; the panel's number was wrong |
-| Lifecycle `lastAt` was never assigned | The card read "196 runs" next to "last run: —" |
-
-The fixes follow three rules: **errors must be visible** (`withDb` gained `onError`), **a decision has exactly one home** (liveness/threshold/filter logic collapsed into shared functions), **a number must carry its definition** (counts gained semantic filters).
-
-## Design philosophy: light, but correct
-
-Most "AI memory" projects take the same road: **embeddings + a local LLM that summarises**.
-That path works, but it welds three things into the memory layer — **a model, an inference, a network**.
-
-We refuse all three. **A memory layer should be as quiet, fast and predictable as fsync.**
-
-### Where we diverge from embedding-based memory frameworks
-
-| | Typical embedding + summarise | **SessionRelay** |
-|---|---|---|
-| **What is stored** | Vectors (the original text is discarded after summarising) | **The original text, unmodified** |
-| **How it is found** | Vector similarity | SQLite FTS5 full-text + CJK tokeniser |
-| **Needs a local LLM?** | **Yes** (summarise / extract / score) | **No** — zero inference dependency |
-| **Burns tokens in conversation?** | **Yes** (summary fed in every turn) | **Zero** — capture happens beside the model, not inside your context |
-| **Needs network?** | Often (API calls, model downloads) | **Never** — fully local |
-| **Time to first usable result** | Loads a model, seconds to tens of seconds | **Milliseconds** |
-| **Is memory rewritten?** | **Yes** — a summary is lossy compression, irreversibly | **No** — the original is intact and returned as-is |
-
-### Three things we deliberately gave up
-
-This is not all upside. Three places where we **chose** to lose:
-
-1. **No "smart summaries".** A summary always drops something — and **it does not tell you what it dropped**.
-   We would rather put all 5,000 characters in front of you than say "I condensed it into three sentences".
-   — Real cost: retrieval results are rawer; you scan them yourself. That is our choice.
-
-2. **No "semantic similarity".** If your keywords miss, they miss. You will not get "roughly the same meaning".
-   We compensate with three things: **CJK tokenisation**, a **co-occurrence tag graph** (walk the edges from a different angle),
-   and **`srelay_related`** (anchor on a session, which fixes "I reworded it and got nothing").
-   — Cost: you still have to pick decent keywords. Semantic search remains **optional**, never the default path.
-
-3. **No "cloud sync".** The store lives in `.sessionrelay/` inside your project. Copy the directory and you have everything.
-   — Cost: no automatic multi-machine sync. If you want it, sync that directory yourself.
-
-### So where is it actually better
-
-Not "more powerful" — **a better fit for this job**:
-
-- **Zero token cost in conversation.** Other schemes spend context in order to "remember"; our capture happens **outside the model**.
-  Chat all day and the memory layer's token cost is **0**.
-- **Deterministic and reproducible.** Same query today, same result next year. No dependency on model version or temperature.
-- **Interruption-safe.** If the daemon crashes, the network drops, or the model goes away — memory is still written.
-- **Auditable.** The database is plain SQLite. You can `SELECT` exactly what was recorded.
-  The question "what has the AI remembered about me" has a **definite answer** here.
-
-> **In one line**: other projects ask "how do we make the model remember more".
-> We ask "**how do a human and the next model get the unmodified facts, on demand**".
-> The first bets that models keep improving; the second bets that your data does not rot. We take the second bet.
-
-## What you actually see (real panel screenshots, not mockups)
-
-Upstream ships a CLI only. We made it **visible**.
-
-### Panel · tag graph
-
-100 tags / 971 co-occurrence edges, force-directed: repulsion spreads, springs cluster, centering keeps it on screen.
-**Hand-written Canvas, zero third-party deps**, auto-refreshes every 15s; drag, hover to highlight neighbours.
-
-![DSH panel · graph page](assets/panel-graph.webp)
-
-### Panel · project board
-
-The `auto:todos` rows refresh on every capture cycle (human-written rows are never touched), and concurrent writes are protected by an atomic file lock.
-
-![Project board progress.md](assets/kanban.webp)
-
-## 60-second demo (upstream era)
-
-The clip below is from the upstream period and explains how the **memory layer itself** works; for the UI, trust the screenshots above.
-
-![memrelay data layers: 5 sources → adapters → project DB → global DB → injection](./docs/diagrams/layered.png)
-
-The GIF is silent — full narrated versions (English / 中文, plus a 9:16 vertical cut) are playable directly in [Releases · v0.2.2](https://github.com/rui08984-dot/memrelay/releases).
-
-## What it solves
-
-| Pain point | SessionRelay's answer |
-| ---------- | --------------------- |
-| **Amnesia across time**: you ask a new session "what did we decide last week?" — the AI has no idea | Search historical sessions on demand, with mandatory provenance |
-| **Fragmentation across tools**: the plan was settled in Claude Code; ZCode knows nothing | Multi-source, one database — any agent queries the same memory via MCP |
-| **Handoff across people**: you spent 3 days with your AI; your teammate inherits "go read the code" | Export a `.hop` handoff package — their AI instantly owns the full context |
-
-## The architectural difference vs. claude-mem: session-level storage
-
-This is the core design decision — not a feature difference, a **storage-granularity** difference:
-
-| | Fragment memory (claude-mem style) | **SessionRelay** |
-| -- | ---------------------------------- | ---------------- |
-| Unit of storage | compressed shards, mixed across sessions | **complete sessions** (title / timeline / source / status / decisions) |
-| What the AI sees | "you once said..." shards | "ZCode session *Database Selection*, Aug 20, message 12..." |
-| Hallucination risk | high: context pollution + compression distortion + no provenance | **structurally suppressed**: mandatory provenance + on-demand queries + jump back to the original text |
-
-Three anti-hallucination commitments (architecture, not features):
-
-1. **Mandatory provenance** — every answer must cite which session, which message, which tool. Traceable sources leave no room for confident guessing.
-2. **Pull, not push** — the AI queries only when needed. Clean context, no ambient memory pollution.
-3. **Original text, always** — the AI gets the full raw conversation, not a pre-chewed summary. The "why" survives.
-
-## Architecture overview
-
-Everything you discuss with any AI tool flows into one project-level database; you, your AI, and your teammates can all query it. Switch tools without losing memory. Switch people without losing context.
-
-```mermaid
-graph TB
-    subgraph Sources["🖥️ Your AI coding tools (each in its own silo)"]
-        CC["Claude Code<br/>JSONL files"]
-        ZC["ZCode<br/>SQLite database"]
-        CX["Codex<br/>JSONL files"]
-        QD["Qoder<br/>JSONL files"]
-        TR["Trae<br/>partial*"]
-    end
-
-    subgraph Relay["🧠 SessionRelay (local memory layer)"]
-        DAEMON["daemon (watch)<br/>auto-sync every 30s"]
-        DB[("relay.sqlite<br/>unified memory")]
-        EXTRACT["structured extractors<br/>decisions · topics · summaries · key exchanges"]
-    end
-
-    subgraph Consumers["👥 Who queries the memory"]
-        YOU["You (CLI)<br/>search · decisions · history"]
-        AGENT["AI agents (MCP)<br/>14 tools"]
-        TEAM["Teammates (.hop handoff)<br/>export → import"]
-    end
-
-    CC -->|adapter| DAEMON
-    ZC -->|adapter| DAEMON
-    CX -->|adapter| DAEMON
-    QD -->|adapter| DAEMON
-    TR -.->|user prompts only| DAEMON
-    DAEMON --> DB
-    DB --> EXTRACT
-    DB --> YOU
-    DB --> AGENT
-    DB --> TEAM
-
-    style Relay fill:#1a1a2e,color:#e94560
-    style Sources fill:#16213e,color:#fff
-    style Consumers fill:#0f3460,color:#fff
-```
-
-> \* Trae encrypts assistant replies end-to-end; only user prompts are readable. Tool not on the list? Write a [custom adapter](docs/adapters/README.md) — zero core changes.
-
-## Memory lifecycle
-
-Every session passes through a two-phase verdict. **Better to wait than to crystallize an unfinished conversation:**
-
-```mermaid
-stateDiagram-v2
-    [*] --> active: conversation starts / daemon captures
-    active --> pending_end: 10 min without new messages
-    pending_end --> active: you resume (revival)
-    pending_end --> confirmed: 6 h of silence
-    active --> active: new messages appended
-    confirmed --> active: new message (rollback + re-extraction)
-    confirmed --> archived: srelay archive
-    archived --> active: new message arrives (revival)
-
-    confirmed: ✅ Confirmed
-    confirmed: decisions/topics extracted
-    confirmed: enters the main full-text index
-
-    archived: 📦 Archived
-    archived: skeleton kept (decisions/topics)
-    archived: bodies released (99.4% space)
-```
-
-**Why the pending stage exists**: conversations resurrect (you `--resume` the next morning). Crystallize too early and the extracted decisions are incomplete. Pending is a 6-hour buffer; even after confirmation, appended messages trigger a rollback and re-extraction. Raw session files remain the single source of truth — the database can always be rebuilt with `srelay rebuild`.
-
-## Core capabilities
-
-### 🖥️ Passive capture (zero friction)
-- **Five-source adapters**: Claude Code · ZCode · Codex · Qoder (full) + Trae (partial: user prompts only) + [custom adapters](docs/adapters/README.md) (drop in one JS file, zero core changes)
-- **Three privacy modes**: `full` (default) / `meta` (metadata only) / `off` (manual only)
-- **`.sessionrelayignore` hard boundary**: privacy exclusions apply to auto-capture, manual `save`, and export alike
-- **Two-phase verdict**: `active → pending_end → confirmed`, auto-rollback on resume; raw session files are the single source of truth (the DB is always `rebuild`able)
-- **Backfill**: `srelay init` backfills the last 30 days by default; `srelay sync --backfill all` imports your full history
-
-### 🔍 Chinese-optimized search
-- jieba tokenization + SQLite FTS5 dual indexes (gated by six Chinese acceptance cases)
-- Session-level AND coverage with OR fallback: compound words split ("认证方案" → 认证 + 方案), quoted phrases match exactly (`"按月分区"`)
-- Every result **carries a mandatory provenance block** (session ID / source tool / date / message numbers / snippet)
-- **Semantic search (optional)**: `srelay semantic enable` — paraphrased queries now hit ("登录" ↔ "authentication", "很卡" ↔ "performance"). Local CPU inference (bge-small-zh), zero cloud; literal hits always rank first and are never replaced — semantic only appends, flagged `viaSemantic`, capped at top-5. Not enabled = byte-identical behavior to pure literal search. Measured: synonym-query miss rate 33% → **0%**
-
-### 🧹 Right to be forgotten (`srelay forget`)
-Deletion belongs to humans — **AI / MCP tools have zero delete power** (tool list stays at 15, forever):
-
-```bash
-srelay forget a3f8c2d1        # preview (what gets removed vs kept)
-srelay forget a3f8c2d1 --yes  # execute (irreversible)
-srelay forget --history       # audit of what was forgotten when
-```
-
-- Rule of thumb: aging & disk space → `archive`; make one conversation disappear forever → `forget`
-- Dual anti-resurrection barriers: a precise `.sessionrelayignore` rule (survives rebuild) + a tombstone table — the raw file stays on disk but is never re-ingested
-- Prefix ambiguity guard: multiple matches are listed and rejected, never silently picking one
-
-### 🤖 MCP Server (14 tools: 8 read + 6 write-domain)
-Once your AI agent connects via MCP, it stops being amnesiac in this project:
-
-<details>
-<summary><b>6 read tools</b> — questions your AI can finally answer</summary>
-
-| Tool | Question it answers |
-| ---- | ------------------- |
-| `srelay_search` | "Did we ever discuss X?" (Chinese/English full-text + metadata filters) |
-| `srelay_show` | "What exactly did we say?" (full messages, ranged, role-filtered) |
-| `list_sessions` | "What topics has this project covered?" |
-| `srelay_search(kind=decisions)` | "Why X instead of Y?" (all confirmed decisions, with provenance) |
-| `srelay_search(kind=files)` | "Why is this file written this way?" (cross-session file discussion history) |
-| `suggest_related_sessions` | "What else relates to this discussion?" (algorithmically discovered, explainable reasons) |
-| `srelay_search(kind=unresolved)` | "What's still undecided?" (open questions) |
-| `get_stats` | "How big is the memory?" (sessions/sources/size) |
-| `set_scope` | Retrieval-boundary escape hatch |
-
-</details>
-
-<details>
-<summary><b>7 write-domain tools</b> — the AI is no longer just a reader</summary>
-
-| Tool | Capability | Safety boundary |
-| ---- | ---------- | --------------- |
-| `annotate_session` | tag sessions / write human summaries | metadata only, never rewrites conversations |
-| `save_note` | AI records conclusions as notes (decision phrasing enters the decision library) | `source=note`, identifiable and auditable |
-| `export_handoff` | produce a .hop handoff package | read-only export |
-| `import_handoff` | import a package (sha256 verified + normalized) | **quarantine by default** (bodies pending release) |
-| `release_quarantine` | release quarantined message bodies | explicit call required |
-| `link_sessions` | relate sessions (continues/related/pinned) | links are queryable and revocable |
-| `get_linked_sessions` | bidirectional link queries | read-only |
-
-</details>
-
-**Write-domain principles (D21)**: bypass the write path (never touches the state machine) · import defaults to quarantine · notes are traceable — every AI write is identifiable, auditable, revocable.
-
-### 🎯 Scope: retrieval boundaries
-- **Tier B**: `scope.json` project contract (shared by CLI and MCP), intersection semantics — can only narrow
-- **Tier A**: auto-scope backstop (MCP-side, recent-30-days configurable) against context pollution
-- **attach**: mount specific historical sessions before starting new work (highest-priority predicate)
-- **Hot reload**: scope changes take effect on the next call
-
-### 📦 HOP handoff protocol (`hop/1.0`, open format)
-- [Standalone protocol spec](spec/hop-1.0.md) (MIT, vendor-neutral, third-party readers welcome)
-- Per-file sha256 integrity (any tampering rejects the whole package)
-- **Default secret redaction**: AWS keys / private keys / Bearer tokens / password assignments / DB connection strings, with a redaction report
-- **Quarantined import**: metadata and summaries first; bodies released one by one — a structural defense against prompt injection
-- HANDOFF.md generated automatically (decision table / files involved / open questions / timeline / signature footer)
-- **Cross-project import**: packages land in any project path or name (auto-normalized, `origin_project` kept for provenance)
-
-## Optional: handoff skill (recommended, not required)
-
-This repository ships a **`handoff-atlas`** skill — it teaches the AI **when a handoff document is warranted and how to write one**, folding "handoff doc / full resource atlas / state-stack troubleshooting" into one pipeline.
-
-### Do you need it?
-
-**No.** SessionRelay's core (capture, retrieval, MCP tools, auto-brief) **does not depend on any skill** — `srelay init` and you're done.
-
-Install it for these cases:
-
-| Case | Without it | With it |
-| ---- | ---------- | ------- |
-| Switching sessions | The AI only gets the auto brief | The AI knows **when to proactively write a handoff** and which sections matter |
-| Taking over a long project | You assemble the entry point yourself | Generates an entry handoff + errata + anchor audit |
-| Context nearly full | In-flight work gets lost | Three-step wrap-up (landing audit / index append / memory sync) becomes a routine |
-
-The skill's own rule:
-> Write a handoff **only when** "the next person (or the next life) would take a wrong turn without it".
-> Merely "log what I did" is the job of relay's auto-capture and the kanban — not of a handoff document.
-
-### How to install
-
-```bash
-git clone https://github.com/rui08984-dot/memrelay.git
-cd SessionRelay
-cp -r skills/handoff-atlas ~/.agents/skills/     # generic agents (Claude Code / Codex)
-cp -r skills/handoff-atlas ~/.zcode/skills/      # ZCode
-cp -r skills/handoff-atlas ~/.dsh/skills/        # DSH (panel host of this repo)
-```
-
-PowerShell:
-
-```powershell
-Copy-Item -Recurse skills\handoff-atlas "$HOME\.agents\skills\"
-```
-
-Restart the agent afterwards.
+---
 
 ## Quick start
 
-Requires **Node ≥ 22** (Windows / macOS / Linux):
-
 ```bash
-# Option 1: npm (recommended)
-npm install -g @ewanjasper/sessionrelay
-
-# Option 2: zero-install trial
-npx @ewanjasper/sessionrelay init
-
-# Option 3: from source
-git clone https://github.com/rui08984-dot/memrelay.git
-cd SessionRelay && npm install && npm run build && npm link
+npm install -g memrelay          # or: npx memrelay init
+cd <your-project>
+srelay init                      # creates .sessionrelay/ inside this project
+srelay doctor                    # health check: sources, daemon, DB integrity, extractor version
+srelay watch --install-service    # run the daemon as a user service (Windows Run key / launchd / systemd --user)
+srelay brief                     # what the next session will actually see
 ```
 
-### Initialize a project
+---
 
-```bash
-cd your-project
-srelay init                  # initialize + backfill last 30 days (last month searchable within a minute)
-srelay sync --backfill all   # or backfill your entire history (old sessions auto-confirm + extract decisions)
-```
+## What is in the box
 
-### Daily use
+| Layer | Responsibility | Doc |
+|---|---|---|
+| Capture | Six clients, incremental cursors, rewrite detection, visible failures | [docs/CAPTURE.md](./docs/CAPTURE.md) |
+| Extract | Decisions / topics / files / open questions, versioned and re-computable | [docs/EXTRACT.md](./docs/EXTRACT.md) |
+| Store | Two databases, schema, FTS5, archive & rebuild | [docs/STORE.md](./docs/STORE.md) |
+| Search | Four fused arms, length penalty, time decay, multi-DB merge | [docs/SEARCH.md](./docs/SEARCH.md) |
+| Lifecycle | 11 independently scheduled stages | [docs/LIFECYCLE.md](./docs/LIFECYCLE.md) |
+| Map | Structural source of truth for the plan: layers, dependency edges, reconciliation | [docs/MAP.md](./docs/MAP.md) |
+| Interfaces | CLI, MCP server, DSH plugin, panel | [docs/INTERFACES.md](./docs/INTERFACES.md) |
 
-```bash
-srelay search 中文关键词 [--topic --source --since --json]
-srelay decisions         # all confirmed decisions, with provenance
-srelay history src/db/   # which sessions discussed this file
-srelay watch --install-service  # register the daemon (Windows), starts at login
-srelay doctor            # environment self-check
-```
+Architecture overview: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) (Chinese, with diagrams).
 
-### Team handoff
+---
 
-```bash
-srelay export --all      # handoff package (redacted by default) → send to a teammate
-# The teammate, in any project root:
-srelay import xxx.hop --from your-name
-```
+## Retrieval, measured honestly
 
-👉 Full walkthrough (five scenarios: project handoff / onboarding / safe import / cross-project migration / periodic archiving): [Import & Export Guide](docs/import-export-guide.md)
+305 questions over 105 sessions:
 
-## ⚠️ Why the daemon is not optional
+| Metric | Result |
+|---|---|
+| hit@1 | **11.5%** |
+| hit@10 | **45.6%** |
+| cluster-level 95% CI | ±3.85 pt |
 
-**ZCode physically deletes old messages on context compaction** (measured: one compaction deleted 3,976 messages from a long session). The daemon syncs every 30 seconds so messages land in the database before deletion.
+The 34-point gap means **it finds the material but ranks it wrong**. Tried and rejected (all default-off, reasons recorded):
+synonym expansion, question-shell stripping, pure RRF, and the semantic arm. The real bottleneck is query rewriting — turning
+"that thing where the DB kept growing" into terms that appear in the transcripts.
 
-Without the daemon: anything the AI compacts between two manual syncs is **permanently lost**.
+Full method and per-arm numbers: [docs/EVALUATION.md](./docs/EVALUATION.md) and [the workbook](./docs/eval/memrelay-eval.xlsx).
 
-```bash
-srelay watch --install-service   # Windows registry autostart (no admin required)
-srelay watch --foreground        # macOS/Linux foreground (service registration in progress)
-```
+---
 
-Daemon overhead: ~0% idle CPU (event-driven), ~80MB memory (resident Node.js), negligible incremental disk I/O, **zero network calls**.
+## Known limitations
 
-```mermaid
-timeline
-    title Without vs. with the daemon
-    Without daemon : you chat (messages land in ZCode's store) : AI triggers context compaction : 💥 ZCode physically deletes messages : you remember to run sync : ❌ only the compaction summary remains; the original text is gone
-    With daemon : you chat (messages land in ZCode's store) : daemon syncs within 30s : AI triggers compaction : ZCode deletes messages : 😌 no problem — the original text is already in your memory : the compaction summary is captured too
-```
+1. Ranking is unstable — hit@1 is 11.5%.
+2. Map edges only grow from an explicit dependency column; code co-change cannot establish task order.
+3. Extraction is rule-based, not semantic; half-sentences still slip through.
+4. `aging` (the only lossy stage) deletes message bodies of old sessions — `pin` anything that matters.
+5. Six config keys are frozen at daemon startup; restart is required.
+6. Cross-project lessons are still thin.
 
-## MCP integration
-
-### Claude Code (one command)
-
-```bash
-claude mcp add sessionrelay --scope user -- srelay serve
-```
-
-Run `/mcp` in Claude Code — `sessionrelay` should show as connected with 14 tools ready.
-
-### ZCode / other MCP clients
-
-Add to your project's MCP config (`.mcp.json` or client settings):
-
-```json
-{
-  "mcpServers": {
-    "sessionrelay": { "command": "srelay", "args": ["serve"] }
-  }
-}
-```
-
-> **Qoder users**: Qoder launches MCP subprocesses without setting the working directory to the project root. **Since 0.5.0 this needs no config**: serve tries the MCP roots protocol (asks the client "which workspace") first, then the global project registry (auto-selects when exactly one project is alive); if neither resolves, the connection stays up and the first tool call returns a candidate list — the AI passes `project` once to pick (remembered for the connection). The env var below remains the most robust explicit pin.
-
-### Most robust fallback (any MCP client, bypasses PATH / cwd issues)
-
-`SRELAY_PROJECT_ROOT` pins the project root regardless of the subprocess working directory — it saves you when PATH cannot resolve `srelay` or when the client does not set cwd (Qoder, in practice).
-
-```json
-{
-  "mcpServers": {
-    "sessionrelay": {
-      "command": "node",
-      "args": ["/your/install/path/SessionRelay/dist/srelay.js", "serve"],
-      "env": { "SRELAY_PROJECT_ROOT": "/your/project/path" }
-    }
-  }
-}
-```
-
-### How to verify it works
-
-Open a fresh AI session and ask:
-
-> **"Why did we decide on PostgreSQL?"**
-
-Correct behavior: the AI calls `srelay_search(kind=decisions)` or `srelay_search` and answers with provenance (date, source tool, session ID, message numbers). If it says "I don't know," MCP isn't connected — run `srelay doctor`.
-
-### Context safety (the AI never "eats too much")
-
-- `srelay_show` defaults to 20 messages × 1,000 chars ≈ 20KB, hard-capped at 50KB
-- When truncated, responses carry `truncated: true` plus actionable hints (`role="user"` to see only your prompts / `srelay_search(kind=decisions)` for conclusions / paginate)
-- More requires explicit parameters — safe by default, no trust in model restraint
-
-### Claude Code lifecycle hook (optional, speeds up session confirmation)
-
-```json
-{
-  "hooks": {
-    "Stop": [{ "hooks": [{ "type": "command", "command": "srelay hook session-end --id $CLAUDE_SESSION_ID" }] }]
-  }
-}
-```
-
-## Custom adapters (adding a new agent)
-
-SessionRelay's adapters are pluggable — **adding a new AI tool = zero core changes**:
-
-```
-.sessionrelay/adapters/my-agent.js   ← just drop in a JS file
-```
-
-```javascript
-// minimal implementation
-module.exports = {
-  id: 'my-agent',
-  displayName: 'My Agent',
-  discover(projectRoot, config) {
-    // return the sessions belonging to this project
-    return [{ source: 'my-agent', sourceSessionId: 'xxx', sourceFile: '...', sizeBytes: 1024, mtimeMs: Date.now() }];
-  },
-  async readNew(ds, cursor, config) {
-    // incrementally read new messages (the cursor is your own watermark object)
-    return { messages: [{ role: 'user', content: '...', seqNum: 1 }], badLines: 0, cursor: { offset: 100 } };
-  },
-};
-```
-
-Full interface and more capabilities (watchRoots / healthCheck / detectCompaction) in the [Adapter SDK docs](docs/adapters/README.md).
-
-## Privacy design
-
-- **Local-first**: zero cloud dependencies, zero runtime network calls (telemetry = a local counter + voluntary submission)
-- **Three capture modes** + **ignore hard boundary** + **redacted-by-default export** + **quarantined import** — four lines of defense
-- **Trust model**: handoff contents are data, not instructions — written into the `hop/1.0` protocol
-
-## Quality & verification
-
-- **222 tests** (unit / integration / MCP stdio real-handshake contract / serve root resolution / live daemon-service install / end-to-end), one `npm test`
-- **CI green across 3 platforms × Node 22/24** (typecheck + test + build + dist smoke)
-- TypeScript strict, `npm run typecheck` clean
-- Real-machine acceptance at every phase (including the product recording its own birth)
-
-## Known limitations (honest list)
-
-- Rule-based extraction precision is ~60-70% (provenance blocks let you verify item by item; `--ai` enhancement is Phase 4)
-- Daemon service registration on all three platforms (Windows registry run key / macOS launchd / Linux systemd user, all login-autostart)
-- "Auto-attach important sessions to new ones" needs session identity (branch/PID), landing in Phase 4; for now use manual `attach`
-- Concurrent multi-agent sessions on one project scope by project+cwd
-- Historical sessions under renamed/moved directories are not auto-discovered (use a handoff package to migrate)
-- Trae is partial only: user prompts are readable, assistant replies are end-to-end encrypted (use `save_note` to record conclusions)
-- DSH / Cursor and other tools are on the roadmap ([custom adapters](docs/adapters/README.md) work today)
-
-## Roadmap (Phase 4)
-
-`--ai` summary/extraction enhancement · session identity (branch/PID) and auto-attach · `suggest_related_sessions` (now cheap: session vectors from semantic search already encode topic similarity) · official DSH / Cursor adapters · macOS/Linux daemon service registration · third-party adoption of the HOP protocol
-
-## Documentation
-
-- **[User Guide](docs/user-guide.md)** (Chinese) — the complete manual from install to team handoff
-- [Import & Export Guide](docs/import-export-guide.md) (Chinese) — five scenarios with complete commands
-- [Adapter SDK](docs/adapters/README.md) — how to write a custom adapter (7 lines of code per new AI tool)
-- [HOP handoff protocol spec, hop/1.0](spec/hop-1.0.md) — open format, MIT
-- [Privacy & data lifecycle](docs/privacy-and-lifecycle-design.md) (Chinese) — the three-layer privacy model
-- Design decision logs (Chinese, contributor-facing): see [CONTRIBUTING.md](CONTRIBUTING.md)
+---
 
 ## License
 
-MIT © 2026 EwanJasper (original work) · rui08984-dot (this repository)
+MIT, original copyright notices retained. See [LICENSE](./LICENSE).
+Originated from [EwanJasper/SessionRelay](https://github.com/EwanJasper/SessionRelay); independently maintained since memrelay.

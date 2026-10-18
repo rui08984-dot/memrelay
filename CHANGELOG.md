@@ -3,6 +3,31 @@
 所有显著变更将记录在此文件中。
 格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本遵循 [SemVer](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### 文档（整仓重写，不再沿用上游叙述）
+
+- **README / README.en 重写**：它是什么 / 不是什么、六块子系统分工、数据怎么流、检索实测与负结果、11 阶段、地图、接口面、已知限制。
+- **新增六篇子系统文档**：`docs/CAPTURE.md`、`docs/EXTRACT.md`、`docs/STORE.md`、`docs/SEARCH.md`、`docs/LIFECYCLE.md`、`docs/INTERFACES.md`；
+  另加 `docs/MAP.md`（地图层与自动孵化）与 `docs/README.md`（文档地图，按「现在的实现 / 怎么用 / 设计记录」分层）。
+- **图**：新增 `map-real`（真实地图：13 节点 / 6 层 / 17 条边，由 `renderMapMermaid(root, [])` 直接导出）与 `map-hatch`（依赖列 → 拓扑分层 → 真边）；
+  `session-flow` 重画——**之前把抽取画在采集链路里，是错的**（抽取由 judge 与 recompute 驱动）。
+- **修文档与代码不符**（一次独立审计查出 23 处不符 / 9 条断链，逐条带双证据，报告留在 `docs/_audit/staleness.md`）：
+  MCP 工具数口径自相矛盾、DSH 插件路径与工具数（`plugins/dsh`→`integrations/dsh`、14→4）、包名与版本（`@ewanjasper/sessionrelay`→`memrelay`、0.1.0→0.5.1-fork.2）、
+  `srelay semantic enable`→`--enable`、已废弃工具名（`get_decisions` 等三个）、不存在的配置键（`map.dir` / `map.rows_max`）、`archive --topic`、
+  默认配置里的「热读 / 启动固化」口径、脱敏模式条数（5 类 → 6 类 8 条正则，含裸 JWT）。
+
+### 修复
+
+- **含「待办」节点的 `board.mmd` 整张图解析失败**：Mermaid 的平行四边形必须闭合（`[/"…"/]`），`shapeOf()` 少了结尾那个 `/`。
+  已加回归测试（`test/fork/kanban-map.spec.ts` ⑩：任何一处 `[/"` 都必须以 `"/]` 收尾）。
+- **面板 `aging` 的热窗缺省值 30 与归档路径的 60 不一致** ⇒ 统一 60（同一判据不许写两份）。
+- `doctor` 提示写成不存在的子命令 `srelay semantic enable` ⇒ 改为 `srelay semantic --enable`。
+- 时间衰减默认值的注释漂移：代码 `DEFAULT_DECAY.enabled = true`，注释写「默认关」⇒ 注明以代码为准。
+- `src/mcp/server.ts` 注释「第 16 个工具」⇒ 14；`src/map/bridge.ts` 注释里承诺的 `map.rows_max` 配置键并不存在 ⇒ 改正为「由调用方传」。
+- 删除误入仓库的空目录 `integrations/srelay-autoinit-*`；补 `.github/workflows/ci.yml`
+  （README 徽章此前指向一个**不存在**的 workflow）。
+
 ## [0.5.1-fork.2] - 2026-10-18
 
 ### ⚠️ 契约变化（消费方请注意）

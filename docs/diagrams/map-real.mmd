@@ -1,0 +1,61 @@
+flowchart TB
+    subgraph L_accept["门禁与验收（rank 5）"]
+        direction TB
+        m_brief_next["简报读到结构化 next · 待办"]
+        m_gate_gates(["门禁全绿（typecheck+全量测试） · 完成"])
+        m_live_accept(["现场验收（真项目跑通） · 完成"])
+        m_skill_ship(["技能入仓与镜像 · 完成"])
+    end
+    style L_accept fill:#f7f6f2,stroke:#d8d3c8,color:#2b2b2b
+    subgraph L_kanban["看板与图（rank 4）"]
+        direction TB
+        m_board_graph(["board.mmd 层带与真边 · 完成"])
+        m_doctor_map(["doctor 地图检查项 · 完成"])
+        m_kanban_sync(["auto:map 并入看板自动区 · 完成"])
+    end
+    style L_kanban fill:#f7f6f2,stroke:#d8d3c8,color:#2b2b2b
+    subgraph L_cli["CLI 面（rank 3）"]
+        direction TB
+        m_map_cli(["srelay map 九动作 · 完成"])
+    end
+    style L_cli fill:#f7f6f2,stroke:#d8d3c8,color:#2b2b2b
+    subgraph L_api["对账与投影（rank 2）"]
+        direction TB
+        m_map_bridge(["看板行与 Mermaid 投影 · 完成"])
+        m_map_patch(["patch 信封与原子混合批 · 完成"])
+        m_map_stale(["源码指纹对账（sha256） · 完成"])
+    end
+    style L_api fill:#f7f6f2,stroke:#d8d3c8,color:#2b2b2b
+    subgraph L_store["存储与锁（rank 1）"]
+        direction TB
+        m_map_store(["存储：严格解析/原子写/页级锁 · 完成"])
+    end
+    style L_store fill:#f7f6f2,stroke:#d8d3c8,color:#2b2b2b
+    subgraph L_kernel["地图内核（rank 0）"]
+        direction TB
+        m_map_domain(["域模型与七条不变式 · 完成"])
+    end
+    style L_kernel fill:#f7f6f2,stroke:#d8d3c8,color:#2b2b2b
+    m_board_graph --> m_map_bridge
+    m_brief_next --> m_kanban_sync
+    m_doctor_map --> m_map_stale
+    m_gate_gates --> m_map_cli
+    m_kanban_sync --> m_map_bridge
+    m_live_accept --> m_board_graph
+    m_live_accept --> m_kanban_sync
+    m_map_bridge --> m_map_domain
+    m_map_bridge --> m_map_store
+    m_map_cli --> m_map_bridge
+    m_map_cli --> m_map_patch
+    m_map_cli --> m_map_stale
+    m_map_patch --> m_map_domain
+    m_map_patch --> m_map_store
+    m_map_stale --> m_map_store
+    m_map_store --> m_map_domain
+    m_skill_ship --> m_map_cli
+    class m_gate_gates,m_live_accept,m_skill_ship,m_board_graph,m_doctor_map,m_kanban_sync,m_map_cli,m_map_bridge,m_map_patch,m_map_stale,m_map_store,m_map_domain done
+    class m_brief_next todo
+    classDef done fill:#1f4d33,color:#ffffff,stroke:#1f4d33,stroke-width:1px
+    classDef doing fill:#8a5a17,color:#ffffff,stroke:#8a5a17,stroke-width:1px
+    classDef blocked fill:#7d2b2b,color:#ffffff,stroke:#7d2b2b,stroke-width:1px
+    classDef todo fill:#3a3f47,color:#e8e8e8,stroke:#3a3f47,stroke-width:1px

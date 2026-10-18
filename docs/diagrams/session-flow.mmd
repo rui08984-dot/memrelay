@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    participant SRC as 源文件 / 源库
+    participant ADP as 适配器
+    participant SYN as sync（采集）
+    participant DB as 项目库
+    participant EXT as 抽取（judge / recompute）
+
+    rect rgb(243, 244, 246)
+    Note over SRC,DB: 采集：只把正文搬进库，不做抽取
+    SRC->>ADP: discover() 列出会话
+    ADP-->>SYN: 会话清单（mtime / 大小 / 内容签名）
+    SYN->>SYN: 三重过滤：墓碑 → ignore → 水位线
+    Note over SYN: 内容签名没变 ⇒ 整场跳过<br/>这是「不重复解析」的唯一依据
+    SYN->>ADP: readNew(游标)
+    ADP->>SRC: 读增量字节
+    ADP-->>SYN: 新消息数组
+    Note over ADP: 整段重写会被识别（变短/变长两种）<br/>新内容进独立代际 seq，旧文不丢
+    SYN->>DB: upsertMessage（同 seq 才谈覆盖）
+    DB->>DB: FTS5 触发器同步索引
+    end
+
+    rect rgb(240, 253, 244)
+    Note over EXT,DB: 抽取：另一条可以整批重算的路
+    EXT->>DB: judge：会话空闲满 cooldown 后确认，回写派生列
+    EXT->>DB: recompute：规则版本落后就整批重算
+    Note over EXT: 「已入库但还没抽出决策」是正常中间态<br/>最长到 cooldown_hours（默认 6 小时）
+    end

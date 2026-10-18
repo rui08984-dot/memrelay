@@ -1,7 +1,7 @@
 # 隐私与数据生命周期 — 完整设计文档 v1.0
 
 > **日期**：2026-08-28
-> **状态**：定稿，待实施
+> **状态**：定稿，**已实施**（archive CLI、cleanup_at / original_message_count 迁移、cleanup_log、复活、rebuild 跳过都已落地）
 > **来源**：三轮归档方案评审 + 用户追问 purge/ignore 价值后的完整推演
 > **核心认知**：隐私不是单一功能，是三层防线；归档不只是释放空间，是隐私出口
 
@@ -110,7 +110,7 @@
 │                                                             │
 │  ┌─────────────────────────────────────────────────────┐   │
 │  │ srelay archive --sessions abc123 --hard              │   │
-│  │ srelay archive --topic "薪资" --hard                 │   │
+│  │ srelay archive --days 30 --hard                 │   │
 │  │                                                     │   │
 │  │ 删除：sessions 行 + messages + FTS + decisions        │   │
 │  │ 不可恢复（除非源文件还在 + rebuild --force）            │   │

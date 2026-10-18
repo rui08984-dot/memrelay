@@ -44,7 +44,7 @@ injection point — that renders the brief before each model step.
    installation, the npm global root and drive roots are excluded by a
    blacklist shared with the ZCode hook, so the rule lives in exactly one place.
    `init` is cheap (~190 ms, 166 KB) and reversible (delete `.sessionrelay/`).
-4. **Seven native tools.** `srelay_search` / `srelay_show` / `srelay_record`
+4. **四个原生工具。** `srelay_search` / `srelay_show` / `srelay_record`
    for querying, `srelay_init` for creating a library, and
    `srelay_bind_project` / `srelay_confirm_bind_project` /
    `srelay_cancel_bind_project` for the two-stage binding.

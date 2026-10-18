@@ -27,9 +27,9 @@ srelay search "数据库"     # 搜到所有相关讨论
 ```
 
 **同事的 AI 能回答什么**：
-- "为什么数据库选了 PostgreSQL？" → 调 `get_decisions()`，带出处
-- "JWT 刷新策略定了吗？" → 调 `get_unresolved()`
-- "这个文件为什么这么写？" → 调 `get_file_history("src/auth/jwt.ts")`
+- "为什么数据库选了 PostgreSQL？" → 调 `srelay_search(kind=decisions)`，带出处
+- "JWT 刷新策略定了吗？" → 调 `srelay_search(kind=unresolved)`
+- "这个文件为什么这么写？" → 调 `srelay_search(kind=history, filePath="src/auth/jwt.ts")`
 
 ---
 
@@ -162,7 +162,7 @@ AI：调用 release_quarantine(session_id_prefix: "abc123")
 A: 取决于会话量。100 个会话约 5-50MB；`--decisions-only` 通常 < 100KB。
 
 **Q: 脱敏能漏掉东西吗？**
-A: 目前覆盖 5 类模式（连接串/AKIA/私钥/Bearer/密码赋值），正则覆盖常见格式。如果你有自定义敏感模式，建议先 `--format markdown` 生成文档人工审查，确认安全后再打 .hop 包。
+A: 目前 8 条正则、6 类模式（连接串 / AKIA / 私钥 / Bearer / 密钥赋值〔单引号、双引号、裸值三种写法〕/ 裸 JWT），覆盖常见格式。如果你有自定义敏感模式，建议先 `--format markdown` 生成文档人工审查，确认安全后再打 .hop 包。
 
 **Q: 导入后原会话会被修改吗？**
 A: 不会。导出是只读操作。导入是在你的库里创建新记录，原始会话文件（ZCode SQLite / Claude Code JSONL）完全不动。

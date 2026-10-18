@@ -1,0 +1,25 @@
+flowchart TB
+  A["progress.md 人写行<br/>| 任务 | 状态 | 模块 | 明细 |"] --> B["readKanbanRows()<br/>解析看板行（跳过 auto:* 机器行）"]
+  B --> C{"readDepColumn()<br/>认表头：分隔行的上一行里找「依赖」"}
+  C -- "没有这一列" --> D["单层骨架<br/>计划（自 progress.md 导入）· 0 边"]
+  C -- "有这一列" --> E["parseDepText()<br/>切片段 / 「上方全部 ✅」/ 空值跳过"]
+  E --> F{"matchNodes()<br/>双向子串；单字只认全等"}
+  F -- "命中 0 个" --> G["unresolved 原样报出<br/>不建边"]
+  F -- "命中多个" --> H["ambiguous 原样报出<br/>不建边"]
+  F -- "唯一命中" --> I["关系：用者 → 被用者"]
+  I --> J["rankByLongestPath()<br/>无依赖 rank 0；其余 = 1 + max(依赖的 rank)"]
+  J -- "绕成环" --> K["CYCLE：整批拒绝<br/>绝不丢一条边凑出无环"]
+  J --> L["layers + nodes + edges<br/>plan / plan-1 / plan-2 …"]
+  D --> M["applyPatch(expectedRevision = absent)<br/>已有地图就一个字节都不动"]
+  L --> M
+  M --> N["map.json<br/>结构真值（唯一权威）"]
+  N --> O["投影：progress.md 的 auto:map 行 · board.mmd 层带与真边 · 简报一行"]
+  N --> P["增量同步：看板新增行 → 收件箱层<br/>只增不删 · 单轮 ≤ 20 · matched=0 就整轮跳过"]
+  classDef ok fill:#1f4d33,color:#ffffff,stroke:#1f4d33
+  classDef stop fill:#7d2b2b,color:#ffffff,stroke:#7d2b2b
+  classDef data fill:#3a3f47,color:#e8e8e8,stroke:#3a3f47
+  classDef soft fill:#f1efe9,color:#2b2b2b,stroke:#cfcabd
+  class A,M,N data
+  class D,L soft
+  class G,H,K stop
+  class O,P ok
