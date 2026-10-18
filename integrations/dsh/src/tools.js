@@ -466,7 +466,7 @@ export const cancelBindTool = defineTool({
 //   · 内核变了这里不用跟着改。
 
 /** 纯文本类 CLI 工具的统一包装：参数数组 → CLI → 文本 */
-function describeTextTool({ name, description, parameters, buildArgs, emptyHint }) {
+function describeTextTool({ name, description, parameters, buildArgs, emptyHint, format }) {
   return defineTool({
     name,
     description,
@@ -480,7 +480,10 @@ function describeTextTool({ name, description, parameters, buildArgs, emptyHint 
       const res = await execSrelay(buildArgs(args), { cwd })
       if (!res.ok) return { ok: false, payload: '', error: res.stderr || '执行异常' }
       const output = (res.stdout || '').trim()
-      return { ok: true, payload: clip(output || emptyHint), error: '' }
+      // format：CLI 的 --json 是给程序读的，工具输出去是给模型读的。
+      //   lessons 原来直接把 JSON 数组丢给模型（与其他 kind 的排版完全不一致），这里允许各工具自定排版。
+      const text = typeof format === 'function' ? format(output, args) : output
+      return { ok: true, payload: clip(text || emptyHint), error: '' }
     },
   })
 }
@@ -550,6 +553,22 @@ export const lessonsTool = describeTextTool({
   buildArgs: (a) => {
     const q = String(a.query || '').trim()
     return q ? ['lesson', 'search', q, '--json'] : ['lesson', '--json']
+  },
+  // [10-18 实测] 原来把 CLI 的 JSON 数组原样丢给模型，与 kind=decisions 等排版完全不一致。
+  //   一行一条：等级 / 用途次数 / 正文。**不在这里重算「能不能注入」**——那是内核的判据，
+  //   插件只负责排版（判据只许有一份）。
+  //   limit 在**排版层**截断：CLI 的 lesson 没有 --limit（顺序即重要度排序），
+  //   但工具参数承诺了 limit —— 承诺了就得兑现，否则模型拿到 20 条还以为只返 3 条。
+  format: (stdout, a) => {
+    try {
+      const all = JSON.parse(stdout)
+      if (!Array.isArray(all) || all.length === 0) return ''
+      const n = Number(a?.limit)
+      const arr = Number.isFinite(n) && n > 0 ? all.slice(0, n) : all.slice(0, 10)
+      const lines = arr.map((x, i) => `${i + 1}. [${x.grade ?? '?'}] ${x.text}  · 用 ${x.uses ?? 0} 次`)
+      if (all.length > arr.length) lines.push(`…共 ${all.length} 条，只列前 ${arr.length} 条（放个大点的 limit 看更多）`)
+      return lines.join('\n')
+    } catch { return stdout }
   },
   emptyHint: '经验库里没有匹配的条目。',
 })
