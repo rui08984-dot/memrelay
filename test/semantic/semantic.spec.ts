@@ -262,7 +262,10 @@ describe('semantic · 兼容与降级', () => {
     expect(bin).toContain('--enable');
     const readme = fs.readFileSync(path.resolve('README.md'), 'utf8');
     expect(readme).toContain('语义检索（可选）');
-    expect(readme).toContain('srelay semantic enable');
+    // 注意：这里曾经断言 `srelay semantic enable`（空格分隔的子命令），但 CLI 只有旗标、
+    // 没有 enable/disable/status/test 四个子命令 —— 那条断言等于在保护一个不存在的用法。
+    // 现在钉的是真实可用的写法。
+    expect(readme).toContain('srelay semantic --enable');
   });
 });
 

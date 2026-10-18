@@ -611,7 +611,7 @@ function l0Counts(db: { prepare: (s: string) => { all: () => unknown[] } }): { t
  */
 export function agingPlanOf(db: unknown, cfg: RelayConfig): NonNullable<PanelCompression['aging']> {
   const d = db as { prepare: (s: string) => { all: () => unknown[] } };
-  const hotDays = cfg.archive?.hot_days ?? 30;
+  const hotDays = cfg.archive?.hot_days ?? 60;   // 与 capture/archive.ts 的缺省值同一个数，别再各写一个
   const workflowDays = cfg.archive?.workflow_days ?? 7;
   const rows = d.prepare('SELECT id, origin, state, last_event_at, message_count, extracted_version, decisions, cleanup_at FROM sessions').all() as Array<Record<string, unknown>>;
   const planFor = (subset: Array<Record<string, unknown>>, minAgeDays: number) => minAgeDays > 0

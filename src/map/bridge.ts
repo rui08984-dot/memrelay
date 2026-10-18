@@ -40,7 +40,7 @@ export interface KanbanProjection {
   note: string;
 }
 
-/** 行数上限默认 12（可配 map.rows_max，由调用方传进来）。 */
+/** 行数上限默认 12（由调用方通过 opts.maxRows 传进来；当前唯一生产调用点不传，所以恒为 12）。 */
 export const MAP_ROWS_DEFAULT = 12;
 /** 上限硬顶：再大就不是"看板一屏"了（防一个坏配置把 progress.md 撑成墙）。 */
 export const MAP_ROWS_MAX = 500;
@@ -338,7 +338,10 @@ function shapeOf(cls: string, label: string): string {
   if (cls === 'done') return '(["' + label + '"])';
   if (cls === 'blocked') return '{{"' + label + '"}}';
   if (cls === 'doing') return '["' + label + '"]';
-  return '[/"' + label + '"]';
+  // 平行四边形在 Mermaid 里必须闭合：`[/"…"/]`。少了结尾那个 `/` 整张图解析失败
+  // （2026-10-18 用 officecli 的 mermaid 实测：`[/"x"]` 直接 Lexical error，
+  //   而 board.mmd 里只要有任一「待办」节点就会踩到——所以这不是观感问题，是出图失败）。
+  return '[/"' + label + '"/]';
 }
 
 /**

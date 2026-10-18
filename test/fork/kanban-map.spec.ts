@@ -263,6 +263,22 @@ describe('[T3] renderMapMermaid', () => {
     expect(mmd).toContain('待复验');
   });
 
+  it('⑩ 待办节点必须是**闭合**平行四边形：少结尾那个 / 会让整张图解析失败', () => {
+    // 由来（2026-10-18 实测）：Mermaid 的平行四边形是 `[/"…"/]`。**只写 `[/"…"]`**
+    // 在 mermaid 解析器里直接 Lexical error —— 而 board.mmd 只要有一个待办节点就踩到。
+    // 所以这不是观感问题：出图会整张失败，且只有「有人看」的时候才会发现。
+    const got = renderMapMermaid(root, readRows(root));
+    expect(got.ok).toBe(true);
+    if (!got.ok) return;
+    const mmd = got.value;
+    // 正向：待办节点用了闭合写法
+    expect(mmd).toMatch(/m_n_todo\[\/"[^"]*"\/\]/);
+    // 反向：任何一处 `[/"` 都必须以 `"/]` 收尾（否则就是同一个 bug 的变体）
+    const parallelogram = mmd.split('\n').filter((l) => l.includes('[/"'));
+    expect(parallelogram.length).toBeGreaterThan(0);
+    for (const line of parallelogram) expect(line.trimEnd().endsWith('"/]')).toBe(true);
+  });
+
   it('⑨ 人写行进 HUMAN、auto:todos 进 AUTO、auto:map 行不再重复画', () => {
     const got = renderMapMermaid(root, readRows(root));
     expect(got.ok).toBe(true);

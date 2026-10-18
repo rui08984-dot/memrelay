@@ -5,7 +5,8 @@
 // 所以宿主半可以零依赖加载（数据库用 Node 内置的 node:sqlite 打开）。
 //
 // 纪律：本入口的依赖闭包必须是"纯"的。dist/panel.js 里如果出现 require('better-sqlite3')
-// 或 node-rs/jieba，插件就会在 DSH 里加载失败 —— tools/check-panel-deps.mjs 会拦下它。
+// 或 node-rs/jieba，插件就会在 DSH 里加载失败。这条判据由开发树里的门禁脚本
+// tools/check-panel-deps.mjs 把关（它不随 npm 包发布，所以本仓库里没有它）。
 
 export {
   panelOverview, panelProjectCard, panelLessons, panelLifecycle, watchdogOnline,

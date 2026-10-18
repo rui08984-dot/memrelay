@@ -72,7 +72,9 @@ export interface RelayConfig {
     /** complex 档的门槛：可解析看板行数 ≥ 这个值才建图（默认 5） */
     complex_min_rows?: number;
   };
-  /** 时间衰减（1021；模块见 core/decay/）。**默认关**，只乘排序分数不过滤。
+  /** 时间衰减（1021；模块见 core/decay/）。**默认开**（DEFAULT_DECAY.enabled = true），只乘排序分数不过滤。
+   *  ⚠️ 1021 把默认从关改成开，但 engine.ts / cli/query.ts 里几处旧注释仍写「默认关」——以本行为准。 */
+  /**
    *  ⚠️ 经验（lesson）线别用它：store/lesson-gate.ts 已有线性年龄扣分，两套一起用 = 衰减两次。 */
   decay?: import('../core/decay/decay.js').DecayConfig;
   /** ═══ L3 模型压缩（docs/1018-夜-模型压缩与语义档-建设方案.md §2）═══

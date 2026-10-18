@@ -232,7 +232,7 @@ export async function cmdDoctor(): Promise<void> {
         checks.push(c('语义检索', 'ok', `已启用（${semanticModelOf(cfg)}）` + (rs.state === 'ready' ? ' · 上次装载成功' : '')));
       }
     } else {
-      checks.push(c('语义检索', 'warn', '未启用（可选增强：换词查询也能命中，srelay semantic enable）'));
+      checks.push(c('语义检索', 'warn', '未启用（可选增强：换词查询也能命中，srelay semantic --enable）'));
     }
   }
 

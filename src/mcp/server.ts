@@ -709,7 +709,7 @@ const hits = searchSessions(cur.db, { project: cur.project, query: args.query, l
     return toolOut({ ok: true, sessionId: s.id, count: links.length, links });
   }));
 
-  // 第 16 个工具（design-related）：算法发现的相关会话——与 get_linked_sessions（显式建立）语义不同
+  // 第 14 个工具（design-related）：算法发现的相关会话——与 get_linked_sessions（显式建立）语义不同
   register('suggest_related_sessions', {
     title: '相关会话推荐',
     description: '推荐与某会话主题相关的其他历史会话（算法发现，非显式关联）。何时用：正在看一个会话想知道"还有哪些相关讨论"、开新会话前想找可 attach 的历史、记不清关键词搜不到时以会话为锚找线索。注意：推荐仅为导航线索，内容以 srelay_show 为准',
