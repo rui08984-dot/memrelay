@@ -11,7 +11,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createDb } from '../../src/store/db.js';
 import { dbFile } from '../../src/shared/paths.js';
-import { openGlobal, addLesson, maintainLessons } from '../../src/store/global.js';
+import { openGlobal, addLesson, maintainLessons, recordLessonSource } from '../../src/store/global.js';
 import { harvestCandidates, harvestLessons } from '../../src/core/extract/lesson-harvest.js';
 
 let tmp = '';
@@ -130,20 +130,40 @@ describe('分级自动：能自证的自动过，不能自证的才找人', () =
     return ins;
   }
 
-  it('用户原话反复出现 ≥3 次 ⇒ 自动升 verified（不用人点头）', () => {
+  it('用户原话来自 ≥3 个不同出处 ⇒ 自动升 verified（不用人点头）', () => {
     const gdb = openGlobal();
     const text = harvestCandidates([{ role: 'user', content: MSG, seqNum: 1, sessionId: 's1' }])[0]!.text;
-    const ins = seedExisting(gdb, text, 'verified-user', 2);   // 再来一次就满 3
+    const ins = seedExisting(gdb, text, 'verified-user', 0);
+    // 已有两个不同出处；本轮 harvest 会记下第三个（'s1:1'）⇒ 够 3 个才升
+    recordLessonSource(gdb as never, ins.id, 'seed:s2');
 
     const pdb = seedProject(path.join(tmp, 'autoA'), MSG);
     const rep = harvestLessons(gdb as never, pdb as never, 'ws-auto', { days: 7 });
 
     expect(rep.autoPromoted).toBe(1);
-    const row = gdb.prepare('SELECT status, grade, hits FROM lessons WHERE id = ?').get(ins.id) as
-      { status?: string; grade?: string; hits?: number };
+    const row = gdb.prepare('SELECT status, grade FROM lessons WHERE id = ?').get(ins.id) as
+      { status?: string; grade?: string };
     expect(row.status).toBe('verified');
     expect(row.grade).toBe('verified-user');
-    expect(Number(row.hits)).toBeGreaterThanOrEqual(3);
+  });
+
+  // [10-18] 今晚噪音经验（id 25）就是靠这条漏洞升上去的：hits 每轮采集 +1，
+  //   同一句话被重复扫描 3 轮就自动 verified —— 那不是「反复发生的坑」，是「采集跑了 3 次」。
+  it('同一出处被反复扫到（hits 累加）不再升格', () => {
+    const gdb = openGlobal();
+    const text = harvestCandidates([{ role: 'user', content: MSG, seqNum: 1, sessionId: 's1' }])[0]!.text;
+    const ins = seedExisting(gdb, text, 'verified-user', 0);
+
+    // 三轮采集，每轮都是同一条消息（seedProject 固定 session=s1、seq=1）
+    for (let i = 0; i < 3; i++) {
+      const pdb = seedProject(path.join(tmp, 'same' + i), MSG);
+      harvestLessons(gdb as never, pdb as never, 'ws-same', { days: 7 });
+    }
+
+    const row = gdb.prepare('SELECT status, hits FROM lessons WHERE id = ?').get(ins.id) as
+      { status?: string; hits?: number };
+    expect(Number(row.hits)).toBeGreaterThanOrEqual(3); // hits 确实涨了
+    expect(row.status).toBe('draft');                   // 但状态不许升（旧实现这里是 verified）
   });
 
   it('只出现过一次的用户原话仍是 draft（一次不算证据）', () => {

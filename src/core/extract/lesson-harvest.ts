@@ -8,13 +8,18 @@
 //
 // 为什么不做成守护自动跑：抽错一句话就会污染**所有项目**的注入。让它是个显式命令，
 // 人（或排程）决定什么时候跑、跑完要不要收。
-import { addLesson, visibleWhere } from '../../store/global.js';
+import { addLesson, visibleWhere, recordLessonSource, lessonSourceCount, LESSON_PROMOTE_MARK } from '../../store/global.js';
 import { isNearDuplicate, isNearDuplicateKey, nearDupKey } from '../compact/dedup.js';
+import { looksLikeSpeechNoise } from './noise.js';
 
-const PATTERNS = [
-  '踩坑', '血的教训', '教训是', '下次一定', '以后再', '以后要', '千万别', '别再', '不要再',
-  '坑在', '根因是', '根因在', '原因是', '问题在于', '注意不能', '一定要注意', '务必',
-  '失败的原因', '为什么不成功', '走过的弯路', '绕了远路', '白折腾', '浪费了',
+// [10-18 修] 关键词表从「子串包含」改成**正则**，并给最容易被中文吞掉的那条加负向约束：
+//   病历：用户原话「…就是要不要再描述一个详细一点…」里 `要不要再` 包含着 `不要再`，
+//   于是整句语音碎片被当成「踩坑经验」抓走，最后还升格成了注入层的 verified。
+//   中文没有词边界，字符串 includes 必然产生这类误命中；能修的是最明显的那几处。
+const PATTERNS: RegExp[] = [
+  /踩坑/, /血的教训/, /教训是/, /下次一定/, /以后再/, /以后要/, /千万别/, /别再/,
+  /(?<!要)不要再/, /坑在/, /根因是/, /根因在/, /原因是/, /问题在于/, /注意不能/,
+  /一定要注意/, /务必/, /失败的原因/, /为什么不成功/, /走过的弯路/, /绕了远路/, /白折腾/, /浪费了/,
 ];
 
 const SENT_SPLIT = /(?<=[。！？；!?;\n])/;
@@ -36,9 +41,12 @@ export function harvestCandidates(msgs: Array<{ role: string; content: string; s
     for (const raw of content.split(SENT_SPLIT)) {
       const s = raw.trim().replace(/\s+/g, ' ');
       if (s.length < minLen || s.length > maxLen) continue;
-      if (!PATTERNS.some((p) => s.includes(p))) continue;
+      if (!PATTERNS.some((p) => p.test(s))) continue;
       // 必须像`一条经验`而不是`一句吐槽`：至少含一个动词性词尾或因果词
       if (!/[是为要别的不没]/.test(s)) continue;
+      // [10-18 修] 语音转录碎片（含「呃/嗯」/口吃）连草稿都不收：
+      //   与决策抽取共用 noise.ts 一份判据；这类句子没有可复用的知识，收进库只会再污染一次。
+      if (looksLikeSpeechNoise(s)) continue;
       if (seen.has(s)) continue;
       seen.add(s);
       out.push({
@@ -170,7 +178,9 @@ export function harvestLessons(gdb: AnyDb, pdb: AnyDb, workspaceId: string, opts
   //                   并给那条旧条目打 needs_review，让人看见"这两条可能是同一件事"
   //   —— 机器不确定时标记不确定，而不是替人下结论。
   const NEAR_DUP_THRESHOLD = 0.8;
-  const hitTexts = new Set<string>();
+  // 文字 → 本轮遇到的第一个出处。**出处去重**是升格判据的前提：
+  //   hits 数的是「扫了几轮」，不是「来自几个不同消息」。
+  const hitRefs = new Map<string, string>();
   const fresh: Harvested[] = [];
   /** 新候选文字 → 库里那条高度相似的原文（**只用于标注**，不用于丢弃） */
   const nearLike = new Map<string, string>();
@@ -180,7 +190,7 @@ export function harvestLessons(gdb: AnyDb, pdb: AnyDb, workspaceId: string, opts
   //   判据仍然只有一份：isNearDuplicate 与 isNearDuplicateKey 走同一组键函数。
   const existingKeys = existingTexts.map((t) => ({ t, k: nearDupKey(t) }));
   for (const c of cands) {
-    if (existing.has(c.text)) { hitTexts.add(c.text); continue; }
+    if (existing.has(c.text)) { if (!hitRefs.has(c.text)) hitRefs.set(c.text, c.sourceRef); continue; }
     const ck = nearDupKey(c.text);
     for (const e of existingKeys) {
       if (isNearDuplicateKey(e.k, ck, NEAR_DUP_THRESHOLD)) { nearLike.set(c.text, e.t); break; }
@@ -208,31 +218,45 @@ export function harvestLessons(gdb: AnyDb, pdb: AnyDb, workspaceId: string, opts
   //     verified（`status = input.status ?? (grade !== 'inferred' && sourceRef ? 'verified' : 'draft')`），
   //     所以这条路**天生就是自动的**，不需要额外代码。
   //   · verified-user —— 人说的话，但"说过一次"不等于"这条重要"。门槛设成
-  //     **同一句原话横跨多轮采集反复出现 ≥ USER_PROMOTE_MARK 次**才自动升格；
+  //     **同一句原话来自 ≥ LESSON_PROMOTE_MARK 个不同出处**才自动升格；
   //     只出现一次仍然留 draft 等复核。反复出现恰恰说明是反复踩的坑。
+  //     ⚠️ [10-18 修] 原判据是 hits ≥ 3，而 hits 每轮采集都 +1（同一句被重复扫描），
+  //     所以它实际只代表「采集跑了 3 轮」。病历：id 25 的 source_ref 始终是「会话:30076」，
+  //     却靠 hits=3 升成 verified 并进了每场会话的注入。现在数 lesson_sources 里不同出处。
   //   · inferred —— **永远要人**。它是机器从上下文猜的，猜错会污染所有项目每次对话的 prompt。
   // 兜底：单轮自动升格上限 AUTO_PROMOTE_CAP 条。超了就留 draft —— 防止某次抽取把几十条
   //   一起升上去，把"分级自动"悄悄变成"全自动"（那正是用户明确否掉的那个方案）。
-  const USER_PROMOTE_MARK = 3;
   const AUTO_PROMOTE_CAP = 5;
   /** 单轮写入上限：一次最多灌这么多草稿进复核队列，超出部分留到下一轮 */
   const WRITE_CAP = 20;
   let autoPromoted = 0;
   let capped = 0;
   if (!opts.dry) {
-    if (hitTexts.size) {
+    if (hitRefs.size) {
       // 写侧同样按可见性收窄，否则会 bump 到别的项目的同名行
       const bump = gdb.prepare('UPDATE lessons SET hits = MIN(hits + 1, ?), updated_at = ? WHERE text = ? AND (' + vis.sql + ')');
+      const find = gdb.prepare('SELECT id FROM lessons WHERE text = ? AND (' + vis.sql + ')');
       const nowIso = new Date().toISOString();
-      for (const t of hitTexts) { bump.run?.(HITS_CAP, nowIso, t, ...(vis.params as never[])); repeated++; }
-      // 涨完 hits 再判：够次数且是用户原话且还是草稿 ⇒ 自动升 verified
+      for (const [t, ref] of hitRefs) {
+        bump.run?.(HITS_CAP, nowIso, t, ...(vis.params as never[]));
+        repeated++;
+        // 出处记账：同一 (lesson, ref) 只记一次 —— 重复扫描不会把数字刷上去
+        const row = find.get?.(t, ...(vis.params as never[])) as { id?: number } | undefined;
+        const id = Number(row?.id ?? 0);
+        if (id && ref) recordLessonSource(gdb as never, id, ref);
+      }
+      // 升格：不同出处数够了才升（判据常量与 maintain 共享，只此一份）
       const promote = gdb.prepare(
         "UPDATE lessons SET status = 'verified', updated_at = ?"
-        + " WHERE text = ? AND status = 'draft' AND grade = 'verified-user' AND hits >= ? AND (" + vis.sql + ')'
+        + " WHERE id = ? AND status = 'draft' AND grade = 'verified-user'"
+        + ' AND (SELECT COUNT(*) FROM lesson_sources s WHERE s.lesson_id = lessons.id) >= ?'
       );
-      for (const t of hitTexts) {
+      for (const t of hitRefs.keys()) {
         if (autoPromoted >= AUTO_PROMOTE_CAP) break;
-        const r = promote.run?.(nowIso, t, USER_PROMOTE_MARK, ...(vis.params as never[]));
+        const row = find.get?.(t, ...(vis.params as never[])) as { id?: number } | undefined;
+        const id = Number(row?.id ?? 0);
+        if (!id) continue;
+        const r = promote.run?.(nowIso, id, LESSON_PROMOTE_MARK);
         if (Number((r as { changes?: number } | undefined)?.changes ?? 0) > 0) autoPromoted++;
       }
     }

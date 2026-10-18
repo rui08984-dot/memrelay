@@ -2,6 +2,7 @@
 // 五件套：files / topics / decisions / key_questions / code_changes
 // 已知简化（诚实登记）：topics 为 TF+停用词+用户加权（无跨会话 IDF）；unresolved 为启发式
 import { segment } from '../tokenize/tokenizer.js';
+import { hasHanStutter, looksLikeSpeechNoise } from './noise.js';
 
 export interface Msg {
   role: 'user' | 'assistant';
@@ -305,17 +306,9 @@ export function bracketsBalanced(raw: string): boolean {
   return opens === closes;
 }
 
-// [v26 · 1018] 纯中文单字连续 4 次以上 = 口吃。先排除代码/路径/数字行，
-// 否则 `1_200_000`、`C:\\Program Files\\` 这类会被当成重复字符。
-function hasHanStutter(t: string): boolean {
-  if (/[`\\]|https?:|\/|_|\d{4,}/.test(t)) return false; // 代码/路径/长数字：不判
-  const han = t.replace(/[^\u4e00-\u9fa5]/g, '');
-  let run = 1;
-  for (let i = 1; i < han.length; i++) {
-    if (han[i] === han[i - 1]) { run += 1; if (run >= 4) return true; } else run = 1;
-  }
-  return false;
-}
+// [10-18] 语音/口吃判据已抽到 noise.ts（决策抽取与经验采集共用一份）：
+//   病历：这两条只在决策侧有，经验侧另一套关键词表 ⇒ 同一句语音碎片在决策侧被拒、
+//   在经验侧被收进库并自动升格、再注入每场会话的简报。
 
 // [fork 0922] 决策合理性守卫：正则只管"句首有触发词"，不管句子长什么样——
 // 实测垃圾三来源：看板表格行（| 分隔）、Markdown 粗体残片（**）、消息内嵌 JSON 转义串。
@@ -341,23 +334,8 @@ function plausibleDecision(text: string): boolean {
   if (/^(决定|改用|换成|采用|选择|调整为|修改为)[，,]/.test(t)) return false;
   // [v24 · 1021] 「决策动词 + 明确对象」，且必须是**陈述**——见 decisionShapeVeto 上方长注释。
   if (decisionShapeVeto(t) !== null) return false;
-  // [v26 · 1018] 语音转录碎片：含「呃/嗯」→ 直接拒收。
-  //   病历：agent1super 库 666 条决策里 10 条是语音输入，形状都是「选择 l l a m a 点 c p p
-  //   android 然后呢这个 engine 这个东西呃为什么我看日志都没有在跳啊」—— 长度 60~82 字、
-  //   决策动词开头、后面全是口水。
-  //   为什么只认「呃/嗯」不认「啊/那个」：这两类在正常技术结论里也大量出现，
-  //   实测把「啊/那个」也算进去会误杀 2 条真决策——
-  //   「放弃一开始说的那个extraord的插件那个插件我基本上准备停用了」（真决策，含 2 个「那个」）
-  //   「换成com那个协议试试会不会就可以调节思考我就是要拉满啊」（真意图，含「那个」「啊」各 1）
-  //   而「呃」「嗯」是从语音识别出来的填充音，写下来的技术结论里几乎不会自然出现。
-  if (/[呃嗯]/.test(t)) return false;
-  // [v26 · 1018] 单字口吃：纯中文里同一字连续 4 次以上（「就就就就」「我我我」）。
-  //   只对**汉字**判、且先排除代码/路径/数字：
-  //   实测把整串一起判会误杀「改为像素面积（如 w*h > 1_200_000 即缩…）」（数字里 0 重复）、
-  //   「改为 `C:\\Program Files\\nodejs\\node.exe`」（反斜杠重复）。
-  //   也放弃「两字词重复 3 次」的写法：把「直接抓取源文件获取完整文件清单」里正常的「文件」重复
-  //   判成了口吃（误杀）。宁可少抓，不要冤枉真结论。
-  if (hasHanStutter(t)) return false;
+  // [10-18] 语音转录碎片 + 口吃：与经验采集共用 noise.ts 一份判据（见该文件头）。
+  if (looksLikeSpeechNoise(t)) return false;
   // [v26 · 1018] 「选择/决定 + 状态词」= 把动词当名词用的伪决策。
   //   病历：6 条全是这种形状——「选择都还可以」「选择页出来了」「选择每次都被验证是对的」
   //   「选择仍有地雷」「选择都清楚了」「决定还是等你」。它们描述的是**状态或感受**，

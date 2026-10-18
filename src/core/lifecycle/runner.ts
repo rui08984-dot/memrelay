@@ -351,7 +351,8 @@ export async function runLifecycle(opts: LifecycleOptions = {}): Promise<Lifecyc
     const r = maintainLessons(global);
     // held = 因"反复出现"被拦下没退休的（已标 needs_review 等人看一眼）
     return '衰减 ' + r.decayed + ' · 退休 ' + r.retired + ' · 复活 ' + r.resurrected
-      + ' · 待人工确认 ' + r.superseded + (r.held ? ' · 拦下未退休 ' + r.held : '');
+      + ' · 待人工确认 ' + r.superseded + (r.held ? ' · 拦下未退休 ' + r.held : '')
+      + (r.demotedPromotions ? ' · 回撤自动升格 ' + r.demotedPromotions : '');
   });
 
   // ── ⑥ 无损去重（light）──

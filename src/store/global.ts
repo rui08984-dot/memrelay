@@ -59,9 +59,37 @@ export function openGlobal(file?: string): Database.Database {
     + ');'
     + 'CREATE INDEX IF NOT EXISTS lessons_scope ON lessons(scope, workspace_id, domain);'
     + 'CREATE INDEX IF NOT EXISTS lessons_status ON lessons(status);'
+    //   病历：hits 每轮采集都 +1（同一句被重复扫描），于是 hits≥3 只代表「采集跑了 3 轮」；
+    //   id 25 的 source_ref 始终是「会话:30076」，却靠 hits=3 自动升成 verified 并注入简报。
+    + 'CREATE TABLE IF NOT EXISTS lesson_sources ('
+    + ' lesson_id INTEGER NOT NULL, source_ref TEXT NOT NULL, first_seen TEXT NOT NULL,'
+    + ' PRIMARY KEY (lesson_id, source_ref));'
+    + 'CREATE INDEX IF NOT EXISTS lesson_sources_ref ON lesson_sources(source_ref);'
     + 'CREATE VIRTUAL TABLE IF NOT EXISTS lessons_fts USING fts5(search_text, domain, content=\'lessons\', content_rowid=\'id\', tokenize=\'unicode61\');'
+    + "INSERT OR IGNORE INTO lesson_sources(lesson_id, source_ref, first_seen) "
+    + "SELECT id, source_ref, created_at FROM lessons WHERE source_ref IS NOT NULL AND source_ref <> '';"
   );
   return db;
+}
+
+/** 自动升格所需的不同出处数。**唯一判据**：采集侧升格、maintain 侧回撤都用它。
+ *  为什么是「不同出处」而不是 hits：hits 由每轮采集累加，同一句话被扫 3 轮就够数——
+ *  那不是「反复发生的坑」，只是「采集跑了几次」。 */
+export const LESSON_PROMOTE_MARK = 3;
+
+/** 记一条出处处（同一 (lesson, ref) 只记一次）。返回 true = 这是新出处。 */
+export function recordLessonSource(db: Database.Database, lessonId: number, sourceRef: string): boolean {
+  const ref = String(sourceRef ?? '').trim();
+  if (!ref) return false;
+  const r = db.prepare('INSERT OR IGNORE INTO lesson_sources(lesson_id, source_ref, first_seen) VALUES (?,?,?)')
+    .run(lessonId, ref, new Date().toISOString());
+  return Number((r as { changes?: number }).changes ?? 0) > 0;
+}
+
+/** 该经验有几个不同出处（升格判据用）。 */
+export function lessonSourceCount(db: Database.Database, lessonId: number): number {
+  const row = db.prepare('SELECT COUNT(*) AS n FROM lesson_sources WHERE lesson_id = ?').get(lessonId) as { n?: number } | undefined;
+  return Number(row?.n ?? 0);
 }
 
 export interface AddInput {
@@ -113,6 +141,8 @@ export function addLesson(db: Database.Database, input: AddInput): { id: number;
   // 手工维护 FTS：不用触发器 —— 触发器与表定义容易不同步（实测：改了 FTS 列名，触发器还在写旧列，
   // 报错却是「no column named text」，指向上游看不出真因）。写在同一条代码路径上，改一次就够。
   db.prepare("INSERT INTO lessons_fts(rowid, search_text, domain) VALUES (?,?,?)").run(id, searchTextOf(text), input.domain ?? null);
+  // 每个出处都记账：升格判据（LESSON_PROMOTE_MARK）数的是「不同出处」，不是 hits。
+  if (input.sourceRef) recordLessonSource(db, id, input.sourceRef);
   return { id, reason };
 }
 
@@ -253,6 +283,8 @@ export function maintainLessons(db: Database.Database): {
   held: number;
   /** 因"还在观察窗内"暂不判决的 inferred 条数 */
   probation: number;
+  /** [10-18] 靠 hits 升上去、出处数不足而被回撤成 draft 的条数 */
+  demotedPromotions: number;
 } {
   const rows = db.prepare('SELECT * FROM lessons').all() as LessonRow[];
   const upd = db.prepare('UPDATE lessons SET status = ?, updated_at = ? WHERE id = ?');
@@ -322,8 +354,19 @@ export function maintainLessons(db: Database.Database): {
       .run(now, note.slice(0, 400), pair.olderId);
     conflicts++;
   }
+  // ── [10-18] 回撤「靠 hits 升上去」的自动升格 ──
+  //   病历：hits 每轮采集都 +1（同一句话被重复扫描），所以 hits≥3 实际只代表「采集跑了 3 轮」。
+  //   升格判据已改为 lesson_sources 的**不同出处数**（LESSON_PROMOTE_MARK）；这里把历史遗留
+  //   一次性回撤：人说的话（route=user-message）落在 verified 但出处数不足 ⇒ 退回 draft 并标
+  //   needs_review。只改状态、不改字——机器判错时标记不确定，而不是替人删数据。
+  const demotedPromotions = Number(db.prepare(
+    "UPDATE lessons SET status = 'draft', needs_review = 1, updated_at = ?"
+    + " WHERE route = 'user-message' AND grade = 'verified-user' AND status = 'verified'"
+    + ' AND (SELECT COUNT(*) FROM lesson_sources s WHERE s.lesson_id = lessons.id) < ?',
+  ).run(now, LESSON_PROMOTE_MARK).changes ?? 0);
+
   // held = 本轮因"反复出现"被拦下没退休的条数（它们被标了 needs_review，等人看一眼）
-  return { decayed, retired, resurrected, superseded: conflicts, held, probation };
+  return { decayed, retired, resurrected, superseded: conflicts, held, probation, demotedPromotions };
 }
 
 /** Markdown 导出：经验库必须人可读、可 git、可手改（借鉴实测做法） */

@@ -45,7 +45,15 @@
 - 插件 `cli.js` 兜底顺序：vendor → `memrelay` → 旧名（旧名只留给还没迁移的机器，不是长期方案）。
 - ZCode hook（`brief.mjs` / `engine.mjs`）候选路径 `memrelay` 在前；维护脚本（`check-versions` / `_mirror_dist` / `_install_zcode_mcp` / `ses-install` / `ses-panel-install`）同步。
 
-验证：门禁 A 段 5 份运行时指纹完全一致（`ca156a305da8`）；hook 冒烟正常输出简报 JSON；`srelay --version` = 1.0.0；插件 selftest PASS。
+验证：门禁 A 段 5 份运行时指纹完全一致（`ca156a305da8`）；hook 冒烟正常输出简报 JSON；`srelay --version` = 1.0.0；插件 selftest PASS。### 经验库的噪音与假升格（23:55）
+
+查记忆时发现一条语音碎片经验（id 25）是 `verified`、`uses=50`，正在每场会话的简报里注入。追下去是三层问题：
+
+- **匹配层**：经验候选是「子串包含关键词」，中文没有词边界——「要不要再」里含「不要再」，于是整句语音碎片被当成踩坑经验抓走。关键词表改成正则，`不要再` 加负向后顾 `(?<!要)`。
+- **升格层（真正根因）**：`hits` 每轮采集都 +1（同一句话被重复扫描），`hits≥3 ⇒ 自动升 verified` 实际只代表「采集跑了 3 轮」，不是「反复发生的坑」。新增 `lesson_sources(lesson_id, source_ref)` 表，升格判据改成**不同出处数 ≥ 3**；`maintainLessons` 把历史上「单出处却 verified」的自动升格一次性回撤成 draft 并标 `needs_review`（只改状态、不改字）。
+- **判据层**：决策侧 v27 的语音/口吃过滤与经验侧各写一份，于是同一句碎片「决策侧拒、经验侧收」。抽成 `src/core/extract/noise.ts` **一份判据**，两侧共用；经验候选侧直接拒收。
+
+验证（真库）：`consolidate` 回撤 1 条（id 25 → draft）；连续两轮 harvest 同一出处，hits 仍为 4、状态仍 draft（旧实现会升 verified）；`brief` 的注入经验恢复为 3 条真经验。新增 7 条判据（`test/unit/lesson-noise-and-demotion.spec.ts` 6 条 + 升格语义改写 1 条），全量 **930 passed / 1 skipped**。
 ## [1.0.0] - 2026-10-18
 
 第一个独立版本。仓库从上游 fork 独立成 memrelay，改法集中在两处：把「坏了会告诉你」做实，把「数据不会悄悄丢」做稳。
