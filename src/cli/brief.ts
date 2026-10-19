@@ -38,6 +38,7 @@ import { openGlobalAuditReadonly, scanArchivedUnresolved } from '../core/audit/a
 import { latestAuditAlert } from '../core/lifecycle/audit-stage.js';
 import { groupSessions } from '../search-svc/session-groups.js';
 import { readPageIfExists } from '../map/index.js';
+import { computeHealth } from '../core/health/score.js';
 // [task-13] 会话卡接进 brief：装配（buildSessionCardFromStored）与行格式（renderCardLines）
 // 全部 import 自 core/cards —— 本文件不写判据、不写第二套卡片格式；
 // 这里只决定「给哪几场出卡 + 放不放得下」，实现在 cli/brief-cards.ts。
@@ -309,6 +310,16 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     // 审计 P0 永远排第一行（红字）：它是"不可逆的数据缺失"，比"最近定了什么"更急。
     // 无 P0 时 auditAlert 为 null —— 这里不打印任何"审计正常"，静默就是正常。
     if (pay.auditAlert) head.push(pc.red(pay.auditAlert));
+    // 🩺 体检分：每天第一眼就知道记忆整体健康度（不打开面板、不敲 score 也能看到）。
+    //   计算失败**不许静默**：打印原因（否则用户会以为一直是满分）。
+    //   单一判据仍是 core/health/score.ts，这里只渲染一行。
+    try {
+      const h = computeHealth(db, cfg.identity.project_id ?? root);
+      const color = h.grade === 'A' ? pc.green : h.grade === 'B' ? pc.cyan : h.grade === 'C' ? pc.yellow : pc.red;
+      head.push(color('🩺 记忆体检 ' + h.score + ' 分 · ' + h.grade) + pc.dim('（证据覆盖 ' + Math.round(h.components.evidenceCoverage * 100) + '% · 新鲜度 ' + Math.round(h.components.freshness * 100) + '%）'));
+    } catch (e) {
+      head.push(pc.dim('🩺 记忆体检不可用：' + (e instanceof Error ? e.message : String(e)).slice(0, 80)));
+    }
     // 🗺 下一步排在计数行**之前**：交接包里「现在该干什么」比「定了什么」更该先看到。
     // 没有地图 / 地图没写 next 时整行不出现（不占位、不写「无」）。
     if (pay.nextStep?.next) head.push(pc.cyan('🗺 下一步：') + pay.nextStep.next.slice(0, 120));
