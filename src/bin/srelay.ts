@@ -262,6 +262,18 @@ program
   .action(async () => { const { cmdDoctor } = await import('../cli/doctor.js'); await cmdDoctor(); });
 
 program
+  .command('audit')
+  .description('审计契约：六项只读检查（决策出处/碎片 · 经验草稿 · 归档未决 · 地图证据 · FTS 一致性），P0/P1 分级')
+  .option('--json', '机器格式')
+  .option('--root <path>', '显式项目根（默认向上探测）')
+  .action(async (opts) => {
+    // 退出码由 cmdAudit 落到 process.exitCode（0 全过 / 1 只有 P1 / 2 有 P0 或跑不起来）；
+    // 这里只透传旗标——两边各抄一份退出码表必定漂移（本仓老毛病）。
+    const { cmdAudit } = await import('../cli/audit.js');
+    await cmdAudit(opts as never);
+  });
+
+program
   .command('serve')
   .description('启动 MCP Server（stdio，供 AI agent 调用）')
   .action(async () => { const { runServe } = await import('../mcp/server.js'); await runServe(); });
