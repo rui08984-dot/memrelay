@@ -6,10 +6,13 @@
 // 「最近在动哪些文件」那一行（DSH 侧早就有，ZCode 侧一直没有）。
 //
 // ═══ 口径契约（改了会让两侧简报分叉）═══
-// · decisions / unresolved 的取数与截断**逐条复刻** cmdDecisions --json / cmdUnresolved --json：
-//     decisions：listDecisions 升序全量 → slice(-limit) → reverse（最近在前）
-//     unresolved：listUnresolved 上限 100 → 14 天保质期 → slice(0, limit)
-// · counts 就是上面两个数组的长度（= 老命令 --json 里的 count，ZCode 侧提示句的计数用它）
+// · decisions / unresolved 的**过滤/折叠/时间窗**逐条复刻 cmdDecisions --json / cmdUnresolved --json；
+//   任务 S 唯一改动是「超条数时选谁」：不再 slice(-limit) / slice(0, limit) 按时间一刀切，
+//   改由 core/brief/compress.ts 的 selectByBudget 按 pinned > refCount > 新鲜度 选前 N。
+//   48h 时间窗、pin 豁免、碎片闸、近重复折叠**一条都没动**。
+// · counts 就是上面两个数组的长度（= 老命令 --json 里的 count，ZCode 侧提示句的计数用它）；
+//   另加 decisionsCompressed / unresolvedCompressed = 这次按引用次数淘汰掉的条数（0 = 没压缩），
+//   渲染末尾说明统一调 compressedNote()，不许客户端各写一种说法。
 // · recentFiles 见 listRecentFiles 的注释（与 DSH 插件同规）
 //
 // 人话输出（不带 --json）只给命令行看着方便，**不参与任何客户端渲染**。
@@ -22,6 +25,9 @@ import { requireRoot, openRelayDb, pc } from './ui.js';
 import { openGlobal, pickForInjection, type LessonRow } from '../store/global.js';
 import { resolveDomain, resolveWorkspaceId } from '../shared/workspace.js';
 import { passesUnresolvedFilters, passesBriefFilters, UNR_SLOTS } from './brief-filter.js';
+// [任务S] 超预算淘汰：判据（pinned > refCount > 新鲜度）与「已按引用次数压缩 N 条」文案
+// 只在 core/brief/compress.ts 一份；本文件只负责接线 + 把淘汰条数说出来。
+import { selectByBudget, loadRefCounts, compressedNote } from '../core/brief/compress.js';
 // [task-14] 存量决策碎片的判据：**只 import，绝不复制**。
 //   「换成我们的了」「换成你的问法」这类句子的闸门（vagueDecisionObject）住在抽取端，
 //   它只影响**新提取**；1021 之前入库的旧碎片永远不会再被抽取端碰一次，
@@ -91,9 +97,23 @@ export interface BriefPayload {
   unresolved: UnresolvedRow[];
   counts: {
     decisions: number;
+    /**
+     * 过完 48h 窗 / 简报过滤器 / 碎片闸之后、**折叠与预算选择之前**的决策候选条数。
+     * [任务S] 注意：它现在可能大于 limit —— 选择前不再先 slice(-limit)，
+     * 否则"被引用多但稍旧"的条目连候选都进不了（压缩就成了摆设）。
+     */
     decisionsRaw?: number;
     folded?: number;
+    /**
+     * [任务S] 超条数时按引用次数淘汰掉的**决策**条数（0 = 没压缩）。
+     * 与 counts.decisions 互补：折叠后过完过滤的条数 = decisions + decisionsCompressed。
+     * 它们仍在库里、检索/导出/面板一条不少 —— 这个数只是"这一次少显示了几条"。
+     * 渲染末尾说明请调 compressedNote()（core/brief/compress.ts），别在客户端另写一种说法。
+     */
+    decisionsCompressed?: number;
     unresolved: number;
+    /** [任务S] 超条数时按引用次数淘汰掉的**未决**条数（0 = 没压缩；口径同上） */
+    unresolvedCompressed?: number;
     /**
      * [task-14] 展示层按 vagueDecisionObject 拦下的**存量碎片**条数（0 = 没有）。
      * 它们仍完整躺在库里、检索/导出/面板一条不少 —— 这个数只是"这一次少显示了几条"，
@@ -127,8 +147,16 @@ export interface BriefPayload {
 }
 
 /** 纯取数（不碰 CLI / 不开库）——便于单测与组件复用 */
-export function collectBrief(db: DB, projectId: string, opts: { limit?: number; days?: number; top?: number; query?: string } = {}, root?: string): BriefPayload {
+export function collectBrief(
+  db: DB,
+  projectId: string,
+  opts: { limit?: number; days?: number; top?: number; query?: string; refCounts?: ReadonlyMap<string, number> } = {},
+  root?: string,
+): BriefPayload {
   const limit = opts.limit ?? 200;
+  // [任务S] 引用次数：sessionId → search_feedback 的 open 次数（缺省空表 = 全部 0）。
+  // 由调用方注入（collectBrief 的契约是「纯取数、不额外开库」）；cmdBrief 从全局库只读读入。
+  const refCounts = opts.refCounts ?? new Map<string, number>();
   // 呈现层折叠（ADR-003 D3）：近重复只折叠"这一次显示"，存储一条不动 —— 简报里 5 个名额
   // 应该给 5 件不同的事，而不是同一件事说 3 遍。判据复用核心 isNearDuplicate（含长度比门，
   // 修掉生产前缀键误杀「采用 Vite 作为前端构建工具」那个 bug）。
@@ -138,7 +166,10 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
   //   教训：`const` 的 TDZ 只在**执行到那一行之前**才炸，静态检查抓不到 —— 这类只能靠「真的跑一遍」。
   const BRIEF_FRESH_MS = 48 * 3600_000;
   const cutoff = Date.now() - BRIEF_FRESH_MS;
-  const rawDecisions = listDecisions(db, projectId, {}).slice(-limit).reverse()
+  // [任务S] 候选集**先不按条数截断**：超预算时由 selectByBudget 决定选谁。
+  //   原先的 slice(-limit) 发生在过滤**之前** —— 那等于"旧条目连候选都进不了"，
+  //   被引用多的老条目永远没机会赢，压缩就成了摆设。时间窗/过滤/折叠一律不动。
+  const rawDecisions = listDecisions(db, projectId, {}).reverse()
     // ── 1020 · P1：压缩卡片机制（压缩不掉召回）──
     //   L3 压缩写回后：原始条目带 `compressed_into: <卡片id>`，同时追加了一条卡片。
     //   **简报跳过带标记的**（否则同一件事显示两遍：一次原文一次卡片）；
@@ -181,7 +212,16 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
     fragmentsHidden++;
     return false;
   });
-  const { rows: decisions, folded } = foldNearDuplicates<DecisionRow>(keptDecisions, 0.8, lengthRatioGate);
+  const foldedDecisions = foldNearDuplicates<DecisionRow>(keptDecisions, 0.8, lengthRatioGate);
+  const folded = foldedDecisions.folded;
+  // [任务S] 超条数时选谁：pinned > 引用次数 > 新鲜度（判据只在 core/brief/compress.ts）。
+  //   未超预算时 selectByBudget **原样返回**（顺序也不动）—— 既有输出不因这次改动漂移；
+  //   真压缩时按优先级排，让"被反复引用的那条"排到最前，否则它仍会被渲染层 slice(0,5) 挡住。
+  const decisionBudget = selectByBudget<DecisionRow>(foldedDecisions.rows, limit, {
+    refCounts,
+    keyOf: (d) => d.sessionId + '\u0000' + d.text,
+  });
+  const decisions = decisionBudget.kept;
   // [1021 红队 R4 修复] **三路分叉**：这里原来是「决策无时间窗 + 未决 14 天」，
   //   而 DSH（plugins/dsh/index.js:81 `FRESH_MS = 48 * 3600_000`）与
   //   ZCode（integrations/zcode/brief-shared.mjs:25 同值）**两者都是 48 小时**。
@@ -209,10 +249,17 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
   const unresolvedBeforeArchiveFilter = listUnresolved(db, projectId, UNR_FETCH)
     .filter((r) => new Date(r.at).getTime() >= cutoff)
     .filter((r) => passesUnresolvedFilters(r.q));
-  const unresolved = unresolvedBeforeArchiveFilter
-    .filter((r) => !archivedSessionsWithUnresolved.has(r.sessionId))
-    .slice(0, limit);
-  const archivedUnresolvedHidden = unresolvedBeforeArchiveFilter.length - unresolved.length;
+  const unresolvedCandidates = unresolvedBeforeArchiveFilter
+    .filter((r) => !archivedSessionsWithUnresolved.has(r.sessionId));
+  // [任务S] 未决同理：超条数时按引用次数选（未超预算时原样返回，顺序不变）。
+  const unresolvedBudget = selectByBudget<UnresolvedRow>(unresolvedCandidates, limit, {
+    refCounts,
+    keyOf: (u) => u.sessionId + '\u0000' + u.q,
+  });
+  const unresolved = unresolvedBudget.kept;
+  // 归档隐藏数只算「归档」那一段；压缩掉的另记 —— 两个原因不许混成一个数
+  //    （否则用户看到「已隐藏 N 条」会以为都是归档，实际是预算淘汰）。
+  const archivedUnresolvedHidden = unresolvedBeforeArchiveFilter.length - unresolvedCandidates.length;
   const recentFiles = listRecentFiles(db, { days: opts.days ?? 7, top: opts.top ?? 3 });
   const relatedSessions = collectRelatedGroups(db, [
     ...decisions.map((d) => ({ sessionId: d.sessionId, at: d.at })),
@@ -220,7 +267,16 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
   ]);
   const experiences = collectExperiences(root ?? process.cwd(), opts);
   return { auditAlert: collectAuditAlert(root), nextStep: collectNextStep(root), relatedSessions, experiences, decisions, unresolved, recentFiles,
-    counts: { decisions: decisions.length, decisionsRaw: rawDecisions.length, folded, unresolved: unresolved.length, fragmentsHidden, archivedUnresolvedHidden } };
+    counts: {
+      decisions: decisions.length,
+      decisionsRaw: rawDecisions.length,
+      folded,
+      decisionsCompressed: decisionBudget.evicted,
+      unresolved: unresolved.length,
+      unresolvedCompressed: unresolvedBudget.evicted,
+      fragmentsHidden,
+      archivedUnresolvedHidden,
+    } };
 }
 
 export async function cmdBrief(opts: { limit?: number; days?: number; top?: number; json?: boolean }): Promise<void> {
@@ -228,7 +284,15 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
   const cfg = loadConfig(root);
   const db = openRelayDb(root);
   try {
-    const pay = collectBrief(db, cfg.identity.project_id ?? root, opts, root);
+    const projectId = cfg.identity.project_id ?? root;
+    // [任务S] 引用次数来自全局库 search_feedback（只读）。读不到就退化为按新鲜度选，
+    //   但必须留痕（见 briefRefCounts）—— 不许让「压缩没生效」看起来像「本来就没超预算」。
+    const pay = collectBrief(db, projectId, {
+      limit: opts.limit,
+      days: opts.days,
+      top: opts.top,
+      refCounts: briefRefCounts(projectId),
+    }, root);
     if (opts.json) { console.log(JSON.stringify(pay)); return; }
     // ── [task-13] 会话卡：**先算基线，再在预算里塞卡** ──
     // 人话输出整体在这里拼完再一次性打印（以前是逐行 console.log）。原因：
@@ -238,7 +302,9 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     // 卡段插在 head 与 tail 之间 —— 卡片是决策行/未决行的"展开"，离它们越近越有用。
     //
     // ⚠️ 只动**人话输出**。`--json` 上面已经 return 了：payload 是客户端契约
-    // （三条老命令逐字段对拍 + 插件 selftest §12 拿真库对拍），擅自加字段就是改语义。
+    // （三条老命令逐字段对拍 + 插件 selftest §12 拿真库对拍）。
+    // 契约只能**新增**字段、不许改旧字段语义：任务S 的 decisionsCompressed / unresolvedCompressed
+    // 就是纯新增（旧字段一个没动）；别的改动请照这个规矩来。
     const head: string[] = [];
     // 审计 P0 永远排第一行（红字）：它是"不可逆的数据缺失"，比"最近定了什么"更急。
     // 无 P0 时 auditAlert 为 null —— 这里不打印任何"审计正常"，静默就是正常。
@@ -286,6 +352,14 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     if (pay.counts.archivedUnresolvedHidden > 0) {
       tail.push(pc.dim('  已隐藏 ' + String(pay.counts.archivedUnresolvedHidden) + ' 条归档会话的未决（正文已归档、出处无法回跳；不是丢失）'));
     }
+    // [任务S] 超预算淘汰必须说出来（与碎片/归档说明同规）：
+    //   「变短」有两种原因 —— 过滤（已隐藏）与压缩（命中预算）。混在一起就说不清，
+    //   用户看到少了几条会第一反应"记忆丢了"。两条各自成行，口径与 counts 一一对应。
+    {
+      const compressed = (pay.counts.decisionsCompressed ?? 0) + (pay.counts.unresolvedCompressed ?? 0);
+      const note = compressedNote(compressed);
+      if (note) tail.push(pc.dim('  ' + note));
+    }
 
     // 出卡的会话 = 简报里**被点名**的那些（决策行在前、未决行在后），去重后前 BRIEF_CARD_MAX 场。
     // 挑选判据只有这份 list（"简报点了名"）；卡片里放什么、长什么样全在 core/cards。
@@ -301,6 +375,36 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     }
   } finally {
     db.close();
+  }
+}
+
+/**
+ * [任务S] 简报用的 refCount：全局库 search_feedback 里**本项目**的 open 次数（sessionId → 次数）。
+ *
+ * 复用 openGlobalAuditReadonly —— 「全局库怎么只读打开」只有那一份实现
+ * （不存在 / 被占用两种状态它都区分好了），这里不另写 existsSync + openReadonly。
+ *
+ * 三种「没有引用次数」必须区分开（否则「压缩没生效」会被误读成「没有可压缩的」）：
+ *   · 全局库不存在（全新用户还没跑过 lifecycle / feedback）→ 正常，空表，静默；
+ *   · 库打不开（锁 / 损坏）→ **stderr 留痕**：压缩退化为按新鲜度选，但用户得知道为什么；
+ *   · 表不存在（还没记过任何 open）→ loadRefCounts 返回空表，正常（全部按 0）。
+ */
+function briefRefCounts(projectId: string): Map<string, number> {
+  const g = openGlobalAuditReadonly();
+  if (g.db === null) {
+    if (g.reason && !/不存在/.test(g.reason)) {
+      try { process.stderr.write('[brief] 引用次数读取失败（压缩退化为按新鲜度）：' + g.reason.slice(0, 160) + '\n'); } catch { /* 连 stderr 都写不了就别管了 */ }
+    }
+    return new Map();
+  }
+  try {
+    return loadRefCounts(g.db, { project: projectId });
+  } catch (e) {
+    // 读接口不假装"没有数据"：留痕，然后降级（简报其余部分不受影响）
+    try { process.stderr.write('[brief] 引用次数读取失败（压缩退化为按新鲜度）：' + String((e as Error)?.message ?? e).slice(0, 160) + '\n'); } catch { /* 连 stderr 都写不了就别管了 */ }
+    return new Map();
+  } finally {
+    try { g.db.close(); } catch { /* 已关 */ }
   }
 }
 

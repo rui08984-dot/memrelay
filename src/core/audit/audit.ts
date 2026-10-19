@@ -1,10 +1,10 @@
-// 审计契约（task-11）：六项**只读**健康检查，P0/P1 分级，各给条数 + 前 5 条样例 id。
+// 审计契约（task-11）：七项**只读**健康检查，P0/P1 分级，各给条数 + 前 5 条样例 id。
 //
 // ═══ 为什么要有它 ═══
 // 本仓的失败模式一直是「静默失效」：数据在降级，而每条命令都只说自己那一点，没人看全貌。
 // doctor 查的是**环境**（Node/jieba/源目录/服务）；audit 查的是**库里的内容契约**：
-// 决策有没有出处锚点、碎片有没有混进来、经验有没有卡在草稿、归档会话的未决是不是已经指空、
-// 地图节点有没有证据声明、FTS 索引与内容表还对不对得上。
+// 决策有没有出处锚点、碎片有没有混进来、决策之间有没有互相打架、经验有没有卡在草稿、
+// 归档会话的未决是不是已经指空、地图节点有没有证据声明、FTS 索引与内容表还对不对得上。
 //
 // ═══ 三条纪律 ═══
 // ① **判据只许一份**：能复用的一律 import——决策可见集 = listDecisions（去重/workflow/隔离口径
@@ -21,7 +21,7 @@
 //    「没有地图」是正常状态（还没建图），「地图读坏了」是错误 —— 两种都不许变成 0 条。
 //
 // ═══ 退出码 ═══
-//   0 = 六项全过（或跳过项不影响结论）
+//   0 = 逐项全过（或跳过项不影响结论）
 //   1 = 只有 P1 命中（质量债，可修）
 //   2 = 有 P0 命中（不可逆的数据缺失 / 检索静默损坏）
 
@@ -32,11 +32,13 @@ import { decisionAgeDays } from '../../store/decision-validity.js';
 import { vagueDecisionObject } from '../extract/extract.js';
 import { visibleWhere } from '../../store/global.js';
 import { listPages, readPageIfExists } from '../../map/index.js';
+import { findDecisionConflicts, CONFLICT_MIN_SHARED, CONFLICT_MIN_COVERAGE } from '../decisions/conflict.js';
 
 export type AuditSeverity = 'P0' | 'P1';
 export type AuditCheckId =
   | 'decision-missing-msgid'
   | 'decision-fragment'
+  | 'decision-conflict'
   | 'lesson-draft-stale'
   | 'archived-unresolved'
   | 'map-node-no-sources'
@@ -83,12 +85,12 @@ export interface AuditCheckMeta {
 }
 
 /**
- * 六项检查的**唯一清单**（顺序即输出顺序，与任务清单一致）。
+ * 七项检查的**唯一清单**（顺序即输出顺序，与任务清单一致）。
  * severity 为什么这么分：
  *   P0 = 修不回来或正在静默骗人 —— 归档会话的未决（正文已蒸发，出处永久指空）、
  *        FTS 与内容表不一致（检索双路都查不到，而界面上只表现为"搜不到"）。
- *   P1 = 看得见、可修的质量债 —— 出处可回落 seq、碎片可 recompute 清、草稿可人工升格、
- *        地图节点可补 sources。
+ *   P1 = 看得见、可修的质量债 —— 出处可回落 seq、碎片可 recompute 清、冲突可人工拍板
+ *        （本仓不自动推翻）、草稿可人工升格、地图节点可补 sources。
  */
 export const AUDIT_CHECKS: readonly AuditCheckMeta[] = [
   {
@@ -102,6 +104,12 @@ export const AUDIT_CHECKS: readonly AuditCheckMeta[] = [
     severity: 'P1',
     title: '决策碎片（宾语只有指代/所属）',
     criteria: '可见决策里 vagueDecisionObject(text)=true 的条数——「换成我们的了」「决定这样」这类离开上下文不成立的碎片；判据与抽取端/清理端同一份（core/extract/extract.ts）',
+  },
+  {
+    id: 'decision-conflict',
+    severity: 'P1',
+    title: '决策互相打架（后者可能推翻前者）',
+    criteria: '可见决策两两比较：同一 topic（条目带 topic 时）或实词重叠 ≥ ' + String(CONFLICT_MIN_SHARED) + ' 个（且共享词占较短一侧 ≥ ' + String(CONFLICT_MIN_COVERAGE) + '），一方含否定/放弃/改用标记、另一方含采用/保留标记，且时间上后者更晚 ⇒ 判为"后者可能推翻前者"。条数 = 对数。判据唯一实现在 core/decisions/conflict.ts，本项只数结果、不复制规则',
   },
   {
     id: 'lesson-draft-stale',
@@ -176,7 +184,24 @@ export function auditDecisionFragments(db: DB, projectId: string): AuditFinding 
   return finding('decision-fragment', frags.length, frags.map(decisionSampleId));
 }
 
-// ─────────────────── 3) 经验草稿超 30 天未升格 ───────────────────
+// ───────────────────────── 3) 决策互相打架 ─────────────────────────
+
+/**
+ * 决策冲突（后者可能推翻前者）。
+ *
+ * 判据**不在这里**：一行都不复制，全部走 core/decisions/conflict.ts 的 findDecisionConflicts
+ * （与本仓"判据只许一份"同规 —— 否则 CLI、简报、测试会各算一套，报出来的数互相打架）。
+ * 样例 id 仍用 decisionSampleId（sessionId#seq），一对写成 `a↔b`：箭头方向就是"后者推翻前者"。
+ */
+export function auditDecisionConflicts(db: DB, projectId: string): AuditFinding {
+  const rows = listDecisions(db, projectId);
+  const conflicts = findDecisionConflicts(rows);
+  return finding('decision-conflict', conflicts.length,
+    conflicts.map((c) => decisionSampleId(c.a) + '↔' + decisionSampleId(c.b)),
+    rows.length > 0 ? '比对 ' + String(rows.length) + ' 条可见决策' : undefined);
+}
+
+// ─────────────────── 4) 经验草稿超 30 天未升格 ───────────────────
 
 /** 一条经验草稿算不算"超期未升格"。**唯一判据**：状态是 draft + 年龄 > 阈值。
  *  时间解析不了 → false（宁可漏报一条，也不把"时间坏了"报成"草稿过期"；坏时间另有 doctor 管）。 */
@@ -204,7 +229,7 @@ export function auditStaleLessonDrafts(global: DB | null | undefined, sel: Lesso
     rows.length ? '可见草稿共 ' + String(rows.length) + ' 条' : undefined);
 }
 
-// ─────────────── 4) 已归档会话仍有未决 ───────────────
+// ─────────────── 5) 已归档会话仍有未决 ───────────────
 
 /** 归档未决的**明细**（audit 与本仓分析脚本共用；判据只在这里出现一次） */
 export interface ArchivedUnresolvedDetail {
@@ -280,7 +305,7 @@ export function auditArchivedUnresolved(db: DB, projectId: string): AuditFinding
     '已归档会话 ' + String(archivedSessions) + ' 场，其中仍有未决的 ' + String(hitSessions) + ' 场');
 }
 
-// ─────────────── 5) 地图节点无 sources ───────────────
+// ─────────────── 6) 地图节点无 sources ───────────────
 
 export function auditMapNodesWithoutSources(root: string | null | undefined): AuditFinding {
   if (!root) return skipped('map-node-no-sources', '没有项目根，无法定位 .sessionrelay/map');
@@ -310,7 +335,7 @@ export function auditMapNodesWithoutSources(root: string | null | undefined): Au
   return finding('map-node-no-sources', count, ordered, tail || undefined);
 }
 
-// ─────────────── 6) FTS 索引与内容表一致性 ───────────────
+// ─────────────── 7) FTS 索引与内容表一致性 ───────────────
 
 interface ShadowProbe { table: string; content: string; key: string }
 
@@ -393,6 +418,7 @@ export function runAudit(input: AuditInput): AuditReport {
   const checks: AuditFinding[] = [
     guard('decision-missing-msgid', () => auditDecisionMsgIds(input.db, input.projectId)),
     guard('decision-fragment', () => auditDecisionFragments(input.db, input.projectId)),
+    guard('decision-conflict', () => auditDecisionConflicts(input.db, input.projectId)),
     guard('lesson-draft-stale', () => auditStaleLessonDrafts(input.global ?? null, sel, now)),
     guard('archived-unresolved', () => auditArchivedUnresolved(input.db, input.projectId)),
     guard('map-node-no-sources', () => auditMapNodesWithoutSources(root)),

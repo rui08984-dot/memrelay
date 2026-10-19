@@ -5,6 +5,13 @@
 
 ## [Unreleased]
 
+### 头脑风暴五件套落地（10-19）
+
+- **记忆体检分**：`srelay score [--json]`，0–100 + A/B/C/D；四块权重写死 40/25/15/20（证据覆盖 / 新鲜度 / 碎片率 / 审计 P0），每项口径都 import audit 的同一判据。**归档未决属已接受历史债，只进 notes 不计分**（与 10-19 拍板一致）；FTS 不一致才是计分 P0。无数据按 0.5 并明说。5 条单测。
+- **跨项目经验市场**：`srelay market [topics...]`，按工作区/领域 + 话题词元重叠 + 复用次数推荐经验，每条带「为什么」（命中哪些词、复用几次）；零模型、只读。5 条单测。
+- **决策冲突检测**：`decision-conflict` 并入 audit（P1，第 7 项）——同 topic 或实词重叠 + 极性相反（否定/放弃/改用 vs 采用/保留）+ 时间序 ⇒「后者可能推翻前者」。判据复用 `subjectTokens` / `hasNegation`；5 条单测。
+- **简报自压缩**：超预算时按 `pinned > refCount > 新鲜度` 淘汰，而不是简单截断；refCount 只读 `search_feedback`，淘汰条数由 `counts.decisionsCompressed/unresolvedCompressed` 说出。8 条单测。
+
 ### 「为什么没找到」诊断（10-19）
 
 - `srelay search` 0 命中时不再只说「未找到」：确定性归因五类——词不存在 / 词太泛（覆盖 ≥30% 会话）/ 时间窗收窄 / scope 收窄 / 词元太多（>3），并给对应建议。

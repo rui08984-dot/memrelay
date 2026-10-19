@@ -273,7 +273,7 @@ program
 
 program
   .command('audit')
-  .description('审计契约：六项只读检查（决策出处/碎片 · 经验草稿 · 归档未决 · 地图证据 · FTS 一致性），P0/P1 分级')
+  .description('审计契约：七项只读检查（决策出处/碎片/冲突 · 经验草稿 · 归档未决 · 地图证据 · FTS 一致性），P0/P1 分级')
   .option('--json', '机器格式')
   .option('--root <path>', '显式项目根（默认向上探测）')
   .action(async (opts) => {
@@ -281,6 +281,18 @@ program
     // 这里只透传旗标——两边各抄一份退出码表必定漂移（本仓老毛病）。
     const { cmdAudit } = await import('../cli/audit.js');
     await cmdAudit(opts as never);
+  });
+
+program
+  .command('score')
+  .description('记忆体检分：0-100 + A/B/C/D（权重 40 证据覆盖 / 25 新鲜度 / 15 碎片率 / 20 审计 P0）')
+  .option('--root <path>', '显式项目根（默认向上探测）')
+  .option('--days <n>', '新鲜度窗口天数（默认 30）')
+  .option('--json', '机器格式')
+  .action(async (opts) => {
+    // 只读体检，不 ensureDaemon；退出码 0/2 由 cmdScore 自己落（分数高低不劫持退出码）
+    const { cmdScore } = await import('../cli/score.js');
+    await cmdScore(opts as never);
   });
 
 program
@@ -729,4 +741,11 @@ program
   .option('--top <n>')
   .option('--json')
   .action(async (sub, text, f) => { const { cmdLesson } = await import('../cli/lesson.js'); await cmdLesson(sub, text ?? [], f); });
+
+program
+  .command('market [topics...]')
+  .description('跨项目经验市场：按本项目近期话题推荐经验（零模型、只读；不给话题则用最近会话的 topics）')
+  .option('--limit <n>', '默认 5 条')
+  .option('--json', '机器格式')
+  .action(async (topics: string[] | undefined, f) => { const { cmdMarket } = await import('../cli/market.js'); await cmdMarket(topics ?? [], f); });
 program.parseAsync(process.argv);
