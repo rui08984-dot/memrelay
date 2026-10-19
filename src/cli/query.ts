@@ -47,6 +47,20 @@ async function cmdSearchGlobal(query: string, flags: SearchFlags): Promise<void>
 export async function cmdSearch(query: string, flags: SearchFlags): Promise<void> {
   // 全局态走独立分支：不打开本库、不吃本项目 scope/decay（跨项目时这些没有意义）
   if (flags.global) return cmdSearchGlobal(query, flags);
+  // 注：空查询/非法 limit 的校验在下面统一做（global 分支自己也会走到各自的校验）
+  // [10-19] 参数校验前置：空查询 / 非法 limit 原来会一路走到「未找到」，
+  //   把「你参数给错了」伪装成「库里没有」——这是本项目最贵的一种失败（静默失败）。
+  const q = String(query ?? '').trim();
+  if (q === '') {
+    console.error(pc.red('✗ 检索词不能为空') + pc.dim('（例如：srelay search 交接 文档）'));
+    process.exitCode = 2;
+    return;
+  }
+  if (flags.limit !== undefined && (!Number.isFinite(Number(flags.limit)) || Number(flags.limit) <= 0)) {
+    console.error(pc.red('✗ --limit 必须是正整数') + pc.dim('（收到：' + String(flags.limit) + '）'));
+    process.exitCode = 2;
+    return;
+  }
   const root = requireRoot();
   const cfg = loadConfig(root);
   const db = openRelayDb(root);
@@ -93,8 +107,14 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
       return;
     }
     if (hits.length === 0) {
-      const scopedNote = asm.scopeFile && asm.scopeFile.mode !== 'full' ? pc.dim('（scope 契约生效中：srelay scope show 查看 / scope reset 放宽）') : '';
-      console.log(pc.yellow('未找到。') + scopedNote);
+      // [10-19] 提示语要说**真话**：原来无论 scope 是什么都挂一句「scope 契约生效中」，
+      //   而且指向一个不存在的子命令（`srelay scope show` 会报 too many arguments）。
+      //   现在只在真的收窄时提示，并给出真实可用的命令。
+      const scoped = !!(asm.scopeFile && asm.scopeFile.mode !== 'full' && asm.where);
+      const note = scoped
+        ? pc.dim('（本次检索被 scope 契约收窄：srelay scope 查看当前范围，srelay scope reset 放宽）')
+        : pc.dim('（已检索本项目全部会话；换关键词或放宽时间窗再试）');
+      console.log(pc.yellow('未找到。') + note);
       return;
     }
     const snap = stats.snapshot();
