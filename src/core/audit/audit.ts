@@ -206,23 +206,78 @@ export function auditStaleLessonDrafts(global: DB | null | undefined, sel: Lesso
 
 // ─────────────── 4) 已归档会话仍有未决 ───────────────
 
-export function auditArchivedUnresolved(db: DB, projectId: string): AuditFinding {
-  // 归档口径 = cleanup_at 非空（与 panel 的 archived 卡片同一定义：正文已蒸发、结论仍在）
-  const archived = new Set(
-    (db.prepare('SELECT id FROM sessions WHERE project_id = ? AND cleanup_at IS NOT NULL').all(projectId) as Array<{ id: string }>)
-      .map((r) => r.id),
+/** 归档未决的**明细**（audit 与本仓分析脚本共用；判据只在这里出现一次） */
+export interface ArchivedUnresolvedDetail {
+  sessionId: string;
+  title: string | null;
+  source: string;
+  sessionCreatedAt: string;
+  lastEventAt: string | null;
+  /** 归档时刻（cleanup_at）；归档口径 = 非空 */
+  archivedAt: string | null;
+  /** 会话登记的原始消息数（归档后正文已删，这个数仍保留） */
+  messageCount: number;
+  q: string;
+  at: string;
+  msgId?: string | number;
+}
+
+export interface ArchivedUnresolvedScan {
+  /** 该项目里 cleanup_at 非空的会话数 */
+  archivedSessions: number;
+  items: ArchivedUnresolvedDetail[];
+}
+
+/**
+ * 扫描"落在已归档会话上的未决"。
+ *
+ * 归档口径 = `cleanup_at IS NOT NULL`（与 panel 的 archived 卡片同一定义：正文已蒸发、结论仍在）；
+ * 未决口径 = `listUnresolved`（去重 / workflow 排除 / 隔离排除都只有那一份）。
+ * 上限给足以免被默认 20 截断成假 0（截断过就永远看不见这条 P0）。
+ *
+ * 为什么单独导出明细：audit 只要"几条 + 样例"，而清理 32 条 P0 需要"每条是什么、
+ * 属于哪场、有没有 msgId"。两边各写一份 SQL 就会出现"audit 报 32、脚本列出 30"
+ * —— 本项目最嫌恶的两套口径。
+ */
+export function scanArchivedUnresolved(db: DB, projectId: string): ArchivedUnresolvedScan {
+  const archived = new Map(
+    (db.prepare('SELECT id, title, source, created_at, last_event_at, cleanup_at, message_count FROM sessions WHERE project_id = ? AND cleanup_at IS NOT NULL')
+      .all(projectId) as Array<{
+        id: string; title: string | null; source: string; created_at: string;
+        last_event_at: string | null; cleanup_at: string | null; message_count: number | null;
+      }>).map((r) => [r.id, r]),
   );
-  if (archived.size === 0) return finding('archived-unresolved', 0, []);
-  // 未决口径 = listUnresolved（去重 / workflow 排除 / 隔离排除都只有那一份）；
-  // 上限给足以免被默认 20 截断成假 0（截断过就永远看不见这条 P0）
+  if (archived.size === 0) return { archivedSessions: 0, items: [] };
   const rows = listUnresolved(db, projectId, Number.MAX_SAFE_INTEGER);
-  const hit = rows.filter((r) => archived.has(r.sessionId));
-  const hitSessions = new Set(hit.map((r) => r.sessionId)).size;
-  // 样例 id：sessionId#msgId；没有 msgId 的写 sessionId#-（**不写 seq**：UnresolvedRow 里没有 seq，
+  const items: ArchivedUnresolvedDetail[] = [];
+  for (const r of rows) {
+    const s = archived.get(r.sessionId);
+    if (!s) continue;
+    items.push({
+      sessionId: r.sessionId,
+      title: r.title ?? s.title,
+      source: r.source ?? s.source,
+      sessionCreatedAt: s.created_at,
+      lastEventAt: s.last_event_at,
+      archivedAt: s.cleanup_at,
+      messageCount: Number(s.message_count ?? 0),
+      q: r.q,
+      at: r.at,
+      ...(r.msgId !== undefined ? { msgId: r.msgId } : {}),
+    });
+  }
+  return { archivedSessions: archived.size, items };
+}
+
+export function auditArchivedUnresolved(db: DB, projectId: string): AuditFinding {
+  const { archivedSessions, items } = scanArchivedUnresolved(db, projectId);
+  if (archivedSessions === 0) return finding('archived-unresolved', 0, []);
+  const hitSessions = new Set(items.map((r) => r.sessionId)).size;
+  // 样例 id：sessionId#msgId；没有 msgId 的写 sessionId#-（**不写 seq**：读路径里没有 seq，
   // 编一个出来就等于在报告里伪造定位键——本仓最嫌恶的那类"看起来能点开、点开是错的"）
-  return finding('archived-unresolved', hit.length,
-    hit.map((r) => r.sessionId + '#' + (r.msgId === undefined || r.msgId === null ? '-' : String(r.msgId))),
-    '已归档会话 ' + String(archived.size) + ' 场，其中仍有未决的 ' + String(hitSessions) + ' 场');
+  return finding('archived-unresolved', items.length,
+    items.map((r) => r.sessionId + '#' + (r.msgId === undefined || r.msgId === null ? '-' : String(r.msgId))),
+    '已归档会话 ' + String(archivedSessions) + ' 场，其中仍有未决的 ' + String(hitSessions) + ' 场');
 }
 
 // ─────────────── 5) 地图节点无 sources ───────────────
