@@ -2,6 +2,7 @@
 import { loadConfig, type CaptureMode } from '../shared/config.js';
 import { assembleScope } from '../core/scope/assemble.js';
 import { searchSessions } from '../search-svc/engine.js';
+import { groupSessions } from '../search-svc/session-groups.js';
 import { findSessionByPrefix, getSession, listSessions, getMessageRange, isNoteSession } from '../store/db.js';
 import { openStats } from '../core/stats/counter.js';
 import { requireRoot, openRelayDb, pc, fmtDate, stateBadge } from './ui.js';
@@ -86,7 +87,9 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
           snippet: h.snippet, provenance: { sessionId: h.sessionId },
         };
       });
-      console.log(JSON.stringify({ query, count: rows.length, hits: rows }, null, 2));
+      // [10-19] 多会话组：与 MCP 的 groups 同源（groupSessions 唯一实现），便于 DSH/CLI 对齐
+      const groups = groupSessions(db, hits.map((h) => ({ sessionId: h.sessionId, score: h.score })));
+      console.log(JSON.stringify({ query, count: rows.length, hits: rows, groups }, null, 2));
       return;
     }
     if (hits.length === 0) {
@@ -103,6 +106,17 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
       if (h.snippet) console.log(pc.dim(`   ${h.snippet.slice(0, 100)}`));
       if (!h.viaMeta) console.log(pc.dim(`   srelay show ${h.sessionId} · 命中覆盖 ${Math.round(h.coverage * 100)}%`));
     });
+    // [10-19] 多会话组（只在真的分出来时才打印，避免每条命中都刷一遍噪音）
+    const groups = groupSessions(db, hits.map((h) => ({ sessionId: h.sessionId, score: h.score })));
+    const multi = groups.filter((g) => g.sessionIds.length >= 2);
+    if (multi.length > 0) {
+      console.log(pc.dim('\n相关会话组（同一主题的几条会话）：'));
+      for (const g of multi.slice(0, 5)) {
+        const title = getSession(db, g.lead)?.title ?? g.lead;
+        const sig = [...g.sharedTopics.slice(0, 2), ...g.sharedFiles.slice(0, 1)].join(' / ');
+        console.log(pc.dim('  · ') + title.slice(0, 40) + pc.dim('  [' + g.sessionIds.length + ' 条' + (sig ? ' · 共享 ' + sig : '') + ']'));
+      }
+    }
     console.log(pc.dim(`\n${hits.length} 条命中。--json 看机器格式。`));
   } finally {
     db.close();
