@@ -16,13 +16,12 @@
 // 不建表、不迁移、不写一个字节。全局经验库被守护占着写时，本项降级为 skipped 并说清原因，
 // **不**当成"没有超期草稿"（0 条与"没测到"是两件事）。
 
-import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { findRelayRoot, globalDbFile } from '../shared/paths.js';
-import { openReadonly, type DB } from '../store/db.js';
+import { findRelayRoot } from '../shared/paths.js';
+import { openReadonly } from '../store/db.js';
 import { loadConfig } from '../shared/config.js';
 import { resolveDomain, resolveWorkspaceId } from '../shared/workspace.js';
-import { runAudit, auditDbPaths, type AuditFinding, type AuditReport } from '../core/audit/audit.js';
+import { runAudit, auditDbPaths, openGlobalAuditReadonly, type AuditFinding, type AuditReport } from '../core/audit/audit.js';
 import { pc } from './ui.js';
 
 export interface AuditFlags {
@@ -31,18 +30,8 @@ export interface AuditFlags {
   root?: string;
 }
 
-/** 只读打开全局经验库；不存在/打不开 → null + 原因（调用方据此把该项降级为 skipped）。
- *  不能用 store/global.ts 的 openGlobal：它会 mkdir + 建表 —— 审计一个字节都不许写。 */
-function openGlobalReadonly(): { db: DB | null; reason: string | null } {
-  const file = globalDbFile();
-  if (!existsSync(file)) return { db: null, reason: '全局经验库不存在：' + file };
-  try {
-    return { db: openReadonly(file), reason: null };
-  } catch (e) {
-    // 守护正在写（独占锁）时这里会抛：如实说"没测到"，绝不当成 0 条草稿
-    return { db: null, reason: '全局经验库打不开：' + (e instanceof Error ? e.message : String(e)) };
-  }
-}
+/** 只读打开全局经验库的实现在 core/audit/audit.ts（CLI / 生命周期 / 简报共用一份） */
+const openGlobalReadonly = openGlobalAuditReadonly;
 
 function mark(f: AuditFinding): string {
   if (f.status === 'skipped') return pc.dim('○ 跳过');

@@ -9,7 +9,7 @@
 //   ② 每个阶段**独立到期**（各自节奏），不是"每 30 分钟把所有阶段都跑一遍"；
 //   ③ 有损阶段（L3）必须带门禁，门禁不过就回滚并写 health_events。
 
-export type StageId = 'capture' | 'extract' | 'harvest' | 'consolidate' | 'compact' | 'cleanup' | 'tags' | 'aging' | 'distribute' | 'guard' | 'repair';
+export type StageId = 'capture' | 'extract' | 'harvest' | 'consolidate' | 'compact' | 'cleanup' | 'tags' | 'aging' | 'distribute' | 'guard' | 'repair' | 'audit';
 
 export interface StageSpec {
   id: StageId;
@@ -50,6 +50,14 @@ export const STAGES: StageSpec[] = [
   { id: 'tags', title: '标签图谱重建（检索扩展 / 逐词溯源用）', everySec: 86400, mutates: true, weight: 'heavy' },
   { id: 'aging', title: '老化压缩（老会话正文→摘要，结论留全）', everySec: 86400, mutates: true, lossy: true, weight: 'heavy' },
   { id: 'distribute', title: '分发（简报段 / 面板 / 导出）', everySec: 900, mutates: false, weight: 'light' },
+  // [1021 audit 生命周期化] 第 12 阶段：把 `srelay audit` 的六项**只读**检查挂进流水线。
+  //   为什么必须进生命周期：audit 只能手动跑时，它等于"体检报告放在抽屉里" ——
+  //   归档会话的未决（P0）会一直躺在库里，而每天跑的所有阶段都不看它一眼。
+  //   节奏 24h：六项里最重的两项（FTS 双向差集、全量决策解析）在 10 万条消息的库上
+  //   仍是百毫秒级；但它是"债"的检查，不是热点路径，一天一次足够 ——
+  //   高频跑只会让 health_events 刷屏，不会让债变少。
+  //   体量 light：只读句柄、逐项目体检；不进宿主 worker 也不会阻塞 UI。
+  { id: 'audit', title: '审计契约（六项只读检查）', everySec: 86400, mutates: false, weight: 'light' },
 ];
 
 /** 宿主内可跑的轻阶段（插件 worker 用）：heavy 阶段留给独立进程，别阻塞宿主 UI */
@@ -178,8 +186,12 @@ export const RETRY_AFTER_MS = 30 * 60_000;  // 30 分钟放一次探测
  *   一个持续损坏的项目会让守护每 30 分钟才探一次，期间所有其它阶段照常跑，
  *   而唯一会报警的那个被关进了冷却。
  *   熔断的目的是「别把坏掉的重活反复重试拖垮链路」，体检是只读且极轻的操作，不在其列。
+ *
+ * audit 同理：它报出 P0 时 ok=false（红字），但 P0 是**库里的数据债**，不是阶段故障。
+ *   若把它算进熔断，一次 P0 之后连跑三天就再也不体检 —— 债还在，报告却停了，
+ *   正好复刻 guard 那条病历。故与 guard 同列。
  */
-const NO_BREAKER: ReadonlySet<StageId> = new Set<StageId>(['guard']);
+const NO_BREAKER: ReadonlySet<StageId> = new Set<StageId>(['guard', 'audit']);
 
 export function shouldSkip(st: LifecycleState, id: StageId, nowMs = Date.now()): { skip: boolean; reason?: string } {
   if (NO_BREAKER.has(id)) return { skip: false };

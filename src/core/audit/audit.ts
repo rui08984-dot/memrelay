@@ -27,7 +27,7 @@
 
 import { existsSync } from 'node:fs';
 import { dbFile, globalDbFile } from '../../shared/paths.js';
-import { listDecisions, listUnresolved, type DB } from '../../store/db.js';
+import { listDecisions, listUnresolved, openReadonly, type DB } from '../../store/db.js';
 import { decisionAgeDays } from '../../store/decision-validity.js';
 import { vagueDecisionObject } from '../extract/extract.js';
 import { visibleWhere } from '../../store/global.js';
@@ -364,4 +364,24 @@ export function auditDbPaths(root: string): { project: string; global: string; p
   const project = dbFile(root);
   const global = globalDbFile();
   return { project, global, projectExists: existsSync(project), globalExists: existsSync(global) };
+}
+
+/**
+ * 只读打开全局经验库（**唯一实现**）。
+ *
+ * 三处调用方：`srelay audit` CLI、生命周期 audit 阶段、简报顶部告警。三处都必须
+ * "不存在/被占用" **分开说**（前者是全新用户，后者是没测到），所以返回 reason 而不是 null。
+ *
+ * ⚠️ 不能用 store/global.ts 的 openGlobal：它会 mkdir + 建表 —— 审计一个字节都不许写，
+ * 而且简报是 prompt 组装路径，顺手建库是它最不该做的事。
+ */
+export function openGlobalAuditReadonly(): { db: DB | null; reason: string | null } {
+  const file = globalDbFile();
+  if (!existsSync(file)) return { db: null, reason: '全局经验库不存在：' + file };
+  try {
+    return { db: openReadonly(file), reason: null };
+  } catch (e) {
+    // 守护正在写（独占锁）时这里会抛：如实说"没测到"，绝不当成 0 条草稿
+    return { db: null, reason: '全局经验库打不开：' + (e instanceof Error ? e.message : String(e)) };
+  }
 }

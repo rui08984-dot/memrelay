@@ -22,8 +22,16 @@ import { requireRoot, openRelayDb, pc } from './ui.js';
 import { openGlobal, pickForInjection, type LessonRow } from '../store/global.js';
 import { resolveDomain, resolveWorkspaceId } from '../shared/workspace.js';
 import { passesUnresolvedFilters, passesBriefFilters, UNR_SLOTS } from './brief-filter.js';
+import { openGlobalAuditReadonly } from '../core/audit/audit.js';
+import { latestAuditAlert } from '../core/lifecycle/audit-stage.js';
 
 export interface BriefPayload {
+  /**
+   * 审计告警（**简报第一行**）：生命周期 audit 阶段最近一次对本项目的结论为 P0 时非空，
+   * 形如 `⚠ 审计 P0：32 条归档会话仍有未决`；无 P0 / 没跑过 → null（静默）。
+   * 为什么放在 payload 最前：P0 是"不可逆的数据缺失"，它比"最近定了什么"更该先看到。
+   */
+  auditAlert: string | null;
   decisions: DecisionRow[];
   unresolved: UnresolvedRow[];
   counts: { decisions: number; decisionsRaw?: number; folded?: number; unresolved: number };
@@ -102,7 +110,7 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
     .slice(0, limit);
   const recentFiles = listRecentFiles(db, { days: opts.days ?? 7, top: opts.top ?? 3 });
   const experiences = collectExperiences(root ?? process.cwd(), opts);
-  return { experiences, decisions, unresolved, recentFiles,
+  return { auditAlert: collectAuditAlert(root), experiences, decisions, unresolved, recentFiles,
     counts: { decisions: decisions.length, decisionsRaw: rawDecisions.length, folded, unresolved: unresolved.length } };
 }
 
@@ -113,6 +121,9 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
   try {
     const pay = collectBrief(db, cfg.identity.project_id ?? root, opts, root);
     if (opts.json) { console.log(JSON.stringify(pay)); return; }
+    // 审计 P0 永远排第一行（红字）：它是"不可逆的数据缺失"，比"最近定了什么"更急。
+    // 无 P0 时 auditAlert 为 null —— 这里不打印任何"审计正常"，静默就是正常。
+    if (pay.auditAlert) console.log(pc.red(pay.auditAlert));
     console.log(`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`);
     for (const r of pay.recentFiles) console.log(pc.dim(`  🗂 ${r.file}（${r.sessions} 场）`));
     for (const d of pay.decisions.slice(0, 5)) console.log(`  ${pc.dim(d.at?.slice(0, 10) ?? '')} ${d.kind === 'negative' ? pc.red('✗') : pc.green('✓')} ${d.text.slice(0, 60)}`);
@@ -131,9 +142,28 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
   }
 }
 
+/**
+ * 简报顶部的审计告警：读全局库里**本项目**最近一次审计结论（生命周期 audit 阶段写的）。
+ *
+ * 三种"没有告警"必须区分开（不看日志也能判断是否可信）：
+ *   · 没传 root（纯取数调用）→ 不查，null；
+ *   · 全局库不存在 —— 全新用户还没跑过生命周期，正常状态，静默；
+ *   · 全局库打不开（被占用/损坏）—— **要留痕**，否则 P0 会静默消失（本项目最嫌恶的失效）。
+ */
+function collectAuditAlert(root: string | undefined): string | null {
+  if (!root) return null;
+  const g = openGlobalAuditReadonly();
+  if (g.db === null) {
+    if (g.reason && !/不存在/.test(g.reason)) {
+      try { process.stderr.write('[brief] 审计告警读取失败（简报其余部分不受影响）：' + g.reason.slice(0, 160) + '\n'); } catch { /* 连 stderr 都写不了就别管了 */ }
+    }
+    return null;
+  }
+  try { return latestAuditAlert(g.db, root); } finally { try { g.db.close(); } catch { /* 已关 */ } }
+}
+
 /** 经验段的取数：**没命中就返回空数组**，由调用方决定整段渲不渲染 */
-function collectExperiences(root: string, opts: { top?: number; maxChars?: number; query?: string }): Array<{ text: string; scope: string; grade: string }> {
-  try {
+function collectExperiences(root: string, opts: { top?: number; maxChars?: number; query?: string }): Array<{ text: string; scope: string; grade: string }> {  try {
     const db = openGlobal();
     try {
       // [1016 收口] 工作区/领域都和别的面走同一份解析（此前写死 process.cwd() ⇒

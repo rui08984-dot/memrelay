@@ -35,6 +35,7 @@ import { analyzeProjectGuard } from '../maintain/guard-log.js';
 import { buildTagGraph } from '../graph/tags.js';
 import { autoArchiveProject, autoArchivePolicyOf } from '../../capture/archive.js';
 import { integrityOf, repairProject } from './repair.js';
+import { runAuditStage } from './audit-stage.js';
 import {
   STAGES, ensureLifecycleTables, loadLifecycle, saveLifecycle, recordStage, dueStages, shouldSkip,
   logHealthEvent, heartbeatAgeMs, setHeartbeat, type StageId, type LifecycleState,
@@ -494,6 +495,37 @@ export async function runLifecycle(opts: LifecycleOptions = {}): Promise<Lifecyc
       finally { try { db.close(); } catch { /* 已关 */ } }
     }
     return wf + other ? ('workflow ' + wf + ' · 普通 ' + other + ' · ' + criteria) : '本轮无会话可归档（' + (criteria || '策略关闭') + '）';
+  });
+
+  // ── ⑪ 审计契约（light；只读；24 小时最多一次）──
+  //
+  // 为什么进生命周期（1021）：audit 只能手动跑时 = 体检报告放在抽屉里。归档会话的未决
+  // （P0）与 FTS 索引损坏（P0）都不会让任何阶段报错，只会让检索/回跳静默变差。
+  // 现在每天跑一次：P0 → health_events(warn) → 简报顶部红字。
+  //
+  // 顺序刻意在 aging **之后**：老化会把"还有未决的会话"归档，从而制造新的 P0
+  // （归档会话的未决 = 出处永久指空）。同一轮里先归档再审计，报告才反映刚刚发生的事。
+  //
+  // 只读纪律：runAuditStage 只开只读句柄、零写入；这里只写 lifecycle 自己的运行记录
+  // （health_events 是体检台账，不是业务表）。每个项目一条，detail 里带 root ——
+  // 全局库是多项目共用的，简报必须能按 root 取自己那条。
+  if (todue.some((s) => s.id === 'audit')) await runOne(specOf('audit'), () => {
+    const rep = runAuditStage({ roots, now });
+    if (global) {
+      for (const it of rep.items) {
+        const detail = JSON.stringify({ root: it.root, p0: it.p0, p1: it.p1, skipped: it.skipped, alert: it.alert, hits: it.hits });
+        if (it.status === 'skipped') {
+          logHealthEvent(global, 'audit', 'warn', '审计没测到：' + (it.note ?? '原因未知'), detail);
+        } else {
+          logHealthEvent(global, 'audit', it.p0 > 0 ? 'warn' : 'info',
+            it.alert ?? ('审计无 P0（P1 ' + String(it.p1) + ' 项 / 跳过 ' + String(it.skipped) + ' 项）'), detail);
+        }
+      }
+    }
+    if (rep.alert) log('  ' + rep.alert);
+    // "没测到"必须让本阶段 ok=false：否则面板/健康记录里一切正常，而审计其实没跑成。
+    const note = global ? rep.note : rep.note + ' · 全局库不可用（' + (globalOpenError ?? '未知') + '）：结论无法落盘/进简报';
+    return { ok: rep.p0 === 0 && rep.unreadable === 0, note };
   });
 
   // ── ⑨ 分发（部署物由宿主注入；内核不碰 HTML）──
