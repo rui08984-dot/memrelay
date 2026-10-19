@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import { loadConfig } from '../shared/config.js';
 import { isDaemonAlive } from '../shared/lock.js';
-import { runWatch, runWatchGlobal } from '../capture/watch.js';
+import { runWatch, runWatchGlobal, globalDaemonAlive } from '../capture/watch.js';
 import { findRelayRoot } from '../shared/paths.js';
 import { touchRegistry } from '../shared/registry.js';
 import { pc } from './ui.js';
@@ -14,7 +14,14 @@ export async function cmdWatch(opts: { foreground?: boolean; global?: boolean; i
   if (opts.uninstall) return uninstallWatchService(root);
   if (opts.status) {
     const alive = isDaemonAlive(root);
-    console.log(`守护：${alive.alive ? pc.green(`运行中 (pid ${alive.pid})`) : pc.red('未运行')} · 服务：${await watchServiceStatus(root)}`);
+    // [10-19] 全局守护用的是**固定名管道**，不是项目文件锁 —— 原实现只查项目锁，
+    //   于是 `watch --global` 明明在跑（日志写着「全局守护运行中」），`--status` 却报「未运行」。
+    //   实测踩到：采集在正常推进（35s +3 条消息），状态页却说没跑，运维会因此重复拉起。
+    const globalAlive = await globalDaemonAlive();
+    const shown = globalAlive
+      ? pc.green('运行中（全局守护）')
+      : alive.alive ? pc.green(`运行中 (pid ${alive.pid})`) : pc.red('未运行');
+    console.log(`守护：${shown} · 服务：${await watchServiceStatus(root)}`);
     // 静默启动后报错的可诊断出口：日志尾部（用户教训——闪框有信号，纯静默=故障不可见）
     const rr = findRelayRoot(root);
     if (rr) {
