@@ -174,7 +174,7 @@ export function buildServer(get: () => ServeCtx, select?: (p: string) => Promise
   // 裸名 search 会撞车。
   register('srelay_search', {
     title: '检索项目记忆',
-    description: '检索本项目历史记忆，四类内容一个入口。kind：sessions=搜会话（默认；用户问"之前/上次/我们讨论过吗"、接手项目要背景、实现前确认已有结论、报错排查怀疑有历史结论）；decisions=全部已确认技术决策（response 里 kind=negative 的是"被否掉的路"，看到就别再提议同一条）；unresolved=提出过但未解决的问题；files=某文件路径被哪些会话讨论过。何时不调：纯新问题、当前对话刚说过的内容。深入某一个会话用 srelay_show',
+    description: '检索本项目历史记忆，四类内容一个入口。kind：sessions=搜会话（默认；用户问"之前/上次/我们讨论过吗"、接手项目要背景、实现前确认已有结论、报错排查怀疑有历史结论）；decisions=全部已确认技术决策（response 里 kind=negative 的是"被否掉的路"，看到就别再提议同一条）；unresolved=提出过但未解决的问题；files=某文件路径被哪些会话讨论过。何时不调：纯新问题、当前对话刚说过的内容。深入某一个会话用 srelay_show。返回里的 groups 是「同一主题的多条会话」，回答“在哪几次会话里……”时优先引用整组，别只挑一条',
     inputSchema: {
       query: z.string().optional().describe('搜索词，支持 "短语" 精确匹配；kind=files 时传文件路径。kind=decisions / unresolved 不需要它（可不传）'),
       kind: z.enum(['sessions', 'decisions', 'unresolved', 'files']).optional().describe('检索哪类内容，默认 sessions'),
