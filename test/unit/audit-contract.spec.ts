@@ -8,6 +8,8 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import {
   AUDIT_CHECKS,
   LESSON_DRAFT_STALE_DAYS,
@@ -320,4 +322,81 @@ describe('审计契约 · 汇总报告', () => {
     expect(r.generatedAt).toBeTruthy();
     expect(r.projectId).toBe(PID);
   });
+});
+// ─────────── CLI 层：退出码 0/1/2（端到端，真的 spawn 一个 srelay 子进程）───────────
+//
+// 为什么这段不走 mock：退出码是**契约**，而"把 process.exitCode 写对"这件事
+// 只在真的跑一次进程时才被测到（历史上这里是空过最多次的地方）。
+// 也不走 requireRoot：audit 自己解析根，且**不**懒启动守护 —— 子进程里断言不到"守护没被拉起"，
+// 所以只断言退出码与 JSON 形状。
+
+interface CliRun { code: number; out: string }
+
+function runCli(args: string[], cwd: string): CliRun {
+  const repo = fileURLToPath(new URL('../..', import.meta.url));
+  const loader = 'file:///' + path.join(repo, 'node_modules', 'tsx', 'dist', 'loader.mjs').replace(/\\/g, '/');
+  const env = { ...process.env, VITEST: '1', SRELAY_GLOBAL_HOME: path.join(cwd, 'no-global-here') };
+  try {
+    const out = execFileSync(process.execPath, ['--import', loader, path.join(repo, 'src', 'bin', 'srelay.ts'), ...args], {
+      cwd, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return { code: 0, out };
+  } catch (e) {
+    const err = e as { status?: number; stdout?: string; stderr?: string };
+    return { code: err.status ?? -1, out: String(err.stdout ?? '') + String(err.stderr ?? '') };
+  }
+}
+
+describe('审计契约 · CLI 退出码（srelay audit --json）', () => {
+  it('未初始化 ⇒ 2（"没测到"不许给 0）', () => {
+    const bare = fs.mkdtempSync(path.join(os.tmpdir(), 'srelay-audit-cli-bare-'));
+    try {
+      const r = runCli(['audit', '--json'], bare);
+      expect(r.code).toBe(2);
+      expect(r.out).toContain('未找到 .sessionrelay');
+    } finally { try { fs.rmSync(bare, { recursive: true, force: true }); } catch { /* 清理失败不影响判据 */ } }
+  }, 60_000);
+
+  it('干净项目（无地图/无经验/索引健康）⇒ 0；只有缺 msgId ⇒ 1；有归档未决 ⇒ 2', () => {
+    const clean = fs.mkdtempSync(path.join(os.tmpdir(), 'srelay-audit-cli-ok-'));
+    try {
+      fs.mkdirSync(path.join(clean, '.sessionrelay'), { recursive: true });
+      fs.writeFileSync(path.join(clean, '.sessionrelay', 'config.json'), JSON.stringify({ version: '1.0', identity: { project_id: 'proj-cli' } }, null, 2));
+      const cdb = createDb(path.join(clean, '.sessionrelay', 'relay.sqlite'));
+      try {
+        const sid = upsertCapturedSession(cdb, {
+          source: 'dsh', sourceSessionId: 'cli-1', projectId: 'proj-cli', title: '干净会话',
+          createdAt: iso(1), lastEventAt: iso(1), sourceFile: 'fixture:cli-1',
+        }).id;
+        insertMessage(cdb, { sessionId: sid, role: 'user', content: '决定采用 SQLite FTS5', seqNum: 1, createdAt: iso(1) });
+        cdb.prepare("UPDATE sessions SET state = 'confirmed' WHERE id = ?").run(sid);
+        // 干净：有 msgId 的真决策
+        cdb.prepare('UPDATE sessions SET decisions = ? WHERE id = ?')
+          .run(JSON.stringify([{ text: '决定采用 SQLite FTS5 作为唯一检索层', seq: 1, msgId: 1 }]), sid);
+
+        const okRun = runCli(['audit', '--json'], clean);
+        expect(okRun.code).toBe(0);
+        const okReport = JSON.parse(okRun.out) as { exitCode: number; checks: Array<{ id: string; status: string }> };
+        expect(okReport.exitCode).toBe(0);
+        expect(okReport.checks).toHaveLength(6);
+        // 没有地图 ⇒ 该项 skipped（未建图 ≠ 有债），但结论仍是 0
+        expect(okReport.checks.find((c) => c.id === 'map-node-no-sources')?.status).toBe('skipped');
+
+        // 只有 P1：一条缺 msgId 的决策
+        cdb.prepare('UPDATE sessions SET decisions = ? WHERE id = ?')
+          .run(JSON.stringify([{ text: '决定采用 SQLite FTS5 作为唯一检索层', seq: 1 }]), sid);
+        const p1 = runCli(['audit', '--json'], clean);
+        expect(p1.code).toBe(1);
+        expect((JSON.parse(p1.out) as { totals: { p1: number } }).totals.p1).toBe(1);
+
+        // P0：把这条未决挂到已归档会话上
+        cdb.prepare('UPDATE sessions SET state = ' + "'confirmed'," + ' cleanup_at = ?, message_count = 0 WHERE id = ?').run(iso(0), sid);
+        cdb.prepare('UPDATE sessions SET key_questions = ? WHERE id = ?')
+          .run(JSON.stringify([{ q: '归档后这条未决怎么办', seq: 1, msgId: 1, unresolved: true }]), sid);
+        const p0 = runCli(['audit', '--json'], clean);
+        expect(p0.code).toBe(2);
+        expect((JSON.parse(p0.out) as { totals: { p0: number } }).totals.p0).toBe(1);
+      } finally { cdb.close(); }
+    } finally { try { fs.rmSync(clean, { recursive: true, force: true }); } catch { /* 同上 */ } }
+  }, 120_000);
 });
