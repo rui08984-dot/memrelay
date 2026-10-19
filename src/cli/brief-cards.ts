@@ -20,6 +20,7 @@ import { getSessionFull, type DB } from '../store/db.js';
 import { buildSessionCardFromStored, type SessionCard } from '../core/cards/session-card.js';
 import { renderCardLines } from '../core/cards/card-text.js';
 import { CARD_BUDGET_RATIO } from '../relay/handoff-md.js';
+import { vagueDecisionObject } from '../core/extract/extract.js';
 
 /**
  * 简报的体积预算比：与 HANDOFF 导出**同一个 1.2**（import 自 handoff-md，不另写一份）。
@@ -80,8 +81,13 @@ export interface BriefCardBlock {
 function cardBlockOf(db: DB, sessionId: string): BriefCardBlock | null {
   const full = getSessionFull(db, sessionId);
   if (!full) return null; // 会话行不在（被合并/清除）：没有卡可出，也不编一张
+  // [10-19] 卡片里也必须过滤存量碎片：简报正文已经隐藏了它们，卡片再渲染一遍
+  //   等于「藏了又露出来」（实测：task-14 的 ② 号测试当场抓到）。
+  //   判据与抽取端/audit/简报正文**同一份** —— import，不复制。
+  const keptDecisions = (Array.isArray(full.decisions) ? full.decisions : [])
+    .filter((d) => !vagueDecisionObject(String(d?.text ?? '')));
   const card = buildSessionCardFromStored(
-    { decisions: full.decisions, questions: full.questions, topics: full.topics, files: full.files },
+    { decisions: keptDecisions, questions: full.questions, topics: full.topics, files: full.files },
     {
       title: full.title,
       messageCount: Number.isFinite(full.messageCount) ? full.messageCount : 0,
@@ -163,9 +169,20 @@ export interface BriefComposeResult {
  * @param tail 卡片段**之后**的行（相关会话组 / 经验）—— 卡段插在两者之间，
  *             而不是粗暴追加到末尾：卡片是决策/未决的"展开"，离它们越近越有用
  */
+/**
+ * 预算下限（字节）：保证**至少一张卡**能落地。
+ *
+ * 病历：真实库 brief 基线只有 ~256 字节，×1.2 = 308，可用 52 字节 ——
+ * 而最短的单行卡要 99 字节 ⇒ 卡片**永远 0 张**，功能等于没接。
+ * 1.2 倍是「不许把简报撑大」的上限，不是「连一张卡都不许放」的枷锁；
+ * 所以取 `max(基线×1.2, 基线+320)`：320 ≈ 一张完整卡 + 一行说明，
+ * 对 1.5KB 以上的长简报，两者等价（仍严格按 1.2 倍走）。
+ */
+export const BRIEF_CARD_MIN_SLACK = 320;
+
 export function composeBriefWithCards(head: string[], blocks: BriefCardBlock[], tail: string[] = []): BriefComposeResult {
   const baseBytes = utf8Bytes(head) + utf8Bytes(tail);
-  const budgetBytes = Math.ceil(baseBytes * BRIEF_BUDGET_RATIO);
+  const budgetBytes = Math.max(Math.ceil(baseBytes * BRIEF_BUDGET_RATIO), baseBytes + BRIEF_CARD_MIN_SLACK);
   const lines = [...head];
   // used = 已落地的行（不含 tail）的字节数；tail 是基线的一部分，任何时刻都要给它留位
   let used = utf8Bytes(head);

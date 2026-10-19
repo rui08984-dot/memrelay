@@ -9,7 +9,9 @@
 
 - **会话卡接进 `srelay brief`**：`src/cli/brief-cards.ts` 提供卡片装配与预算控制（`BRIEF_BUDGET_RATIO`），`brief.ts` 只决定「给哪几场出卡 + 放不放得下」。超预算时降级成单行并**明说**（`预算已用满：N 张卡降级为单行`），绝不静默截断。
 - **存量决策碎片过滤**：展示层用 `vagueDecisionObject`（与抽取端、audit 同一份判据）拦掉旧碎片，末尾一行「已隐藏 N 条疑似碎片（旧数据）」；无碎片时一个字都不打。库不动、`srelay decisions` 仍全量可见。实测 agent1super：决策 4→2 条，隐藏 2 条。
-- 新增 6 条测试（`test/fork/task-14-brief-fragments.spec.ts` 3 条 + `brief-audit-alert` 3 条）。
+- **预算下限修复**：真实 brief 基线仅 ~256B，×1.2=308B 而最短单行卡 99B ⇒ 卡片**永远 0 张**（功能等于没接）。改为 `max(基线×1.2, 基线+320)`，短简报至少落一张卡；实测 brief 从「0 张卡」变成「1 张完整卡 + 1 场省略（有说明）」。
+- **卡片也必须过滤碎片**：cards 重渲染 stored decisions 时绕过了正文过滤，碎片「藏了又露出来」（task-14 的 ② 号测试当场抓到）。卡片装配改用同一份 `vagueDecisionObject` 拦截。
+- 新增 10 条测试（task-14 3 条 + `brief-audit-alert` 3 条 + `brief-cards` 4 条：预算下限/不超上限/降级说明/降级保留证据）。
 
 ### 会话卡与审计契约（10-19）
 
