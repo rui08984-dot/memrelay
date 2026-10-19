@@ -164,6 +164,17 @@ describe('P3 · MCP 契约（stdio 真握手）', () => {
     }
   });
 
+  it('srelay_search 的工具描述真的带 groups 提示（tools/list 实取，不是源码注释）', async () => {
+    // [1021 P1-1] 描述里那句「groups 是同一主题的多条会话，优先引用整组」必须真的被服务出去。
+    // 只改源码字符串、却被白名单/注册路径吞掉的情况，只有从 tools/list 实取才能发现。
+    const tools = await client.listTools();
+    const search = tools.tools.find((t) => t.name === 'srelay_search');
+    expect(search).toBeTruthy();
+    const desc = String(search?.description ?? '');
+    expect(desc).toContain('groups');
+    expect(desc).toContain('优先引用整组');
+  });
+
   it('suggest_related_sessions：锚会话推荐 + 可解释 reason + viaVector 标注', async () => {
     // 夹具的 confirmed 会话 topics 已被 confirmSession 提取覆写——自足造一对重叠信号（active 不覆写）
     const w = new Database(path.join(PROJECT, '.sessionrelay', 'relay.sqlite'));

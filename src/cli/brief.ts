@@ -24,6 +24,28 @@ import { resolveDomain, resolveWorkspaceId } from '../shared/workspace.js';
 import { passesUnresolvedFilters, passesBriefFilters, UNR_SLOTS } from './brief-filter.js';
 import { openGlobalAuditReadonly } from '../core/audit/audit.js';
 import { latestAuditAlert } from '../core/lifecycle/audit-stage.js';
+import { groupSessions } from '../search-svc/session-groups.js';
+
+/** 简报「相关会话」段的分组条目（组内 ≥2 场；单场不进这一段——决策/未决列表已经点了名） */
+export interface BriefRelatedGroup {
+  /** 组代表（组内最近活跃的那场） */
+  lead: string;
+  /** 组内全部会话 id（含 lead） */
+  sessions: string[];
+  /** 渲染用：标题 + 最近活动时间（省得调用方再查库） */
+  members: Array<{ id: string; title: string | null; at: string | null }>;
+  /** 为什么它们在一组（最多各 5 个，来自 groupSessions 的共享信号） */
+  sharedTopics?: string[];
+  sharedFiles?: string[];
+}
+
+/**
+ * 「相关会话」段的体积上界：3 组 × groupSessions 自带的 3 场上限。
+ * 简报是 prompt 的一部分，这一段是**导航**不是正文 —— 再多就挤掉决策/未决。
+ */
+export const RELATED_MAX_GROUPS = 3;
+/** 参与分组的会话上限（IN (...) 的参数必须有界；60 场已覆盖简报 200 条决策的来源集合） */
+export const RELATED_MAX_REFS = 60;
 
 export interface BriefPayload {
   /**
@@ -36,6 +58,12 @@ export interface BriefPayload {
   unresolved: UnresolvedRow[];
   counts: { decisions: number; decisionsRaw?: number; folded?: number; unresolved: number };
   recentFiles: RecentFileRow[];
+  /**
+   * 「相关会话」段：简报里被点名的会话中，**同一主题的多条会话**合成一组（最多 3 组）。
+   * 空数组 = 没有多会话组（整段不渲染）——单场会话不在这里重复点名，决策/未决行已经带了标题。
+   * 分组判据复用 search-svc/session-groups.ts 的 groupSessions（与 srelay_search 的 groups 同源）。
+   */
+  relatedSessions: BriefRelatedGroup[];
   /**
    * 🌍 全局经验（**两道闸 + 预算**后；没命中就是空数组，客户端应整段不渲染）
    *
@@ -109,8 +137,12 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
     .filter((r) => passesUnresolvedFilters(r.q))
     .slice(0, limit);
   const recentFiles = listRecentFiles(db, { days: opts.days ?? 7, top: opts.top ?? 3 });
+  const relatedSessions = collectRelatedGroups(db, [
+    ...decisions.map((d) => ({ sessionId: d.sessionId, at: d.at })),
+    ...unresolved.map((u) => ({ sessionId: u.sessionId, at: u.at })),
+  ]);
   const experiences = collectExperiences(root ?? process.cwd(), opts);
-  return { auditAlert: collectAuditAlert(root), experiences, decisions, unresolved, recentFiles,
+  return { auditAlert: collectAuditAlert(root), relatedSessions, experiences, decisions, unresolved, recentFiles,
     counts: { decisions: decisions.length, decisionsRaw: rawDecisions.length, folded, unresolved: unresolved.length } };
 }
 
@@ -128,6 +160,19 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     for (const r of pay.recentFiles) console.log(pc.dim(`  🗂 ${r.file}（${r.sessions} 场）`));
     for (const d of pay.decisions.slice(0, 5)) console.log(`  ${pc.dim(d.at?.slice(0, 10) ?? '')} ${d.kind === 'negative' ? pc.red('✗') : pc.green('✓')} ${d.text.slice(0, 60)}`);
     for (const u of pay.unresolved.slice(0, UNR_SLOTS)) console.log(`  ${pc.yellow('◻')} ${u.q.slice(0, 60)}`);
+    // ── [1021 P1-1] 「相关会话」段：多会话组按组显示，不再逐条平铺 ──
+    // 只在真的分出组时才打印；单场会话不进这一段（决策/未决行已经点了名）。
+    if (pay.relatedSessions.length > 0) {
+      console.log(pc.dim(`  相关会话 ${pay.relatedSessions.length} 组（同一主题的多条会话）：`));
+      for (const g of pay.relatedSessions) {
+        const lead = g.members.find((m) => m.id === g.lead);
+        const sig = [...(g.sharedTopics ?? []).slice(0, 2), ...(g.sharedFiles ?? []).slice(0, 1)].join(' / ');
+        console.log(pc.dim('  · ') + String(lead?.title ?? g.lead).slice(0, 40)
+          + pc.dim('  [' + g.sessions.length + ' 场' + (sig ? ' · 共享 ' + sig : '') + ']'));
+        const others = g.members.filter((m) => m.id !== g.lead).map((m) => m.title ?? m.id).filter(Boolean);
+        if (others.length > 0) console.log(pc.dim('      ↳ ' + others.join(' · ').slice(0, 80)));
+      }
+    }
     // ── [1021 修「面板说可注入 10 条，但 srelay brief 一条经验都不显示」] ──
     //   `collectExperiences()` 一直是**取到了的**（`--json` 里实测 3 条），
     //   但人话输出**从来没有渲染过这一段** —— 于是用户敲 `srelay brief` 看到的是「没有经验」，
@@ -140,6 +185,51 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
   } finally {
     db.close();
   }
+}
+
+/**
+ * 「相关会话」段取数：把简报点名过的会话交给 groupSessions（**唯一分组判据**），
+ * 只保留**多会话组**（≥2 场）。单场不在这里重复列 —— 决策/未决行已经带了标题。
+ *
+ * 体积：组数 ≤ RELATED_MAX_GROUPS，参与会话 ≤ RELATED_MAX_REFS；两者都是硬上限，
+ * 保证这一段不会因为"库里会话很多"而把简报撑爆。
+ * score 用会话在简报里最后一次出现的时间：组代表 = 组内最近动过的那场。
+ */
+function collectRelatedGroups(db: DB, refs: Array<{ sessionId: string; at: string }>): BriefRelatedGroup[] {
+  const score = new Map<string, number>();
+  for (const r of refs) {
+    if (!r.sessionId) continue;
+    score.set(r.sessionId, Math.max(score.get(r.sessionId) ?? 0, Date.parse(r.at) || 0));
+  }
+  // 先按"最近出现"取前 N 场：IN (...) 的参数个数必须有界（大库上不能无上限展开）
+  const ids = [...score.entries()].sort((a, b) => b[1] - a[1]).slice(0, RELATED_MAX_REFS).map(([id]) => id);
+  if (ids.length < 2) return [];
+  let groups;
+  try {
+    groups = groupSessions(db, ids.map((id) => ({ sessionId: id, score: score.get(id) ?? 0 })));
+  } catch {
+    // 分组是**呈现增强**：SQL 失败时退回"不分组"，不让简报整段崩（也不假装分过组）
+    return [];
+  }
+  const multi = groups.filter((g) => g.sessionIds.length >= 2).slice(0, RELATED_MAX_GROUPS);
+  if (multi.length === 0) return [];
+  const meta = new Map<string, { id: string; title: string | null; at: string | null }>();
+  try {
+    const ph = ids.map(() => '?').join(',');
+    const rows = db.prepare('SELECT id, title, COALESCE(last_event_at, created_at) AS at FROM sessions WHERE id IN (' + ph + ')')
+      .all(...ids) as Array<{ id: string; title: string | null; at: string | null }>;
+    for (const r of rows) meta.set(r.id, r);
+  } catch { /* 标题取不到就用 id：分组本身仍然有信息量 */ }
+  return multi.map((g) => ({
+    lead: g.lead,
+    sessions: g.sessionIds,
+    members: g.sessionIds.map((id) => {
+      const m = meta.get(id);
+      return { id, title: m?.title ?? null, at: m?.at ?? null };
+    }),
+    ...(g.sharedTopics.length > 0 ? { sharedTopics: g.sharedTopics } : {}),
+    ...(g.sharedFiles.length > 0 ? { sharedFiles: g.sharedFiles } : {}),
+  }));
 }
 
 /**
