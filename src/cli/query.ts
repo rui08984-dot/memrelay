@@ -5,6 +5,7 @@ import { searchSessions, DEFAULT_TITLE_BOOST, type SearchExplain } from '../sear
 import { groupSessions } from '../search-svc/session-groups.js';
 // [10-19 任务 D] 检索自校准第一步：只采集 open 事件，不改检索结果/排序。
 import { rememberSearch, recordSearchOpen } from '../search-svc/feedback.js';
+import { diagnoseEmpty } from '../search-svc/why-empty.js';
 import { findSessionByPrefix, getSession, listSessions, getMessageRange, isNoteSession } from '../store/db.js';
 import { openStats } from '../core/stats/counter.js';
 import { requireRoot, openRelayDb, pc, fmtDate, stateBadge } from './ui.js';
@@ -142,14 +143,17 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
       return;
     }
     if (hits.length === 0) {
-      // [10-19] 提示语要说**真话**：原来无论 scope 是什么都挂一句「scope 契约生效中」，
-      //   而且指向一个不存在的子命令（`srelay scope show` 会报 too many arguments）。
-      //   现在只在真的收窄时提示，并给出真实可用的命令。
+      // [10-19] 「为什么没找到」诊断：只归因、不改检索。
+      //   判据全在 why-empty.ts（词太泛 / 词不存在 / 时间窗 / scope / 约束太多），
+      //   这里只负责打印；没有诊断时它会给出兜底原因，绝不再只说「未找到」。
       const scoped = !!(asm.scopeFile && asm.scopeFile.mode !== 'full' && asm.where);
-      const note = scoped
-        ? pc.dim('（本次检索被 scope 契约收窄：srelay scope 查看当前范围，srelay scope reset 放宽）')
-        : pc.dim('（已检索本项目全部会话；换关键词或放宽时间窗再试）');
-      console.log(pc.yellow('未找到。') + note);
+      const project = cfg.identity.project_id ?? root;
+      let total = 0;
+      try { total = (db.prepare('SELECT COUNT(*) AS c FROM sessions WHERE project_id = ?').get(project) as { c: number }).c; } catch { total = 0; }
+      const diag = diagnoseEmpty({ db, projectId: project, query, sessions: total, scopeNarrowed: scoped, since: flags.since, until: flags.until });
+      console.log(pc.yellow('未找到。') + pc.dim('为什么：'));
+      for (const r of diag.reasons) console.log('  · ' + r);
+      for (const s of diag.suggestions) console.log(pc.dim('  → ' + s));
       return;
     }
     const snap = stats.snapshot();
