@@ -5,6 +5,11 @@
 
 ## [Unreleased]
 
+### 一键交接包 `srelay handoff`（10-19）
+
+- 新增 `srelay handoff [--out <file>] [--json]`：把简报、决策、未决、下一步、经验拼成**固定五段**的可转发文档（① 现在到哪了 ② 定过什么 ③ 还欠什么 ④ 下一步 ⑤ 坑）。
+- 每条决策/未决带出处（sessionId + msgId/seq）；隐藏项（碎片 / 归档未决）在文档里明说；`--out` 落盘、`--json` 给原始 payload。纯渲染函数 `renderHandoff` 5 条单测。
+
 ### 三力落地：可解释 / 自愈 / 反馈采集（10-19）
 
 - **B 检索可解释**：`srelay search --explain` 打印每条的分数构成（title 命中 / 覆盖度 / 长度惩罚 / 衰减 / 基础分 → 最终分）。`SearchHit.explain` 仅在 opts.explain 时填充，**不加时零开销、排序逐条不变**（7 条单测钉住）。
