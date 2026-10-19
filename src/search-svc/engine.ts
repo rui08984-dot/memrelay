@@ -75,6 +75,16 @@ function excerpt(db: DB, rid: number, firstToken: string): string {
  *   证据句 ≥80% 覆盖从 16/95（16.8%）提到 42/95（44.2%），McNemar p=2.6e-6；平均覆盖 36.2%→69.7%。
  * 为什么放在这里而不是改检索：它**不改排名**，只改「返回哪段证据」——风险最小、收益直接体现在简报里。
  */
+/**
+ * [10-19] meta-only 命中的片段：优先取「覆盖查询词元最多」的正文消息；
+ * 一条正文都没有时，明确返回占位说明（不返回空串，避免看起来像假命中）。
+ */
+function metaOnlyExcerpt(db: DB, sid: string, anchors: string[]): string {
+  const got = bestExcerpt(db, sid, anchors, 160);
+  if (got !== '') return got;
+  return '（该会话只有标题/话题命中，正文已归档或为空）';
+}
+
 function bestExcerpt(db: DB, sid: string, anchors: string[], budget = 120): string {
   const rows = db.prepare('SELECT content FROM messages WHERE session_id = ? ORDER BY seq_num').all(sid) as Array<{ content: string }>;
   if (rows.length === 0) return '';
@@ -368,10 +378,15 @@ function searchOnce(db: DB, opts: SearchOptions): SearchHit[] {
       }
       continue;
     }
+    // [10-19] meta-only 命中不能返回空 snippet：实测 X 臂 950 个 top-10 槽位里 389 个（40.9%）
+    //   snippet 是空串、全部来自这里 —— 用户/agent 看到「命中」却看不到任何证据，等于假命中。
+    //   现在：从该会话里挑「最能体现标题/话题命中」的一条正文消息作为片段；
+    //   会话确实没正文（归档只剩骨架）时返回明确说明，而不是空串。
+    const metaSnippet = metaOnlyExcerpt(db, sid, units.flat());
     hits.push({
       sessionId: sid,
       score: bm25.metaWeight !== null ? bm25.metaWeight * sc : sc * 0.5,
-      snippet: '', viaMeta: true, coverage: coverageOf(sid), seq: 0,
+      snippet: metaSnippet, viaMeta: true, coverage: coverageOf(sid), seq: 0,
     });
   }
 

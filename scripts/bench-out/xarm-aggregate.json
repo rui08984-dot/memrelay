@@ -1,6 +1,7 @@
 {
- "at": "2026-10-19T12:25:11.485Z",
+ "at": "2026-10-19T12:55:14.686Z",
  "dbPath": "D:/agent1super/.sessionrelay/relay.sqlite",
+ "fingerprint": "sessions=680 messages=30863 maxMsgId=473948 bytes=60006400 mtime=2026-10-19T12:52:37.479Z",
  "qfile": "scripts/bench-questions-paraphrase-v2.json",
  "limit": 10,
  "deep": 50,
@@ -9,50 +10,142 @@
  "summary": {
   "n": 95,
   "nEvid": 88,
-  "rank1": 8,
-  "hit10": 28,
-  "deep11": 39,
-  "unreach": 29,
-  "disagree": 40,
+  "rank1": 9,
+  "hit10": 27,
+  "mid": 40,
+  "unreach": 30,
+  "unstableLimit": 42,
+  "hit10AtDeep": 34,
   "coverage": {
    "P0": {
-    "strict": 3,
-    "full": 16,
-    "ge80": 16,
-    "mean": 0.3619
+    "n": 95,
+    "strict": 4,
+    "pref40": 5,
+    "full": 41,
+    "mean": 0.6249,
+    "meanIdf": 0.621
    },
    "P1": {
-    "strict": 7,
-    "full": 42,
-    "ge80": 42,
-    "mean": 0.6972
+    "n": 95,
+    "strict": 5,
+    "pref40": 6,
+    "full": 41,
+    "mean": 0.6533,
+    "meanIdf": 0.6532
    },
    "P2": {
-    "strict": 8,
-    "full": 52,
-    "ge80": 52,
-    "mean": 0.7703
+    "n": 95,
+    "strict": 6,
+    "pref40": 6,
+    "full": 59,
+    "mean": 0.7712,
+    "meanIdf": 0.7682
    }
   },
   "mcnemar": {
-   "strict01": 0.21875000000000006,
-   "span01": 0.0000025560148060321838,
-   "strict02": 0.0625
+   "p01": 1,
+   "p02": 0.000007629394531250002,
+   "pPref01": 1
+  },
+  "own": {
+   "n": 27,
+   "P0": {
+    "strict": 4,
+    "full": 9,
+    "mean": 0.4722
+   },
+   "P1": {
+    "strict": 5,
+    "full": 9,
+    "mean": 0.5191
+   }
   },
   "chars": {
-   "p0": 433,
-   "p1": 843,
-   "p2": 1812
+   "p0": 951,
+   "p1": 889,
+   "p2": 2320
   },
   "clusters": {
-   "avg": 8.811,
+   "avg": 8.779,
    "multiGroups": 5,
-   "inTop10": 28,
+   "inTop10": 27,
    "recover": {
     "ok": 3,
-    "denom": 39
+    "denom": 40
+   },
+   "sweep": [
+    {
+     "th": 0.2,
+     "avgGroups": 7.726,
+     "multiPct": 29.6
+    },
+    {
+     "th": 0.34,
+     "avgGroups": 8.779,
+     "multiPct": 18.5
+    },
+    {
+     "th": 0.5,
+     "avgGroups": 9.168,
+     "multiPct": 11.1
+    },
+    {
+     "th": 0.7,
+     "avgGroups": 9.789,
+     "multiPct": 3.7
+    }
+   ]
+  },
+  "byBucket": [
+   {
+    "bucket": "rank 1",
+    "n": 9,
+    "P0": {
+     "full": 4,
+     "mean": 0.667
+    },
+    "P1": {
+     "full": 6,
+     "mean": 0.852
+    }
+   },
+   {
+    "bucket": "rank 2-10",
+    "n": 16,
+    "P0": {
+     "full": 7,
+     "mean": 0.707
+    },
+    "P1": {
+     "full": 6,
+     "mean": 0.678
+    }
+   },
+   {
+    "bucket": "rank 11-50",
+    "n": 39,
+    "P0": {
+     "full": 17,
+     "mean": 0.641
+    },
+    "P1": {
+     "full": 17,
+     "mean": 0.667
+    }
+   },
+   {
+    "bucket": ">50/不可达",
+    "n": 24,
+    "P0": {
+     "full": 13,
+     "mean": 0.71
+    },
+    "P1": {
+     "full": 12,
+     "mean": 0.731
+    }
    }
-  }
+  ]
  },
  "rows": [
   {
@@ -64,21 +157,40 @@
    "nAnchors": 5,
    "goldHits": 3,
    "goldLen": 56,
+   "goldText": "读 E:\\music player\\docs\\给ZCode的问题清单-20261010.md，按里面的优先级处理",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.619873417751908
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 998,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.3834877531076176
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 1175,
    "chars1": 1107,
-   "chars2": 2829,
+   "chars2": 3006,
    "clusters": 8,
    "groupSize": 1,
    "recovered": null,
@@ -95,6 +207,18 @@
     "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
     "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
     "所有盘现在都爆炸了没空间了看看什么情况"
+   ],
+   "packHeads": [
+    "、车次列车\"应该是语音转文字的误识别，根据上下文你要的应该是\"覆盖完整流程的安装清单\"，也就",
+    "**语篇天然具有二维块结构（2D Block-AST）**： 自然语言在编辑器里不是平铺的。",
+    "**语篇天然具有二维块结构（2D Block-AST）**： 自然语言在编辑器里不是平铺的。",
+    "部超时失败**（它的搜索链路太慢），但没关系——**我用论文 MCP 自己把关键问题全查完了",
+    "求体记录（ZCode 日志不落请求参数），这条路查不到实证。但 ZCode 侧的问题本身已经",
+    "tent: 按 `E:\\music player\\docs\\给ZCode的问题清单-2026",
+    "a 支持自定义主题（`docs/theme-colours.md` + 内置主题编辑器，H1",
+    "楚了。这些都是各子领域的核心综述。派子代理按语义补引,我自己并行处理评价里其他真问题。",
+    "我拿到了足够的确定性依据。直接回答你的场景问题。 ## 先纠正一个前提 **Fusion 在",
+    "化 entrypoint.sh，再强制 Docker 重建”——Windows 编辑器把 L"
    ]
   },
   {
@@ -106,21 +230,40 @@
    "nAnchors": 4,
    "goldHits": 2,
    "goldLen": 81,
+   "goldText": "完整证据与扫描表在 [落地记录](D:/dsh插件  记忆/docs/1018-夜-语义臂-参数扫描-L3压缩-U-A根治-落地记录.md)，交接入口已补 §10",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 444,
-   "chars1": 715,
-   "chars2": 1564,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 787,
+   "chars1": 784,
+   "chars2": 1912,
    "clusters": 9,
    "groupSize": 0,
    "recovered": true,
@@ -137,6 +280,18 @@
     "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
     "第三轮复验包出炉——而且包体自己招供了 R3 APK：flutter_app\\b",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015"
+   ],
+   "packHeads": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95-40df-",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动",
+    "uper\\交接-模型调研与选型-20260919.md)**（14.7KB，唯一入口） 包含",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "se v5.3.0 也能用。**这不是第二套 Docker，只是同一个引擎多了个入口**——",
+    "工程教训。 ## 一、交接（按 handoff 技能 B 流程全套） **新入口**：[HA",
+    "工作区最核心的资产，第一次打开是坏的。这个细节不是小事：它说明\"纪律写得很全，但入口没守住\"",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "工程教训。 ## 一、交接（按 handoff 技能 B 流程全套） **新入口**：[HA"
    ]
   },
   {
@@ -144,41 +299,72 @@
    "target": "f5dc58d9e667aef9",
    "kind": "cross-session",
    "rank10": 0,
-   "rankDeep": 31,
-   "nAnchors": 4,
+   "rankDeep": 25,
+   "nAnchors": 3,
    "goldHits": 1,
    "goldLen": 43,
+   "goldText": "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面提到的",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 815,
-   "chars1": 923,
-   "chars2": 2190,
-   "clusters": 10,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 949,
+   "chars1": 880,
+   "chars2": 2230,
+   "clusters": 9,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
-   "extrasTagged": 1,
+   "extrasTagged": 2,
    "packTitles": [
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
     "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
-    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
-    "模型选型与节点接入方案讨论"
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ],
+   "packHeads": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95-40df-",
+    "和新加载hand of技能吧先加载hand of技能然后写个交接文件我开新规划了我开新对话",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动",
+    "61015.md看一下里面的文件这是给你准备的所有的东西都看清楚呃这是一份提示词交接的你要看",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95-40df-",
+    "用——是，且已成体系 - **规划文档→交给其他 agent**：这就是我们的交接文档制度。",
+    "+ @e9n/pi-workon + ZCode 分组视图 6 状态自动更新免交接 ✅ Hi",
+    "61015.md看一下里面的文件这是给你准备的所有的东西都看清楚呃这是一份提示词交接的你要看",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\agent1s"
    ]
   },
   {
@@ -187,24 +373,43 @@
    "kind": "cross-session",
    "rank10": 9,
    "rankDeep": 9,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 1,
    "goldLen": 236,
+   "goldText": "D:\\dsh插件  记忆\\docs\\HANDOFF-MASTER-20261015.md看一下里面的文件这是给你准备的所有的东西都看清楚呃这是一份提示词交接的你要看清楚这些你们可以看我们但是呢你一看完然后呢我再告诉你你呃我再跟你聊发给你的这份文件是提交接文件里面提到的一个升级版呃着重看一下我发给你的这份文件以及和交接文件中提到的所有文件核实好相对的情况 @\"C:\\Users\\crx\\Desktop\\表情包\\SES_深度源码审计与全维度演进方案_全景合集 (1).md\"",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 90,
-   "chars1": 361,
-   "chars2": 613,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 499,
+   "chars1": 503,
+   "chars2": 1033,
    "clusters": 9,
    "groupSize": 2,
    "recovered": null,
@@ -217,10 +422,22 @@
     "查看AI音乐电台与Blender交接文档",
     "你是红队审查员，对一份即将落盘的方案做**内容真实性审查（反编造门）**。不是渗",
     "命令和钩子的功能说明",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "修复mynerou项目VSR与TTS无声问题",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "读取推演沙盘交接文档了解全貌"
+   ],
+   "packHeads": [
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95-40df-",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "61015.md看一下里面的文件这是给你准备的所有的东西都看清楚呃这是一份提示词交接的你要看",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "一、你问的\"测试页/面板到底在哪打开\"——之前确实没入口，现在有了 查清了：交接件 §29 ",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -229,24 +446,43 @@
    "kind": "cross-session",
    "rank10": 3,
    "rankDeep": 3,
-   "nAnchors": 4,
+   "nAnchors": 3,
    "goldHits": 3,
    "goldLen": 33,
+   "goldText": "「按 folia-qq发现页-交接-20261006.md 续作」",
    "base": {
-    "strict": false,
-    "span": 0.3333333333333333
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 392,
-   "chars1": 477,
-   "chars2": 1033,
+   "own0": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 568,
+   "chars1": 569,
+   "chars2": 1215,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -263,6 +499,18 @@
     "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
     "调研 QQ 音乐非官方 API 项目的**真实响应数据结构和调用方式**，目标是",
     "按推演沙盘交接文档续作并审查会话归档"
+   ],
+   "packHeads": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95-40df-",
+    "交接完成，可以开新对话了。 ## 新对话开场怎么说 **「按 folia-qq发现页-交接-",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "mx.gguf` = 5,629,108,960 B ≈ 5.24 GiB，加 Folia ",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95-40df-",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -271,24 +519,43 @@
    "kind": "cross",
    "rank10": 1,
    "rankDeep": 2,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 4,
    "goldLen": 57,
+   "goldText": "| **retro-tech-illustration-cn** | 复古科技插画（中文版，做插画素材的章法） |",
    "base": {
-    "strict": false,
-    "span": 0.75
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 955,
-   "chars1": 1114,
-   "chars2": 2762,
+   "own0": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 875,
+   "chars1": 797,
+   "chars2": 2079,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -296,15 +563,27 @@
    "extrasTagged": 0,
    "packTitles": [
     "奶茶上新自动同步（每2天10:33）",
-    "你好",
     "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
-    "模型选型与节点接入方案讨论",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
-    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
-    "[@ZCode Context](plugin://zcode-context@",
-    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
-    "你好"
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "你好",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "逐张用 Read 工具查看 8 张 PPT 渲染图（v3 版本，深蓝科技风路演 ",
+    "哈喽",
+    "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A",
+    "你好",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编"
+   ],
+   "packHeads": [
+    "装） | | **retro-tech-illustration-cn** | 复古科技插画",
+    "设计 | ✅ | | retro-tech-illustration-cn | 复古科技风插",
+    "净**。再出问题就是新故事了——按手册说一句“状态栈出问题了查一下”就行。PR 素材在 fo",
+    "——整幅构图入卡（黑底转透明），千问超分 2K、水墨荷塘背景（千问生成的荷花荷叶素材）、银龙",
+    "ssion` 是关键：样本量上不去的**真成因不是 `--n` 给得小，是题源被会话数卡死*",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "还没中。直接查最近的决策和会话列表。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "cycle` 各家 AI 模型都会给出截然不同的画风!有的像抽象派，有的精细如插画师。你拿去",
+    "在一个长期项目里干活：SessionRelay × SES —— 给 AI 编程会话做「跨会"
    ]
   },
   {
@@ -313,24 +592,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 13,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 0,
    "goldLen": 0,
+   "goldText": "",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 37,
-   "chars1": 136,
-   "chars2": 253,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 320,
+   "chars1": 320,
+   "chars2": 545,
    "clusters": 10,
    "groupSize": 0,
    "recovered": true,
@@ -347,6 +645,18 @@
     "你是红队审查员，对 2026-09-07 至 09-08 两天\"控万物工具链 →",
     "你是电子音乐与 Phonk 流派研究员。任务：为文生歌模型 MiniMax Mu",
     "哈喽"
+   ],
+   "packHeads": [
+    "profile 有，值 `max`，但那是 comad-bunny 云模型）。桌面端 bon",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "还没中。直接查最近的决策和会话列表。"
    ]
   },
   {
@@ -355,24 +665,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 0,
    "goldLen": 0,
+   "goldText": "",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 407,
-   "chars1": 838,
-   "chars2": 1806,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 976,
+   "chars1": 907,
+   "chars2": 2380,
    "clusters": 8,
    "groupSize": 0,
    "recovered": null,
@@ -389,6 +718,18 @@
     "任务：为「夜行列车」个人站点（阿里云轻量服务器 47.103.223.52，2G",
     "今天是 2026-10-06。任务：为\"把本地大模型（GGUF / vLLM /",
     "红队对抗审查终轮（只读+本地命令，不要改任何文件，中文输出）： 对象=D:\\ai"
+   ],
+   "packHeads": [
+    "模型，必须留）、vision-auto（智谱垫片，留作手动备胎没删）。 - **本地的不要了",
+    "yaml`（里面也没有新 key）。结论：UI 那个供应商列表八成活在**浏览器本地**，重",
+    "ce/transformers`（进用户缓存目录，不进主包）+ 下载一个小模型（本地 CPU",
+    "asper/sessionrelay` | `0.5.1-fork.1` —— 本地源码 =",
+    "asper/sessionrelay` | `0.5.1-fork.1` —— 本地源码 =",
+    "传自己的私藏喝法、看统计、导出备份——跟你的体验一模一样。 2. **数据存在他本地？** ",
+    "SessionRelay × SES —— 给 AI 编程会话做「跨会话记忆」的本地系统（*",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -397,24 +738,43 @@
    "kind": "cross",
    "rank10": 7,
    "rankDeep": 7,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 0,
    "goldLen": 0,
+   "goldText": "",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 57,
-   "chars1": 355,
-   "chars2": 650,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 593,
+   "chars1": 516,
+   "chars2": 1195,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -431,6 +791,18 @@
     "你是本地大模型选型调研员。任务：调查 **27B 级（Qwen3.8-27B 及",
     "设计类AI助手系统的完整技术文档生成",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编"
+   ],
+   "packHeads": [
+    "外它确实填了一个真空：三元 QAT 这波（PrismML Bonsai）需要原生三值内核，l",
+    "查清楚了。简报里那条「未解决」其实是 **9-21 那场会话的标题**（取自开场第一句），不",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "ay × SES —— 给 AI 编程会话做「跨会话记忆」的本地系统（**零模型路线**：默"
    ]
   },
   {
@@ -442,21 +814,40 @@
    "nAnchors": 9,
    "goldHits": 0,
    "goldLen": 0,
+   "goldText": "",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 307,
-   "chars1": 756,
-   "chars2": 1569,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 981,
+   "chars1": 825,
+   "chars2": 2248,
    "clusters": 9,
    "groupSize": 0,
    "recovered": null,
@@ -473,6 +864,18 @@
     "DSH接口400报错与思考等级调整",
     "你是推演沙盘项目的历史回测引擎规格棒（纯文档任务，只写一份新规格文档）。工作区 ",
     "红队对抗审查任务（只读+本地命令，不要改任何文件，中文输出）： 对刚完成的 my"
+   ],
+   "packHeads": [
+    "ema 塞爆上下文）在 Pi 这边天然不存在——**不用动**。 ## 3. 思考工具：功能",
+    "对齐。下面用大白话回答你问的几件事。 ## 一、最重要的一条：默认档改成\"中等思考\"了，之前",
+    "下文第 4 条。\\n5. **[有据] 「混入 CoT 会让非 CoT 场景也吐思考」这个副",
+    "守护已重启（pid 50344） - 两仓干净：核心库 `f7b7148`（领先上游 **7",
+    "- 文件比对**一律用 md5**，不许用大小 **§4 拍板记录**：不推进上游合并 / ",
+    "撞到 10 个问题，全修了、全验了、已推。 --- ## 一、我是怎么“假装不认识它”的 建",
+    "r 思考字段，思考档位是 ZCode 会话里调的）。现在直接 A/B 实测端点认不认思考档位",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -481,24 +884,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 11,
+   "nAnchors": 10,
    "goldHits": 0,
    "goldLen": 0,
+   "goldText": "",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 731,
-   "chars1": 1193,
-   "chars2": 2714,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1175,
+   "chars1": 1191,
+   "chars2": 3161,
    "clusters": 9,
    "groupSize": 0,
    "recovered": null,
@@ -511,10 +933,22 @@
     "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "模型选型与节点接入方案讨论",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
     "ninfer-ada-ternary 项目现状与资源发布说明",
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+    "Selection side chat",
+    "模型选型与节点接入方案讨论"
+   ],
+   "packHeads": [
+    "版 100 行是带引号的——纯漏写 | 成立，一行修 | | 修法0：7s 轮询定时器 | ",
+    "r（Pi 扩展）+ 各自独立时 SessionRelay 记录 4 云端设计→本地施工 ✅ ",
+    "24 下从来没工作过。依赖留在 package.json 不影响，等上游修。 定时任务按 0",
+    "了一个 `DSH-Temp-Cleanup.vbs`。 **为什么用这个而不用定时任务**：",
+    "-- # 一、一句话：这是个什么东西 **一个\"属于项目、不属于任何厂商\"的本地记忆层**—",
+    ".1.7-rc.2`（npm `next` tag），Team 看板/后台任务/定时提醒全在",
+    "赖官方 srelay、自包含运行时、不含你任何个人信息\"这几点写清楚 2. **本地打成 t",
+    "掉**（现在 ollama 就在跑，pid 12304）。快捷方式的名字叫\"停止本地AI\"，",
+    "赖官方 srelay、自包含运行时、不含你任何个人信息\"这几点写清楚 2. **本地打成 t",
+    ". **Ollama 掉线**——18 张 embedding 瞬间失败的真凶（本地嵌入模型"
    ]
   },
   {
@@ -523,24 +957,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 9,
+   "nAnchors": 8,
    "goldHits": 0,
    "goldLen": 0,
+   "goldText": "",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 0,
-   "chars1": 331,
-   "chars2": 490,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 795,
+   "chars1": 638,
+   "chars2": 1668,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -549,14 +1002,26 @@
    "packTitles": [
     "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
     "模型引擎参数调优并接入DSH与本地API测试",
-    "按推演沙盘交接文档续作并审查会话归档",
     "# 任务：M2 续录第 9 局 W1 收尾（锚点时间轴+PROGRESS 锚+提",
+    "按推演沙盘交接文档续作并审查会话归档",
     "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
     "哈喽",
     "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A",
-    "查看AI音乐电台与Blender交接文档",
-    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
-    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面"
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件"
+   ],
+   "packHeads": [
+    "我来读取那个会话的交接上下文，看看进度做到哪了。",
+    "已补充进去，更新后的完整版： ```text 任务：全面调优该模型与推理引擎，并接入 DSH",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动",
+    "总案-0919.md) | | **两份实测报告** | [报告-Bonsai2调优-202",
+    "还没中。直接查最近的决策和会话列表。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "共库 | 它官网四个卖点（跨窗口/版本控制/本地记忆/多机共享）我们的看板+交接链+git ",
+    "接文档已读完。上一会话的上下文也拿到了：那是 llama-server 生产配置调优会话（K"
    ]
   },
   {
@@ -565,24 +1030,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 43,
+   "goldText": "我来并行处理：读取引用的上一会话上下文、抓取 DeepSeek 分享链接、找到交接文档",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5578812935274083
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5578812935274083
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 532,
-   "chars1": 1047,
-   "chars2": 2295,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1081,
+   "chars1": 1070,
+   "chars2": 2845,
    "clusters": 7,
    "groupSize": 0,
    "recovered": null,
@@ -599,6 +1083,18 @@
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "ninfer-ada-ternary 项目现状与资源发布说明",
     "本地LLM部署配置与推理能力优化方案"
+   ],
+   "packHeads": [
+    "后台重算，不用调工具 | | 简报注入 | ✅ 全自动 | 每次开口前自动塞进上下文 | |",
+    "后台重算，不用调工具 | | 简报注入 | ✅ 全自动 | 每次开口前自动塞进上下文 | |",
+    "defects, iron rule 19. ### `docs/缺陷3数字能力基线-202",
+    "ing spec-driven-development architecture加载这些sk",
+    "边根本不会发生，只剩技能和文档这种被动手段。 所以我们俩的差别是这样的 能力 mellos ",
+    "- `bulk-import.ts` - 大批量导入器； - 预加载作者/分类/标签； - ",
+    "**净变化** | **≈ 持平** | 技能正文 672 tok 只在触发时加载，不常驻。",
+    "| | `spec-driven-development` | Phase 0 能力图 | ",
+    "追问要回退共享前缀，而窗口已压缩）。所以这条线现在只能**一次性**用。 ⇒ 能力定位：**",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -607,24 +1103,43 @@
    "kind": "cross",
    "rank10": 1,
    "rankDeep": 1,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 75,
+   "goldText": "我来看两件事：先探一下这个 StepFun 端点里有哪些模型（尤其 step3.7 和识图能力），再翻 AstrBot 现在的供应商/识图/表情包配置",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.4499599960772947
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5500400039227054
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5500400039227054
    },
-   "chars0": 293,
-   "chars1": 761,
-   "chars2": 1544,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5500400039227054
+   },
+   "chars0": 1039,
+   "chars1": 830,
+   "chars2": 2297,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -641,6 +1156,18 @@
     "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
     "排查本地doctor服务及本地搜索故障",
     "调查 GitHub 上 cleverer-dsh 插件的官方作者动态与 DSH "
+   ],
+   "packHeads": [
+    "** step-image-edit-2——语音按你之前的拍板留在二期没动，画图端点今天因发",
+    "模式→grilling 拷问」。 - 拷问定案：网易+酷狗补齐到 QQ 级能力（做）；QQ ",
+    "a CLI 和运行时文件。 ## Ollama Embedding 的结论 本地模型确实存在",
+    "s.com`（Google Gemini/Cloud Code 的 OAuth 端点）、`c",
+    "ider 思考字段，思考档位是 ZCode 会话里调的）。现在直接 A/B 实测端点认不认思",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "过、渐进式诱导、拒答劫持),配一份\"哪些还活着、哪些已经失效\"的评估。你机器上有本地模型,这",
+    "反代就跑 `cli-proxy-api --login`（Gemini CLI 本地回调端口",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -652,21 +1179,40 @@
    "nAnchors": 7,
    "goldHits": 3,
    "goldLen": 114,
+   "goldText": "社区共识基本是：**Hadamard 三值量化的压缩工程是真牛（1.71 bit/权重），但“98.2% 智力”是基准平均数的把戏**——数学确实能打，代码和高难推理掉链子，官方定位也是“低配硬件上的思考型推理机”，不是全能主力",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6887381776753522
    },
    "p1": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6887381776753522
    },
    "p2": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6887381776753522
    },
-   "chars0": 74,
-   "chars1": 120,
-   "chars2": 275,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6887381776753522
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6887381776753522
+   },
+   "chars0": 327,
+   "chars1": 327,
+   "chars2": 537,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -683,32 +1229,63 @@
     "你是本地大模型选型调研员。任务：对 **Ornith-1.5-35B-A3B 这",
     "你是RP 模型训练调研员。任务：查清「通用 system prompt 覆盖人格",
     "你是调研员。任务：调研 GitHub 上是否有\"多学派并行对话\"或\"多视角辩论\""
+   ],
+   "packHeads": [
+    "*（PrismML 官方，9 月中旬发布）：把 Qwen3.8-27B 做成**三值量化**",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
    "query": "把思考档位按场景分路的那份脚本，在哪几次会话里被改过",
    "target": "3086914cb95ac891",
    "kind": "cross",
-   "rank10": 3,
-   "rankDeep": 22,
-   "nAnchors": 9,
+   "rank10": 8,
+   "rankDeep": 26,
+   "nAnchors": 8,
    "goldHits": 2,
    "goldLen": 162,
+   "goldText": "**一期（约 20 分钟）**：① 写 brief.mjs 注入脚本（全局位置，检测项目无看板且无 relay 则静默退出，脚本任何失败=空输出=不阻塞会话）② config.json 合并 hooks 配置（先备份、JSON 合并非手拼、改完验证）③ AGENTS.md 加“继续”协议 ④ progress.md 记一行",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5034524763149126
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5034524763149126
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5034524763149126
    },
-   "chars0": 868,
-   "chars1": 1141,
-   "chars2": 2726,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1183,
+   "chars1": 1184,
+   "chars2": 3168,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -716,15 +1293,27 @@
    "extrasTagged": 0,
    "packTitles": [
     "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "模型选型与节点接入方案讨论",
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
     "ninfer-ada-ternary 项目现状与资源发布说明",
     "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
-    "command这个端点模型的deepseek v4.1flash你看看我们现在接",
-    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的"
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实"
+   ],
+   "packHeads": [
+    "oning` 字段），用 usage 测不出差异。换一个可测的信号：拿一道更需要思考的题，对",
+    "## 今天查明并修好的 你那个“你好”会话的真实请求数据暴露了问题：8 个请求思考全部挤在 ",
+    ".7-flash**：官方定位“生产级 Agent 高效率 Flash 模型”，思考档支持 ",
+    "=length`、照样不平衡 **参数层修不了。** 包教程 §6 把这类叫\"思考循环 / ",
+    "。两边独立得出同一结论，O 线 MTP 死刑维持，不用再想。 - **“强模型挂思考工具没用",
+    "文割裂 —— 「说要递台阶」→正文直接开骂 3. 数字退化 —— 27%(关思考)/25%(",
+    "全是 🚧 in progress&quot;**；用户测 Q4 版&quot;思考变快但思",
+    "全部收工。设计交付 + 你问的同步场景逐个给真话： ## 一、看板 v2「夜行调度板」已交付",
+    "llos 有而我们这轮故意剪掉了的一块：SessionStart 钩子 + 注入档位（上游叫",
+    "用法 Pi 提供四种运行模式，专门为被其他系统调用而设计： 模式 用法 适合你的场景 Int"
    ]
   },
   {
@@ -732,25 +1321,44 @@
    "target": "cee9bf412f264861",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 7,
-   "nAnchors": 8,
+   "rankDeep": 9,
+   "nAnchors": 7,
    "goldHits": 1,
    "goldLen": 30,
+   "goldText": "62.9GB 全在 `rollout`——这就是会话记录存储",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 736,
-   "chars1": 832,
-   "chars2": 2131,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1175,
+   "chars1": 1152,
+   "chars2": 3132,
    "clusters": 8,
    "groupSize": 0,
    "recovered": false,
@@ -760,13 +1368,25 @@
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "所有盘现在都爆炸了没空间了看看什么情况",
     "Selection side chat",
-    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "Selection side chat",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
-    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
-    "请看安卓截图裁剪（y=300-2100 区域）：C:\\Users\\crx\\App",
-    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\"
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ],
+   "packHeads": [
+    "4 次轮询不变\"＝**安静 12 秒就算完成**，而 agent 完全可能静默十几秒后继续写",
+    "g` 加一行 `swapFile=E:\\WSL\\swap.vhdx`，8 GB 交换文件再也",
+    "会话，也不只是压缩。压缩后自然也包含在内（压缩本身就是一次新的组装）。 ## 这件事对你的实",
+    "会话，也不只是压缩。压缩后自然也包含在内（压缩本身就是一次新的组装）。 ## 这件事对你的实",
+    "差45 MiB。现在 7.2GB 被 ZCode、QQ、浏览器、Docker 等十几个进程占",
+    "4 次轮询不变\"＝**安静 12 秒就算完成**，而 agent 完全可能静默十几秒后继续写",
+    "Path, { readonly: true }); // 每个 zcode 会话、每个周期",
+    "3. 再排序返回。 这对于几千条、少量自用数据可以工作；如果你要合并几万个甚至十几万条图片、",
+    "32.5%、**中段全绿**、显存反而更低。**两个档位**：稳定态 q8_0（撑满 50 ",
+    "界 ## 铁律（违反=事故） 1. 产物只进 /mnt/workspace；系统盘 /roo"
    ]
   },
   {
@@ -775,24 +1395,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 1,
    "goldLen": 48,
+   "goldText": "我先查一下这个 comad (commandcode.ai) 端点到底支持哪些模型，再决定怎么接",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 169,
-   "chars1": 436,
-   "chars2": 847,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 615,
+   "chars1": 575,
+   "chars2": 1301,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -809,6 +1448,18 @@
     "排查开机自启command命令行进程",
     "你在 Windows 11 (Git Bash) 环境排查 DeepSeek H",
     "请用 Read 工具读取这张本地截图图片并做详尽描述：C:\\Users\\crx\\"
+   ],
+   "packHeads": [
+    "trBot、识图链全换过去、思考档拉高、本地识图去掉、参数都调好。先翻你说的那个会话和记忆（",
+    "完训练**（假续训问题） 4. pkill 用 [x]xx 写法；大文件走跳板机中转 5. ",
+    "pdate`），隐藏窗口常驻，不会随本会话死 顺带说明：它是纯 node 轻量中转，零 GP",
+    "ZCode 里 comad 那把） **① chat/completions 端点 —— b",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -816,25 +1467,44 @@
    "target": "356958fe2c807bef",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 17,
-   "nAnchors": 7,
+   "rankDeep": 18,
+   "nAnchors": 6,
    "goldHits": 1,
    "goldLen": 25,
+   "goldText": "后台什么进程老是一会占用一下cpu和gpu的查一下",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 852,
-   "chars1": 1188,
-   "chars2": 2840,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1111,
+   "chars1": 1107,
+   "chars2": 2937,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -842,15 +1512,27 @@
    "extrasTagged": 5,
    "packTitles": [
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "奶茶上新自动同步（每2天10:33）",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "奶茶上新自动同步（每2天10:33）",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝",
-    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因"
+   ],
+   "packHeads": [
+    "版 100 行是带引号的——纯漏写 | 成立，一行修 | | 修法0：7s 轮询定时器 | ",
+    "tal、nginx、minio、db/postgres15、db-backup 定时备份容器",
+    "API。想让桌宠联动 DSH，得自己写胶水代码，目前没有现成方案。 **资源占用**：Coo",
+    "- **服务器 AI**：对，要你本人开控制台网页终端手动聊，它是随手工具不是定时工； - ",
+    "→ 视为**不可采信**，仅记录&quot;存在 2-bit 跑 8–10G 显卡的思路&q",
+    "** | 一致，不用动 | | 看板/地图 | 保留渲染层 | 已自动投影 + 定时刷新 |",
+    "收站**（上一轮已坦白）。同一个毛病——用宽泛操作，没先确认范围。 ## 二、定时任务：确认",
+    "ns/dsh/vendor` = **65M** | ✅ 属实 | | 6 守护定时器重叠 ",
+    "main.14/\\n- 评测设置差异：知识/推理 QA（不含角色扮演），但「不确定时用废话堆",
+    "三件事我分开查：会话日志里有没有记录、VHDX 真实占用、以及怎么长期压住。"
    ]
   },
   {
@@ -859,24 +1541,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 15,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 2,
    "goldLen": 83,
+   "goldText": "**交接文档本体**：`.scratch/handoff/状态栈-交接-20260922.md`（交接链共 3 份，另两份属 DSH 线、明确与状态栈无依赖，未展开）",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5089726971985069
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 258,
-   "chars1": 996,
-   "chars2": 1794,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1209,
+   "chars1": 1019,
+   "chars2": 2749,
    "clusters": 9,
    "groupSize": 0,
    "recovered": false,
@@ -891,8 +1592,20 @@
     "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "哈喽",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
-    "设计类AI助手系统的完整技术文档生成"
+    "设计类AI助手系统的完整技术文档生成",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+   ],
+   "packHeads": [
+    "我无法验证的组件建议用已验证的替代品。 一、12 项需求逐条最终确认 # 需求 状态 覆盖组",
+    "`budgetBlocked`（16 处）和 `WAITING_BUDGET` 状态**——",
+    "会重演一次\"539 条候选八成是噪声\"。 我这一轮**没有动任何文件、没跑会改状态的命令**",
+    "会重演一次\"539 条候选八成是噪声\"。 我这一轮**没有动任何文件、没跑会改状态的命令**",
+    "这份是跨工具状态系统（ZCode⇄Pi 状态栈）的架构核查——当时 L4 注入层还没实施、一",
+    "Docker CLI。 - 不把 DSH、Pi、SessionRelay 等共享状态链路整体",
+    "over` 返回 **1**，修后 **2**。 ### #16 · 全局注册状态导致项目共",
+    "句），不是还挂着的活儿。内容是这样的： **它说的是「ZCode⇄Pi 跨工具状态系统（状态",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "于 memrelay 这轮改造。** 它讲的是 SessionRelay 时期的状态（六门/"
    ]
   },
   {
@@ -901,24 +1614,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 42,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 2,
    "goldLen": 65,
+   "goldText": "等 asar 扫描时，先看记忆里那条“commandcode 端点接入”会话的结论——它研究过 v2 config 模型条目写法：",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 120,
-   "chars1": 372,
-   "chars2": 729,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 588,
+   "chars1": 510,
+   "chars2": 1206,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -935,6 +1667,18 @@
     "红队对抗审查（只读+本地命令，不要改任何文件，中文输出）。对象=D:\\ailov",
     "哈喽",
     "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\"
+   ],
+   "packHeads": [
+    "del。另外 ZCode 里写的 `qoder/` 前缀和新的 `qd/` 前缀网关都认，接",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "/ SLOO / GMI | 401 密钥失效 | | COMD | 400 网关拒绝 | ",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "elay × SES —— 给 AI 编程会话做「跨会话记忆」的本地系统（**零模型路线**",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "还没中。直接查最近的决策和会话列表。",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -943,24 +1687,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 48,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 98,
+   "goldText": "装好并验证完毕，3 个 skill 都已落地到 `C:\\Users\\crx\\.agents\\skills\\`（和你现有技能同一个目录，ZCode 已自动 symlink，**新开会话即可用**）：",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 191,
-   "chars1": 626,
-   "chars2": 1162,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 811,
+   "chars1": 737,
+   "chars2": 1884,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -977,6 +1740,18 @@
     "哈喽",
     "comad / deepseek-v4-flash 连接失败：Model \"de",
     "调研开源社区里热门、大众认可的 **agent 方法论类技能**（behavio"
+   ],
+   "packHeads": [
+    "植进行中-交接-20261012-v2.md 续作。 先加载 handoff 技能，然后严格",
+    "t 用，你也可以直接敲； ~/.agents/skills/map/ 多了一个技能：教下一个",
+    "-20261007.md ——§0 一分钟现状、§1 在跑的棒、§3 待做清单（你的任务就是",
+    "en（35B 系）+ 9B** | 同类受益 | 全是深度思考模型，插件官方兼容清单就写着 ",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "能覆盖大半个流程： ① K-Dense Scientific Skills（科研技能天花板，",
+    "会话结尾是另一件事（skill-creator 审技能）。那句「2 处需修正」应该在前段，翻",
+    "这些只是历史会话记录。找一下现役配置文件在哪：",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -985,24 +1760,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 4,
+   "nAnchors": 3,
    "goldHits": 1,
    "goldLen": 36,
+   "goldText": "思考久点查一下鹈鹕骑自行车”（Pelican on a Bicycle）",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 39,
-   "chars1": 519,
-   "chars2": 874,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 727,
+   "chars1": 611,
+   "chars2": 1571,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -1019,33 +1813,64 @@
     "请看两张安卓截图（呼吸会话进行中，音景播放中）： A. C:\\Users\\crx",
     "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 ",
     "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ],
+   "packHeads": [
+    "---|---| | KAT 35B | **PASS**：场景完整、鹈鹕真的在骑车、20 ",
+    "生成一个单文件 HTML + SVG 动画：一只加州褐鹈鹕正在骑自行车。硬件要求：1. 鹈鹕",
+    "还没中。直接查最近的决策和会话列表。",
+    "在一个长期项目里干活：SessionRelay × SES —— 给 AI 编程会话做「跨会",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "我来读取那个会话的交接上下文，看看进度做到哪了。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "rite\" / \"cross\" / \"temporal\" - target = 会话 id ",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
    "query": "本地提示词库那套检索服务，在哪几次会话里被用过",
    "target": "e0f4823cd52a9162",
    "kind": "cross",
-   "rank10": 5,
-   "rankDeep": 29,
-   "nAnchors": 7,
+   "rank10": 3,
+   "rankDeep": 26,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 44,
+   "goldText": "github有没有那种覆盖很牛逼的多种多样的提示词库开源  查一下牛逼热门认可度高的先查",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 739,
-   "chars1": 1107,
-   "chars2": 2564,
-   "clusters": 9,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1033,
+   "chars1": 1036,
+   "chars2": 2709,
+   "clusters": 10,
    "groupSize": 1,
    "recovered": null,
    "extras": 0,
@@ -1053,14 +1878,26 @@
    "packTitles": [
     "模型选型与节点接入方案讨论",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
     "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "调取我们本地的那个提示词的m c p你找一下有没有相关的呃呃让ai可以就是破线的",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做"
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别"
+   ],
+   "packHeads": [
+    "模型，必须留）、vision-auto（智谱垫片，留作手动备胎没删）。 - **本地的不要了",
+    "d.html)——四泳道看板（✅🔄⛔⬜）+ 渲染好的依赖图，mermaid 已本地内嵌（3",
+    "的系统； - 是否可以把多个仓库合并进同一个数据库和搜索系统； - 是否可以使用本地 Oll",
+    "好问题，两个都能查。我先看 Fusion 的提示词库，再看你的本地模型。",
+    "自动给你一小段摘要**（就几行） 4. 你想找细节，**能搜回去**原文 全是本地的一个 S",
+    "我先在本地 prompt-hub 里搜相关条目。这只是检索一个本地提示词库并给你列清单，我照",
+    "** 你要用 **ZCode 跑云端强模型做主控/编排**，用 **Pi 跑本地模型做执行节",
+    "个问题都有明确答案，TLDR 先说：**这套流程我们已经在用了，而且比 GPT 那套更完整；",
+    "ce/transformers`（进用户缓存目录，不进主包）+ 下载一个小模型（本地 CPU",
+    "ontend-slides` 带 `.git` 源**,已 fetch 比对——本地 HEA"
    ]
   },
   {
@@ -1069,24 +1906,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 32,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 1,
    "goldLen": 68,
+   "goldText": "qwen-image-2-1-prompter加载这个写一个女的在自己卧室里面的  具体行为我自己写因为我是成年 其他的你帮我补充亚洲人",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 591,
-   "chars1": 999,
-   "chars2": 2259,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1165,
+   "chars1": 1022,
+   "chars2": 2836,
    "clusters": 9,
    "groupSize": 0,
    "recovered": false,
@@ -1103,6 +1959,18 @@
     "AI接入Blender生成日式神社3D场景",
     "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
     "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因"
+   ],
+   "packHeads": [
+    "型接入那些就OK了整体用new来搞然后可能不用接入到那些长链路上面可能你加载相关技能思考一下",
+    "一步仍是模型在当前会话里实际执行:调 CNKI MCP 检索、用 Python 出图、用 W",
+    "方功能件里 30 个默认关着。逐个甄别后，值得开的与我们的需求精确对上：**原生技能加载（s",
+    "有了 | | **与 SES 集成章** | 收尾怎么写记忆、看板怎么同步、怎么出图、跑哪个",
+    "的）； 多了一条命令 srelay map …（读图 / 改图 / 对账 / 出图），主要给",
+    "有了 | | **与 SES 集成章** | 收尾怎么写记忆、看板怎么同步、怎么出图、跑哪个",
+    "rdless of dialogue context」，几乎是我们缺陷4 的同构描述，并给出",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "这个我不做。你描述的目标是让付费软件通过逆向绕过授权校验、变成免费畅用,不管是自己用还是发到",
+    "t vdisk` 需要管理员权限，而且必须先停 Docker。 我查过了，当前会话不是管理员"
    ]
   },
   {
@@ -1111,24 +1979,43 @@
    "kind": "cross",
    "rank10": 8,
    "rankDeep": 8,
-   "nAnchors": 9,
+   "nAnchors": 8,
    "goldHits": 2,
    "goldLen": 99,
+   "goldText": "我们的栈确认都在跑：SessionRelay 守护活着（482 个会话已入库）、statebrief 钩子、24 个自定义子代理类型、progress.md 看板 + 依赖图 + dashboard",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5670173203655161
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5670173203655161
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5670173203655161
    },
-   "chars0": 149,
-   "chars1": 765,
-   "chars2": 1397,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5670173203655161
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5670173203655161
+   },
+   "chars0": 912,
+   "chars1": 832,
+   "chars2": 2165,
    "clusters": 9,
    "groupSize": 1,
    "recovered": null,
@@ -1145,6 +2032,18 @@
     "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
     "你是一名技术调研员。任务：调研\"AI 智能体（agent）核心运行时机制\"，为一",
     "workflow subagent actor#2@1"
+   ],
+   "packHeads": [
+    "scout / researcher / worker 前台/后台/并行/链式执行 产物回传",
+    "在是\"被动提示\"——技能和 AGENTS.md 都属于这一类。你说得对，它们不是执行器，是\"",
+    "&lt;think&gt;`，且我实测了 Qwen3 模板\\n\\n**[本次实际执行]** ",
+    "等的时候 agent 整个\"大脑\"是暂停的**：不只是等结果，agent 在工具执行期间**",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "ligent-assistant)口径是免费提供、没有单独计费额度（还有个能自动执行运维的 ",
+    "栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动手我",
+    "演，治法就是把 SOP 全部移到盘上文件、目标只留使命句。和你现在「规划文档喂给执行者省 t",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -1153,24 +2052,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 5,
+   "nAnchors": 4,
    "goldHits": 2,
    "goldLen": 85,
+   "goldText": "这次用到了 MCP 搜索工具（跨 B站/知乎/小红书/本地宝等来源检索）和 docx 技能（封面、目录、表格排版、页码格式都按规范做了，并已转 PDF 逐页校验渲染无误）",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5956436814737476
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5956436814737476
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 825,
-   "chars1": 1175,
-   "chars2": 2791,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1186,
+   "chars1": 1178,
+   "chars2": 3084,
    "clusters": 9,
    "groupSize": 0,
    "recovered": null,
@@ -1187,6 +2105,18 @@
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "奶茶上新自动同步（每2天10:33）"
+   ],
+   "packHeads": [
+    "| 自知定义（原文不动） | | **你能干的事** | 热情领域三块 + **联网能力写进",
+    "件及替代 \"memory-pro\"——我在 Pi 扩展生态里找不到这个名称的包。搜索结果只有",
+    "``` - 不再使用 `npx prisma`，避免 runner 尝试联网下载 Prism",
+    "，**能搜回去**原文 全是本地的一个 SQLite 文件，一个项目一个库，不联网。 ---",
+    "iantong/Agent-Reach`** | Python，95,258★，联网能力层 ",
+    "9M token，还在推进） | | **CoT 方法论调研** | ✅ 跑着（联网查论文较",
+    "这份是跨工具状态系统（ZCode⇄Pi 状态栈）的架构核查——当时 L4 注入层还没实施、一",
+    "（进用户缓存目录，不进主包）+ 下载一个小模型（本地 CPU 跑，下完之后**不联网**）。",
+    "（进用户缓存目录，不进主包）+ 下载一个小模型（本地 CPU 跑，下完之后**不联网**）。",
+    "\\17-sync-toast.png)）——也就是说，任何打开过小本本的人，下次联网打开就会"
    ]
   },
   {
@@ -1195,24 +2125,43 @@
    "kind": "cross",
    "rank10": 1,
    "rankDeep": 1,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 1,
    "goldLen": 43,
+   "goldText": "先摸清 new-api 现在的运行方式和那两个\"自动检测\"开关的真实取值，再决定怎么关",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 809,
-   "chars1": 1126,
-   "chars2": 2623,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1132,
+   "chars1": 1162,
+   "chars2": 3036,
    "clusters": 7,
    "groupSize": 1,
    "recovered": null,
@@ -1221,56 +2170,99 @@
    "packTitles": [
     "呃我做了那些new api那边有个问题就是他每一次都是间隔还是10分钟多少一次就",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "Selection side chat",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "Selection side chat",
     "奶茶上新自动同步（每2天10:33）",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "Selection side chat",
-    "Selection side chat",
-    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，"
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高"
+   ],
+   "packHeads": [
+    "1、abilities 145、tokens、logs 24913 都在）。所以网关一直能用",
+    "具暴露（约 200 token） 按需懒加载，agent 调用时才发现具体工具 自动检测 ~",
+    "它官方方案更新了很多到时候插件可能会爆炸你们做一些兜底方案处理...新开项目之后自动检测之后",
+    "它官方方案更新了很多到时候插件可能会爆炸你们做一些兜底方案处理...新开项目之后自动检测之后",
+    "**（今天多次 TCP 握手失败，重试能通，stealth preview 的老毛病）；us",
+    "# 说人话：先做升级会怎样 这三个维度的脏东西，**不是正则写错了，是同一个老毛病——分不清",
+    "它官方方案更新了很多到时候插件可能会爆炸你们做一些兜底方案处理...新开项目之后自动检测之后",
+    "干活（能调工具是真的），但它**没有定时器、没有 API**，没法被 cron 叫醒，我无法",
+    "# 说人话：先做升级会怎样 这三个维度的脏东西，**不是正则写错了，是同一个老毛病——分不清",
+    "我尝试用 `diskpart` 压缩，但 Windows 要求管理员权限，当前会话没有权限，"
    ]
   },
   {
    "query": "那堆占地方的压缩包清理，在哪几次会话里做过",
    "target": "cb50ec73876412ce",
    "kind": "cross",
-   "rank10": 6,
-   "rankDeep": 5,
-   "nAnchors": 6,
+   "rank10": 0,
+   "rankDeep": 23,
+   "nAnchors": 5,
    "goldHits": 2,
    "goldLen": 72,
+   "goldText": "- **语义检索未启用**——可选增强，开了以后“换一种说法”也能命中历史（比如搜“磁盘清理”能命中“清盘”相关会话），代价是本地 CPU 推理",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5544483033377153
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 998,
-   "chars1": 1051,
-   "chars2": 2729,
-   "clusters": 9,
-   "groupSize": 1,
-   "recovered": null,
-   "extras": 0,
-   "extrasTagged": 0,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 975,
+   "chars1": 917,
+   "chars2": 2426,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 3,
    "packTitles": [
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "ninfer-ada-ternary 项目现状与资源发布说明",
-    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝",
+    "Selection side chat",
+    "Selection side chat",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "所有盘现在都爆炸了没空间了看看什么情况",
-    "模型选型与节点接入方案讨论",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
-    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
-    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一"
+    "你是推演沙盘项目的数据清理棒（本回合只做「盘点+方案+dry-run」，绝不执行",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "你是对抗审稿人（反方参谋），任务是全力攻击下面的修复计划与结构排序——找出它们最"
+   ],
+   "packHeads": [
+    "日修过一次 user-reported 的同类问题，吃这套。 最后一步我够不着的地方交给你：",
+    "多进程占CPU…用拷问技能提问我要选择题\" - \"可以啊那你昨天做了改错的地方就可以要还原回",
+    "址/路径\"** —— 你这条提醒我理解是：不要擅自把你的路径、凭据、配置写进各种地方。我复盘",
+    "多进程占CPU…用拷问技能提问我要选择题\" - \"可以啊那你昨天做了改错的地方就可以要还原回",
+    "多进程占CPU…用拷问技能提问我要选择题\" - \"可以啊那你昨天做了改错的地方就可以要还原回",
+    "称\"0 误杀\"）。按你们自己的铁律 #19，这些只能当\"待验假设\"，不能当\"可落地方案\"。 ",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "## 一、先说最要紧的：按钮为什么没有，已经修好 **不是加载失败，是装错了地方。** 决定",
+    "K 基线）✓、接受率兜底解析 ✓、无正文容错 ✓、WIN 判定与下一步提示 ✓。清理测试残留",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -1279,25 +2271,44 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 1,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 36,
+   "goldText": "最好的 gemini + ccgo + opencode 工具，没有之一",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.30843626925704415
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.691563730742956
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 811,
-   "chars1": 1108,
-   "chars2": 2511,
-   "clusters": 8,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1185,
+   "chars1": 1118,
+   "chars2": 2975,
+   "clusters": 7,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
@@ -1305,14 +2316,26 @@
    "packTitles": [
     "调取我们本地的那个提示词的m c p你找一下有没有相关的呃呃让ai可以就是破线的",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇"
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需"
+   ],
+   "packHeads": [
+    "会话上下文返回的是 MCP 工具改造那段，GitHub 调研结论在更早的部分。我换查询方式，",
+    "*（见上）。 ### 方法论问题（这条最该写进纪律） §11.2 直接写\"精度门禁 ≥90%",
+    "自测污染真库**：22:58 那条 note 进了正式库，还长出一条「决策」。看起来是插件自",
+    "*（见上）。 ### 方法论问题（这条最该写进纪律） §11.2 直接写\"精度门禁 ≥90%",
+    "** ## 另外三个坑（已记入记忆，用的时候注意） 1. **`cloud_gemini` ",
+    "DSH 宿主才换新**。 已推送 `4ed43c4`，插件自测 PASS、九道门禁全绿。 要",
+    "真模型（本机没有可用的本地生成模型） 8. **7 天未决 precision 门禁** —",
+    "**先不下**（MTP 对照已无意义，除非 MTP 文件不带 spec 参数跑不起来）；35",
+    "进程内存和cpu吧还有其他有没有什么问题你也仔细看看现在这个是我们自己的项目了用起来肯定要好",
+    "）；**注入不自动**——pi 本地模型靠调 MCP 工具查记忆，弱模型可能想不起来调。这正"
    ]
   },
   {
@@ -1321,24 +2344,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 17,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 321,
+   "goldText": "不只是那个单纯的就是全方面升级全方面的头部更新到这个飞行卡然后有桌面版本的吗然后我们之前做的自己做的一些系统收盘的一些估计都用不上呃安装好并且验证所有的配置都完美一些之后呢然后呢就就可以把旧的都给删掉了特别是不需要就是单独只升级内核包括桥接数还有代码数上的所有的东西基本上都是最新版本的就全面放心你只是说它可能内存在然后装的一些插件你看看如果说呃应该只装了几个那种功能还有面板插件看看有没有最新适配到最新版本呃有的话就给他们升级一下这样子最好拿出i p d以外还有像一些模型的配置文件呃呃那个文件的预设还有呃像那个密钥什么的全部都同步过去就行了还有特别是思考等级等等的设置反正1整个预设吧你都看一下就是多一个完美的事可以身体完之后到手感觉可以",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 393,
-   "chars1": 955,
-   "chars2": 1986,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1116,
+   "chars1": 1001,
+   "chars2": 2714,
    "clusters": 8,
    "groupSize": 0,
    "recovered": false,
@@ -1355,6 +2397,18 @@
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "寻找Office PPT制作Skill与开源方案",
     "研究开源项目 Folia（https://github.com/chtholly"
+   ],
+   "packHeads": [
+    "忆守护/重算/归档 | ✅ 全自动 | | | **检索本身** | ❌ **要模型主动调工",
+    "忆守护/重算/归档 | ✅ 全自动 | | | **检索本身** | ❌ **要模型主动调工",
+    "| ① 全局 lessons 线**只做了配置，没实现写入**；② **没跑过真模型**（本",
+    "| ① 全局 lessons 线**只做了配置，没实现写入**；② **没跑过真模型**（本",
+    "关键约束和原意： 1. “github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛",
+    "查完了。先说一个可能影响你判断的点：**像素蛋糕不是开源项目**，它是厦门真景科技的商业闭源",
+    "编程——它是阶跃今天（9/20）刚发布的 600B 总参/27B 激活的旗舰基座模型，定位 ",
+    "elay × SES —— 给 AI 编程会话做「跨会话记忆」的本地系统（**零模型路线**",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -1363,24 +2417,43 @@
    "kind": "cross",
    "rank10": 8,
    "rankDeep": 8,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 2,
    "goldLen": 23,
+   "goldText": "这只是检索一个本地提示词库并给你列清单，我照做",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6440373018152924
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 123,
-   "chars1": 692,
-   "chars2": 1211,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6440373018152924
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 897,
+   "chars1": 761,
+   "chars2": 1993,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -1397,48 +2470,91 @@
     "调取我们本地的那个提示词的m c p你找一下有没有相关的呃呃让ai可以就是破线的",
     "呃你查一下像素蛋糕啊这是这个这这个就是那种图片可以健脾的这种还有什么类似的这种产",
     "你是音乐 AI 资产深挖专员。任务：把官方和声词库全量 118 条逐条过一遍，产"
+   ],
+   "packHeads": [
+    ". `prompts.chat` 能不能直接作为基础 可以，它是最接近你需求的开源起点。 它",
+    "e.ts` 里早有一张表。我按实测缺口补了 8 组（分析↔调研、磁盘↔盘↔存储、越狱↔破甲、",
+    "## 中文词几乎搜不到 诊断结果里几个词命中数差别很大：`破甲` 0 条、`越狱提示词` 0",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "三件事我分开查：会话日志里有没有记录、VHDX 真实占用、以及怎么长期压住。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "误命中豁免 + 注入块剥离；话题 = TF+停用词+用户加权（代码注释自认\"无跨会话 IDF",
+    "正文了。有个细节值得知道：其中 1 条「不受约束的 AI 模型 DAN」是中文版越狱提示词，",
+    "像素蛋糕啊这是这个这这个就是那种图片可以健脾的这种还有什么类似的这种产品很火的呃开源项目也要",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
    "query": "给 Docker 占盘设定期清理的定时任务，在哪几次会话里动过",
    "target": "32678c283eef26ae",
    "kind": "cross",
-   "rank10": 7,
-   "rankDeep": 3,
-   "nAnchors": 9,
+   "rank10": 2,
+   "rankDeep": 1,
+   "nAnchors": 8,
    "goldHits": 2,
    "goldLen": 49,
+   "goldText": "它要管理员权限且会停 Docker，所以配成计划任务时勾「使用最高权限运行」就能免掉 UAC 弹窗",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5876181208758541
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 437,
-   "chars1": 1191,
-   "chars2": 2427,
-   "clusters": 9,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5876181208758541
+   },
+   "chars0": 1179,
+   "chars1": 1192,
+   "chars2": 3157,
+   "clusters": 10,
    "groupSize": 1,
    "recovered": null,
    "extras": 0,
    "extrasTagged": 0,
    "packTitles": [
-    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
     "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "ninfer-ada-ternary 项目现状与资源发布说明",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
     "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "模型选型与节点接入方案讨论",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，"
+   ],
+   "packHeads": [
+    "东西**：DSH 正在用的会话快照（`xsezjM` 8.56 GB 还活着）、Docker",
+    "03 | `287aa6e1e4747678` | 19 G（E 盘剩 17G，Docker",
+    "14 个里唯一 Windows 原生服务端（win64.exe 251MB 免 Docker",
+    "尾巴（低优先级但真实，3 件） 11. **BobaRadarCrawl 和 Docker-",
+    "每 1.5s 采样取 max，含预填中瞬时峰值与 explorer/Edge/Docker ",
+    "`.ytdl` 分片。这个我没法在脚本里兜住（进程被杀就没了），需要的话可以配个定期扫 te",
+    "记完成 + §2.1 补第 11 条 + 看板两行改完成） | | 沙箱 | 已清理（临时目",
+    "阈值无新数据但客户端在运行，`srelay doctor` 红字告警。FTS5 定期 `in",
+    "。50 个僵尸会话全是脚本产物、最新也是 09-17 的、没有任何浏览器会话——清理它们不会",
+    "出、**完成后唤醒所属会话**。 - **0.1.7-rc.2（9-24）**：定时任务可建"
    ]
   },
   {
@@ -1447,24 +2563,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 4,
    "goldLen": 144,
+   "goldText": "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实一下我们现在这一整套是不是真的达到了这样子的效果而且我们是做了一个呃一个零接触的那种上下文接续的一个记忆框架还是什么的吧我有点忘记了你可以回忆一下你的记忆还有一些运维书呃然后呢接下来你请认真的看接下来这几句话",
    "base": {
     "strict": false,
-    "span": 0.25
+    "pref40": false,
+    "span": 0.25,
+    "spanIdf": 0.15793657674322414
    },
    "p1": {
     "strict": false,
-    "span": 0.25
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.47515514978946505
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.47515514978946505
    },
-   "chars0": 120,
-   "chars1": 404,
-   "chars2": 767,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 598,
+   "chars1": 518,
+   "chars2": 1245,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -1481,6 +2616,18 @@
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "哈喽"
+   ],
+   "packHeads": [
+    "调研结果\\n\\n## 结论速览\\n\\n1. **[有据] 量化确实系统性损伤长上下文与长输出",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "呃，这是一个测试，新开的一个上下文。目前你有收到简报吗？",
+    "essionRelay/src/adapters/registry.ts` · 上下文 **",
+    "自动捕获新会话与子会话。**“框架生效”的最终形态就是这个：用户零操作，状态自动接续。** ",
+    "还没中。直接查最近的决策和会话列表。"
    ]
   },
   {
@@ -1489,40 +2636,71 @@
    "kind": "cross",
    "rank10": 3,
    "rankDeep": 0,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 25,
+   "goldText": "一、三个\"整包安装\"方案（本轮新发现，优先看这个）",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.25367073662503475
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 840,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1189,
    "chars1": 1131,
-   "chars2": 2700,
+   "chars2": 3049,
    "clusters": 8,
    "groupSize": 2,
    "recovered": null,
    "extras": 0,
    "extrasTagged": 0,
    "packTitles": [
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "Fork of 科研工作流整包安装清单",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
     "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
     "模型选型与节点接入方案讨论",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
     "奶茶上新自动同步（每2天10:33）"
+   ],
+   "packHeads": [
+    "库就能覆盖大半个流程： ① K-Dense Scientific Skills（科研技能天花",
+    "报只放 9 条；全库 200 条。 --- ## 三、跨项目经验（自动注入那几条，含 2 条",
+    "库就能覆盖大半个流程： ① K-Dense Scientific Skills（科研技能天花",
+    "（你说要做的那件事） 我把交接 §3 的未完成清单逐条去源码里验了一遍，**有几条交接说得不",
+    "（你说要做的那件事） 我把交接 §3 的未完成清单逐条去源码里验了一遍，**有几条交接说得不",
+    "影响 Pi 自己，两边互不干扰。 你圈一下：是按我这个阵容裁，还是音乐/写作哪几条你想在 P",
+    "AD` 在、7 个未解冲突、已解的 8 个文件都已 staged。 下面是给新会话的提示词，",
+    "画图端点今天确实被挤爆（发布日 503），不强求。50 个僵尸会话全是脚本产物、最新也是 0",
+    "更紧急） ### 🔴 1. DSH 侧插件现在是**完全死的**，而所有守门工具都显示全绿",
+    "t 模式是**控制台里的对话功能**：只有你打开网页终端跟它聊天时它才干活（能调工具是真的）"
    ]
   },
   {
@@ -1530,26 +2708,45 @@
    "target": "c0f6f811753ef8e6",
    "kind": "cross",
    "rank10": 1,
-   "rankDeep": 3,
-   "nAnchors": 8,
+   "rankDeep": 2,
+   "nAnchors": 7,
    "goldHits": 3,
    "goldLen": 63,
+   "goldText": "Folia 是一个歌词可视化与音乐播放器，能在播放音乐的时候，将歌词实时的转化为各种动画，一秒钟延迟都没有的体验预制菜歌曲PV",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.31821278163346206
    },
    "p1": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 677,
-   "chars1": 1125,
-   "chars2": 2494,
-   "clusters": 9,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.31821278163346206
+   },
+   "own1": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 1186,
+   "chars1": 1122,
+   "chars2": 2998,
+   "clusters": 10,
    "groupSize": 1,
    "recovered": null,
    "extras": 0,
@@ -1557,14 +2754,26 @@
    "packTitles": [
     "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
     "「按 folia-qq发现页-交接-20261006.md 续作」",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "奶茶上新自动同步（每2天10:33）",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "ninfer-ada-ternary 项目现状与资源发布说明"
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+   ],
+   "packHeads": [
+    "Zune. Windows Phone. Lumia. Folia 是一个歌词可视化与音乐播",
+    "快捷方式启动不了（要求先修复启动） 4. 点搜索结果的歌应该直接跳转到歌词播放页 5. 发现",
+    "ryqndev/boba-watch**（9★）：移动端网页记录月度花费，仪表盘可视化预算上",
+    "penViking 钩子 + SessionRelay HOP 导出 7 进度可视化+依赖图",
+    "vad.onnx` 语音活动检测，Coopanion 那边没有），改错了会让语音功能直接失效",
+    "）」，doctor / 看板 / 地图全被它污染 | 占位行常量收敛一份，孵化与导入都跳过（",
+    "其他地方都有）、副歌缓存把瞬时失败永久缓存且无容量上限（一次网络抖动让这首歌本次会话再也拿不",
+    "**，所以不受快照影响，8/8 都在。GUI 侧要不要重启才有显示是客户端的事，功能上不影响",
+    "*让界面显示思考过程**（或者干脆把 9B 的思考预算 2048 调小）——等待可视化了就不",
+    "理完了。 ## 会让人看到不该看的东西 **④ 隔离了正文，没隔离结论** 导入一个\"不信任"
    ]
   },
   {
@@ -1573,24 +2782,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 15,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 4,
    "goldLen": 95,
+   "goldText": "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别，根据上下文你要的应该是\"覆盖完整流程的安装清单\"，也就是把前三轮提到的所有工具合并成一份能直接照抄的最终版本",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.40550763601793216
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.40550763601793216
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5273983803193472
    },
-   "chars0": 144,
-   "chars1": 948,
-   "chars2": 1733,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1228,
+   "chars1": 994,
+   "chars2": 2825,
    "clusters": 9,
    "groupSize": 0,
    "recovered": false,
@@ -1607,6 +2835,18 @@
     "你是一名技术调研员。任务：调研\"AI 智能体（agent）核心运行时机制\"，为一",
     "下载好了：D:/mellos-mapping（v0.28.0，8.1 MB，零运",
     "你是一名技术调研员。任务：调研\"AI 智能体（agent）核心运行时机制\"，为一"
+   ],
+   "packHeads": [
+    "CP `serve` 通道留不留 4. **A7 独立复审**（§3）—— 喊了几轮一直没做",
+    "结果：kvmem 无罪，锅在 Pi 侧但还没抓到现行 **直连探针（同款增长式工具流）打 k",
+    "callsWasted` 记账并写进审计 `note`。 **探针（同一探针同一份真实库副本",
+    "AI 记忆层项目（SessionRelay / SES）做**竞品调研**，产出一份可直接落",
+    "PR #3 已被作者接受，等拆三批；ZCode 端 hook 简报 + 16 工具完整可用；",
+    "第一句），不是还挂着的活儿。内容是这样的： **它说的是「ZCode⇄Pi 跨工具状态系统（",
+    "ll-bench.ts` / `src/store/db.ts` 有没有现成读库工具，能复用",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "多半从这里开始 src/server/ MCP 服务端，8 个 mmap_* 工具的实现在这",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -1615,40 +2855,71 @@
    "kind": "cross",
    "rank10": 1,
    "rankDeep": 1,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 61,
+   "goldText": "****的我就让你找这个提示词你调用这个m c p啊你说比如做就不做我就让你找提示时又没干啥这本来就是我自己本地库里面有的",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 993,
-   "chars1": 1160,
-   "chars2": 2898,
-   "clusters": 8,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1103,
+   "chars1": 1156,
+   "chars2": 2973,
+   "clusters": 9,
    "groupSize": 1,
    "recovered": null,
    "extras": 0,
    "extrasTagged": 0,
    "packTitles": [
     "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
     "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
     "[#调研本地大模型部署可行性及免费GPU额度](#sess_0de5e2e7-a",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "调取我们本地的那个提示词的m c p你找一下有没有相关的呃呃让ai可以就是破线的",
-    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇"
+   ],
+   "packHeads": [
+    "变成免费畅用,不管是自己用还是发到网上,这都是绕过技术保护措施去规避付费,拿一条越狱提示词去",
+    "| 11,796 dl/26 赞，作者定位&quot;Lynn Agent 高端本地选项&q",
+    "asper/sessionrelay` | `0.5.1-fork.1` —— 本地源码 =",
+    "源码上才暴露的洞。 正解：跳过条件加一条“**会话仍在库里**”——每周期一条本地聚合查询拿",
+    "只做了检索和架构判断，**还没有开始下载、合并或部署**。 ## 1. 破甲、越狱、裸体和色",
+    "直在折腾的就是 agent 行为规范（时序、纪律、防坑）——如果你的目标是\"有个本地模型，按",
+    "+ 自动区 + 出图 + 归零修复工具） **一句话总结**：上游是\"能跑的本地记忆层\"，我",
+    "写「默认关」而代码是 `true` → 以代码为准并注明 --- ## 四、本地自用版本与源",
+    "k1h0/ChatGPT_DAN`（18 条）。我按家族给你说明： ## 一、越狱/破限类（",
+    "、收藏专辑直接出来，**不用导任何文件**，音质按你的 QQ 会员等级给 想用本地文件的话另"
    ]
   },
   {
@@ -1657,24 +2928,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 49,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 81,
+   "goldText": "先找到你在 ZCode 里配置的这个 `comad-bunny` 供应商的配置文件，然后直接对着 `commandcode.ai` 发个测试请求，看真实报错是什么",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6512058992339264
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6512058992339264
    },
-   "chars0": 94,
-   "chars1": 206,
-   "chars2": 406,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 455,
+   "chars1": 367,
+   "chars2": 776,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -1691,6 +2981,18 @@
     "本地模型性能与上下文测试回顾",
     "本地LLM部署配置与推理能力优化方案",
     "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ],
+   "packHeads": [
+    "求 记录详情 最新记录 更早记录 更新于 2026/10/4 03:38:33。供应商内部重",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "板 1 执行结果（测试文件） 一行不够：`min_utf8_bytes: 0` 单独加上仍红",
+    "还没中。直接查最近的决策和会话列表。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -1699,24 +3001,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 9,
+   "nAnchors": 8,
    "goldHits": 3,
    "goldLen": 290,
+   "goldText": "呃查一下调研一下就是我们这边就是国内外或者说最好国内比较好一点比较方便一点的或者说我们目前我我自己有一个服务器你应该知道你查一下自己呃我们这个这几个服务器显存怎么样能不能部署一些大冒险肯定模型到时候直接调用我我自己直接调用一下拿来跑呃而且最好是我们现在我是这个服务器能跑多大多少钱能不能用然后呢如果不行的话那其他的一些平台有没有这种嗯免费的额度啊或者说小时这种每周或者每个月给多少小时的额度或者是其他的一些免费的策略然后呢给的显存大概都有多大然后呢可以不取怎样的东西拿来跑我觉得呃花一点这种羊毛拿去部署本地模型到这些服务器上然后跑一下然后呢挺好的你帮我查一下吧没有这种可行性的方案",
    "base": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.35116770394278796
    },
    "p2": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.35116770394278796
    },
-   "chars0": 106,
-   "chars1": 353,
-   "chars2": 699,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 554,
+   "chars1": 514,
+   "chars2": 1155,
    "clusters": 8,
    "groupSize": 0,
    "recovered": null,
@@ -1733,6 +3054,18 @@
     "今天是 2026-10-06。任务：查清中国大陆各\"免费 GPU 额度\"平台**",
     "你是识图/OCR 工具调研员。任务：为 Windows 11 本机（中文用户，非",
     "你是渠道核验员。今天是 2026-09-14。任务：核验以下 9 家国内 LLM"
+   ],
+   "packHeads": [
+    "峰值 7485 MiB(91.4%)。 ## 缺陷:长标记生成会崩 SVG 那轮不是抖动,是",
+    "ridge 显示回落到了 exo-free——参数疑似没吃进去，先跑着看，反正是免费 - 提",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "c \"任务\" 返回结构化结果 2 1 天 ZCode 能调 Pi ZCode 会话里让 GL",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -1740,25 +3073,44 @@
    "target": "de9bd2d4872b58e6",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 50,
-   "nAnchors": 9,
+   "rankDeep": 39,
+   "nAnchors": 8,
    "goldHits": 3,
    "goldLen": 37,
+   "goldText": "我再核实几个 GitHub 项目的星数、体积和维护活跃度，拿真实数据来比较",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 0,
-   "chars1": 116,
-   "chars2": 139,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 323,
+   "chars1": 323,
+   "chars2": 472,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -1775,6 +3127,18 @@
     "workflow subagent actor#2@5",
     "workflow subagent actor#2@9",
     "背景：我们在自制一个「Agent 宏键盘」，对标 2026-07-15 Open"
+   ],
+   "packHeads": [
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "看一下行不行呃就是那种通用的破解吧好吧比如说我要我叫某一个那种呃去反逆向破解一个软件或者怎么",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -1783,24 +3147,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 3,
    "goldLen": 18,
+   "goldText": "调研 MTP 投机解码用法&quot",
    "base": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.7423519992915171
    },
    "p2": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.7423519992915171
    },
-   "chars0": 181,
-   "chars1": 591,
-   "chars2": 1171,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 824,
+   "chars1": 706,
+   "chars2": 1822,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -1817,6 +3200,18 @@
     "交接-8G推理优化-20260918.md先看看",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "你是并行工作流的**支B：决策置顶机制**。只做这一件事，做完报告，不要碰别人的"
+   ],
+   "packHeads": [
+    "| 13,700 | 99.7% | 0.5-1.4s | | **32K 关投机** | ",
+    "实测长上下文）。 ## 📊 你问的其他调参（全部实测） **1. MTP（投机解码）——确",
+    "查清楚了。简报里那条「未解决」其实是 **9-21 那场会话的标题**（取自开场第一句），不",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "m/2 = 预算），ratio=0.9 下同批 7 簇判掉 6。**并按要求补了那条口径**",
+    "ay.ts decisions --json --limit 5 # 置顶的那条应在最前 n"
    ]
   },
   {
@@ -1825,24 +3220,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 26,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 1,
    "goldLen": 8,
+   "goldText": "都行你是什么模型",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 711,
-   "chars1": 1182,
-   "chars2": 2696,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1144,
+   "chars1": 1184,
+   "chars2": 3132,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -1851,14 +3265,26 @@
    "packTitles": [
     "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
     "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "你好",
     "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
     "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
-    "你好",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "ninfer-ada-ternary 项目现状与资源发布说明",
     "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
-    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编"
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+   ],
+   "packHeads": [
+    "`models.json` 里两个本地 provider 指向 **24551（千问）/24",
+    "3.6-masks`（**0 下载**）。 - 官方侧：阿里云百炼有&quot;千问角色扮演",
+    "背 3. **祀·丹青渡**（明日方舟：终末地）——整幅构图入卡（黑底转透明），千问超分 2",
+    "LOO 和 GMI 都是 401、A 和 ST 不通。如果你有 Kimi、智谱、千问、或者任",
+    "d 29988）——**里面只有 glm-ocr 一个 2.2GB 的 OCR 模型**。你",
+    "| ❌ 不调 Ollama、不联网 | 所以它跟你显卡上的本地模型（KAT/千问/Bonsa",
+    "抓出来收窄了。 ## 红队报告（红队技能流程 · 授权=自有机器） **威胁模型**：本地意",
+    "8K 预算——你的方案我完全赞同，已落地 你的账算得对：**64K 窗口是这模型最稀缺的资源",
+    "a 一致性」的论文（KAIST，ACL 2025 Findings）在 12 个模型上测得相",
+    "有说法，但要分两半看：**“以轨迹为记忆单元”确有论文支撑；“用零模型协议解析当唯一主模型”"
    ]
   },
   {
@@ -1866,25 +3292,44 @@
    "target": "734f3cc50b8c2fe2",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 27,
-   "nAnchors": 8,
+   "rankDeep": 23,
+   "nAnchors": 7,
    "goldHits": 3,
    "goldLen": 30,
+   "goldText": "① 交接文档（唯一入口，18:45 终版，零上下文可接手）：",
    "base": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.33138577044966794
    },
    "p1": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.33138577044966794
    },
    "p2": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6184393684263794
    },
-   "chars0": 208,
-   "chars1": 429,
-   "chars2": 879,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 584,
+   "chars1": 544,
+   "chars2": 1263,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -1894,13 +3339,25 @@
     "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
     "workflow subagent actor#5@1",
     "寻找Office PPT制作Skill与开源方案",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "你是 T1「地图内核」的实现者。工作树（唯一写入目标）：D:/dsh插件 记忆/",
     "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
-    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "你是 ppt-designer。任务：用模板做《仿生纤毛触觉传感器》创业路演 P",
     "按推演沙盘交接文档续作并审查会话归档",
-    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，"
+    "你是 ppt-designer。任务：用模板做《仿生纤毛触觉传感器》创业路演 P",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看"
+   ],
+   "packHeads": [
+    "我来读取那个会话的交接上下文，看看进度做到哪了。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "better-sqlite3；ux_messages_session_seq 唯一索引用于幂",
+    "你是 T1「地图内核」的实现者。工作树（唯一写入目标）：D:/dsh插件 记忆/core/S",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "通知 + 看板」；并发派子代理 ZCode 和 DSH 都可以且验证过，Pi 是唯一不内置的",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动"
    ]
   },
   {
@@ -1909,24 +3366,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 4,
    "goldLen": 50,
+   "goldText": "入口备忘在 `.scratch/handoff/交接-AI微调-完整版v2-20261007.md`",
    "base": {
     "strict": false,
-    "span": 0.75
+    "pref40": false,
+    "span": 0.75,
+    "spanIdf": 0.7875547421935037
    },
    "p1": {
     "strict": false,
-    "span": 0.75
+    "pref40": false,
+    "span": 0.75,
+    "spanIdf": 0.7875547421935037
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 158,
-   "chars1": 421,
-   "chars2": 767,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 613,
+   "chars1": 513,
+   "chars2": 1230,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -1943,6 +3419,18 @@
     "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
     "你在审计一份 RP（角色扮演）大模型微调项目的实验数据，判断它能否支撑一篇可投稿",
     "最好的 gemini + ccgo + opencode 工具，没有之一 详情："
+   ],
+   "packHeads": [
+    "发给 OpenCode 的两份文件（了解全貌用） 1. **[交接-AI微调-完整版v2-2",
+    "中（“简易现行版本不代表最终成品”）。 值得继续观察：等作者放出复现实录文档的完整版和第三方",
+    "我来读取那个会话的交接上下文，看看进度做到哪了。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "，**六门全绿**，两仓干净。 ## 本轮做完什么 ### 1 · 语义臂（交接 §3-14",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "我先去看看 cmdc-pak.ljj233.top 这个页面到底是什么工具、下载入口在哪，然"
    ]
   },
   {
@@ -1951,24 +3439,43 @@
    "kind": "cross",
    "rank10": 1,
    "rankDeep": 3,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 16,
+   "goldText": "本地技能里没有哲学/角色扮演类的",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.35250293834035096
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.35250293834035096
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.35250293834035096
    },
-   "chars0": 977,
-   "chars1": 1120,
-   "chars2": 2851,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 614,
+   "chars1": 614,
+   "chars2": 1419,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -1976,15 +3483,27 @@
    "extrasTagged": 0,
    "packTitles": [
     "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
-    "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
-    "模型选型与节点接入方案讨论",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "奶茶上新自动同步（每2天10:33）",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
-    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实"
+    "workflow subagent actor#1@2",
+    "你是调研员。任务：调研 GitHub 上是否有\"多学派并行对话\"或\"多视角辩论\"",
+    "写4 个哲学学派卡文件。每个文件用 Write 工具写入指定路径。 **重要：先",
+    "你是调研员。任务：调研 GitHub 上「角色扮演/对话教练/哲学 psycho",
+    "Fork of 科研工作流整包安装清单",
+    "ch42入库与skills.sh审稿技能淘货",
+    "你是「夜行列车 NIGHT TRAIN」作品集网站的专业审核员。任务：加载指定技"
+   ],
+   "packHeads": [
+    "`silentdog918/book-reader-skill` | 27 | 阿德勒《如何",
+    "systematic-debugging 流程沿用（技能已在本会话加载，直接套四阶段开新一轮",
+    "ssion` 是关键：样本量上不去的**真成因不是 `--n` 给得小，是题源被会话数卡死*",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "全部完成。 ## 结论 你要的那套工作流已经建好并**实测跑通,冒烟测试 8/8 通过**。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -1993,40 +3512,71 @@
    "kind": "cross",
    "rank10": 1,
    "rankDeep": 1,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 3,
    "goldLen": 116,
+   "goldText": "我是就叫你看我手机这边我叫叫你看手机这一关你现在u s b连接手机能不能通过u s b进行调控呢如果能进行就直接进行那边调控呗我怀疑是c l e s h手机端那边的设置出现了一些问题但是我具体****作的是什么你电脑本机关不用管好吧",
    "base": {
-    "strict": false,
-    "span": 0.3333333333333333
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 670,
-   "chars1": 1188,
-   "chars2": 2581,
-   "clusters": 9,
+   "own0": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 1182,
+   "chars1": 1182,
+   "chars2": 3088,
+   "clusters": 10,
    "groupSize": 1,
    "recovered": null,
    "extras": 0,
    "extrasTagged": 0,
    "packTitles": [
     "嗨我现在手机连着电脑了然后我的手机的那个c l a s h也开着但是呢而且是同一",
-    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
     "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
-    "奶茶上新自动同步（每2天10:33）",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
     "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015"
+    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
+    "呃查一下调研一下就是我们这边就是国内外或者说最好国内比较好一点比较方便一点的或者",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+   ],
+   "packHeads": [
+    "我是就叫你看我手机这边我叫叫你看手机这一关你现在u s b连接手机能不能通过u s b进行调",
+    "计划模式、目标、待办、上下文压缩、文件搜索、web 工具等。 ## ② 内置子代理团队模式 ",
+    "ireLock 是“先查后写”非原子**（30-35 行）——同一秒并发启动全部通过，正好对",
+    "les / pre-mortem / red-team）连出处文字都缺**——我通过内容比对",
+    "话和验收命令），交给 B 执行；B 干完，DSH 跑真实验收命令，Lead 审查通过才算完。",
+    "dge0/Edge0-35B-A3B-preview`（3,430 likes，手机端流式推",
+    "很简单，人生也是一样。」 ——这句话是青年自己说的，这就是终点。 它解决什么问题 大部分时候",
+    "）。刚核实的重要事实： - **`/mnt/workspace` 是 NAS 共享盘，可用约",
+    "ent1super/qq-music-api-fork`（main），fork 通过 `pa",
+    "vs 9.5/32.6）——说明之前的 +9.5pt 是**coverage 代理**带来的"
    ]
   },
   {
@@ -2035,24 +3585,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 13,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 3,
    "goldLen": 54,
+   "goldText": "新会话里说\"做张闪卡\"、\"打包成单文件\"、\"用千问生图\"、\"归档生成图\"都能直接触发对应技能，不依赖本轮记忆",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.35135255865464304
    },
    "p1": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6486474413453569
    },
    "p2": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6512095527110432
    },
-   "chars0": 54,
-   "chars1": 457,
-   "chars2": 753,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 759,
+   "chars1": 572,
+   "chars2": 1467,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -2069,6 +3638,18 @@
     "workflow subagent actor#5@1",
     "设计类AI助手系统的完整技术文档生成",
     "哈喽"
+   ],
+   "packHeads": [
+    "dupedRequest` 的 key 用了完整 URL，而 URL 里带每次现生成的 `t",
+    "` 正则与显式 NODE 都在）、门卫 `watch-guard.ps1`、面板生成器 `g",
+    "从线字节重建 protobuf/CBOR/msgpack 的 schema 并生成解析器,带",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看完之后不用动",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "会话结尾是另一件事（skill-creator 审技能）。那句「2 处需修正」应该在前段，翻"
    ]
   },
   {
@@ -2077,24 +3658,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 37,
+   "goldText": "我先读取引用会话的上下文，了解 folia QQ 发现页交接文档的来龙去脉",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 391,
-   "chars1": 1137,
-   "chars2": 2247,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1299,
+   "chars1": 1131,
+   "chars2": 3144,
    "clusters": 7,
    "groupSize": 0,
    "recovered": null,
@@ -2111,6 +3711,18 @@
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "请精读以下 7 份文档（都在 `D:\\dsh插件 记忆\\docs\\` 目录下），",
     "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 "
+   ],
+   "packHeads": [
+    "事后事实陈述（Constative Report）**； - “**实测发现 750 对误判",
+    "事后事实陈述（Constative Report）**； - “**实测发现 750 对误判",
+    "q-music-api` 的完整路由表拉下来了，一共 40 来个端点，涉及推荐/发现的只有这",
+    "事我们做得比市面好。** 六道门 + 判据行为对拍，坏了会红。这轮修守护就是靠它发现的。 *",
+    "t` 变了（指纹 `abedf42160d50870`），插件 vendor 由构建管线镜像",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95-40df-",
+    "三个问题都有答案了，而且第二个是这次最关键的发现。 ## 对话日志里确实有完整记录 Sess",
+    "/ 写权限 —— 给你一句话我就迁（3 条：半截→更新→完整正文、WAL 新增被发现、A/B",
+    "s / state.js / tools.js / selftest.mjs）；发现 `de",
+    "cripts/bench-verify-questions.mjs` —— 校验脚本 ## "
    ]
   },
   {
@@ -2118,41 +3730,72 @@
    "target": "59bc0d7106e159ff",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 3,
-   "nAnchors": 10,
+   "rankDeep": 1,
+   "nAnchors": 9,
    "goldHits": 2,
    "goldLen": 55,
+   "goldText": "vd_source=bbcbc93fd8e25b384d1d4d5acb157945调用mcp解析一下这个视频",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5872063306082502
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5872063306082502
    },
-   "chars0": 901,
-   "chars1": 1167,
-   "chars2": 2870,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1181,
+   "chars1": 1168,
+   "chars2": 3156,
    "clusters": 7,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
-   "extrasTagged": 5,
+   "extrasTagged": 1,
    "packTitles": [
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
-    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
     "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
     "Selection side chat",
     "Selection side chat",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "奶茶上新自动同步（每2天10:33）",
-    "模型选型与节点接入方案讨论",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需"
+    "command这个端点模型的deepseek v4.1flash你看看我们现在接",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015"
+   ],
+   "packHeads": [
+    "-| | B站搜索 | 20 条真实结果，标题已去 HTML 标签 | | B站视频元数据 ",
+    "+坏帧跳过）、hasNativeZstd 特性探测（默认导入防 Node 22 链接期崩溃）",
+    "+坏帧跳过）、hasNativeZstd 特性探测（默认导入防 Node 22 链接期崩溃）",
+    "+坏帧跳过）、hasNativeZstd 特性探测（默认导入防 Node 22 链接期崩溃）",
+    "|---|---| | progress-anchor | 铁律“状态是干活时记出来的”→ ",
+    "- **自然事件（不由我控制）**：明天真实机器重启以验证登录自动启动链（所有链接单独验证）",
+    "* 编码：用户说加功能 → AI 调编辑器工具 → 测试通过/失败。 剪视频：用户说 4K ",
+    "`session_task_link`（595 条）** —— 任务↔会话的显式链接，**没",
+    "映射框是**请求侧**的（决定发什么参数），显示是**响应侧**的（ZCode 解析事件）。",
+    "`session_task_link`（595 条）** —— 任务↔会话的显式链接，**没"
    ]
   },
   {
@@ -2161,24 +3804,43 @@
    "kind": "cross",
    "rank10": 2,
    "rankDeep": 2,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 49,
+   "goldText": "它是桥接式服务器，去 `.modmind` 目录里看看桥接配置和源码，找“插件工具目录”指的是什么",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6629740060577828
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6629740060577828
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6629740060577828
    },
-   "chars0": 38,
-   "chars1": 513,
-   "chars2": 871,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6629740060577828
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6629740060577828
+   },
+   "chars0": 765,
+   "chars1": 628,
+   "chars2": 1608,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -2195,6 +3857,18 @@
     "今天是 2026-10-06。专项核实：**阿里魔搭 ModelScope（mo",
     "之前不是说那个你给我搞了好几个模式嘛在d s h里面然后呢呃有好几个预设嘛然后我",
     "今天是 2026-10-06。任务：为\"把本地大模型（GGUF / vLLM /"
+   ],
+   "packHeads": [
+    "我先读取引用会话的上下文，了解 folia QQ 发现页交接文档的来龙去脉。",
+    "了，而是两个宿主应用没在运行**，配置一个字都不用改。 ## 诊断结果 **modmind（",
+    "跟你的体验一模一样。 2. **数据存在他本地？** 对，存在他手机的浏览器里，服务器不存任",
+    "原因有两个：一是这个库的检索是纯字面匹配（PostgreSQL ILIKE），服务器不做跨语",
+    "→ 重启 Docker → 打印前后对比，全程1-5 分钟，期间 Docker 服务中断、那",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -2203,24 +3877,43 @@
    "kind": "cross",
    "rank10": 3,
    "rankDeep": 3,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 0,
    "goldLen": 0,
+   "goldText": "",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 239,
-   "chars1": 589,
-   "chars2": 1232,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 829,
+   "chars1": 704,
+   "chars2": 1830,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -2230,13 +3923,25 @@
     "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
     "ninfer-ada-ternary 项目现状与资源发布说明",
     "你在审计一份 RP（角色扮演）大模型微调项目的实验数据，判断它能否支撑一篇可投稿",
+    "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代",
     "# 任务：ACR 抗投毒鲁棒性实验 · 一期（机械层 · 零 LLM · 实施单",
     "你是调研员。任务：调研 GitHub 上「角色扮演/对话教练/哲学 psycho",
     "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代",
     "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代",
-    "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代",
     "你是技术调研员。任务：核实**三个具体底座的训练可行性 + AMD 训练环境**",
     "随机抽取小说内容用于AI检测"
+   ],
+   "packHeads": [
+    "} [3] { &quot;topic&quot;: &quot;思维链在角色扮演/陪伴场景",
+    "ith 35B 干agent、Qwen3.6 35B 聊天、zh-RP 26B 角色扮演、O",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代码仓库 D:",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代码仓库 D:",
+    "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代码仓库 D:",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -2244,41 +3949,72 @@
    "target": "fd7a268a26d34847",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 18,
-   "nAnchors": 9,
+   "rankDeep": 20,
+   "nAnchors": 8,
    "goldHits": 3,
    "goldLen": 51,
+   "goldText": "它从各 AI 工具的会话里自动提取\"决策\"和\"未决问题\"，存进每个项目的 `relay.sqlite`",
    "base": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6331158865587952
    },
    "p1": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6851049398796814
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 905,
-   "chars1": 1189,
-   "chars2": 2894,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1178,
+   "chars1": 1183,
+   "chars2": 3159,
    "clusters": 7,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
-   "extrasTagged": 3,
+   "extrasTagged": 5,
    "packTitles": [
-    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "Selection side chat",
+    "Selection side chat",
     "[#调研本地大模型部署可行性及免费GPU额度](#sess_0de5e2e7-a",
-    "Selection side chat",
-    "你是一位**独立设计评论员**（critic）。你只能看到一张截图，没有代码、没",
-    "Selection side chat",
-    "读 E:\\music player\\docs\\给ZCode的问题清单-20261"
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "你是一位**独立设计评论员**（critic）。你只能看到一张截图，没有代码、没"
+   ],
+   "packHeads": [
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编程会话做「跨",
+    "所有框架功能（决策/简报/看板/MCP/搜索）必须正常工作。 8. 验证 4 个项目（D:\\",
+    "agents 委托 → Pi 本地 → SessionRelay 回写 5 多项目并行 ✅ ",
+    "## 体积问题：两件事，一轻一重 - **轻的**：现在 56MB 空洞（小说项目 70%、",
+    "的汇报（大白话版） ## 一、我们到底在做一件什么事 给 AI 装一个**\"项目记忆层\"**",
+    "## 体积问题：两件事，一轻一重 - **轻的**：现在 56MB 空洞（小说项目 70%、",
+    "## 体积问题：两件事，一轻一重 - **轻的**：现在 56MB 空洞（小说项目 70%、",
+    "节现状快照）： ``` D:\\agent1super\\docs\\文件地图-微调项目-2026",
+    "的汇报（大白话版） ## 一、我们到底在做一件什么事 给 AI 装一个**\"项目记忆层\"**",
+    "就是全页最显眼的\"没做完\"。 **② 同一次对比里出现三个量纲。** 左卡「各项目库体量」条"
    ]
   },
   {
@@ -2287,24 +4023,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 11,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 57,
+   "goldText": "它按\"源\"采集各 AI 工具的会话（zcode/dsh/codex/claude-code/qoder/trae）",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 322,
-   "chars1": 1042,
-   "chars2": 2064,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1153,
+   "chars1": 1086,
+   "chars2": 2945,
    "clusters": 7,
    "groupSize": 0,
    "recovered": false,
@@ -2321,6 +4076,18 @@
     "请精读以下 7 份文档（都在 `D:\\dsh插件 记忆\\docs\\` 目录下），",
     "对 SessionRelay 做**采集层 + 存储层**的红队审查。 ## 范",
     "你是\"奶茶新品雷达\"项目的先遣工程师。任务：为奶茶新品监控产品探测数据源并写出第"
+   ],
+   "packHeads": [
+    "的两件事 **审查里有 3 个安全问题我没动**：61 个 IPC 通道不校验来源（其中 `",
+    "诚实版） | 功能 | 自动吗 | 说明 | |---|---|---| | 采集会话 | ",
+    "90 秒探针采样 日志轮转——别让 log 无限追加 配置文件——间隔、目录、采集器开关全部",
+    "晚晴人设借鉴与NapCat风控调研-20260920.md`，42KB、37 个来源其中 2",
+    "抽的**\"，不是\"**谁拍的板**\" —— 用户要求、助手记录的情况也会算成助手来源。 --",
+    "抽的**\"，不是\"**谁拍的板**\" —— 用户要求、助手记录的情况也会算成助手来源。 --",
+    "诚实版） | 功能 | 自动吗 | 说明 | |---|---|---| | 采集会话 | ",
+    "onRelay 是本地记忆框架，为 ZCode/DSH/Pi 多个 AI 客户端采集会话、提",
+    "用了未校验的同名缓存目录”并记进 `source_files` `[P1]` 采集异常的所有",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -2329,24 +4096,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 5,
    "goldLen": 90,
+   "goldText": "已发生过一次——`recomputeSession` 直接调 `extractDecisions` 绕过了 `extractMessages` 里的清洗，重算 85 个会话数据没变",
    "base": {
     "strict": false,
-    "span": 0.2
+    "pref40": false,
+    "span": 0.2,
+    "spanIdf": 0.2903401621780247
    },
    "p1": {
     "strict": false,
-    "span": 0.4
+    "pref40": false,
+    "span": 0.2,
+    "spanIdf": 0.23374363479802482
    },
    "p2": {
     "strict": false,
-    "span": 0.6
+    "pref40": false,
+    "span": 0.4,
+    "spanIdf": 0.3607118742095723
    },
-   "chars0": 115,
-   "chars1": 563,
-   "chars2": 1019,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 869,
+   "chars1": 660,
+   "chars2": 1792,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -2363,6 +4149,18 @@
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "你是推演沙盘项目的数据清理棒（本回合只做「盘点+方案+dry-run」，绝不执行",
     "哈喽"
+   ],
+   "packHeads": [
+    "ry-run 不开事务（它本来就不写）。 ## R8 · dry-run **绕过体积预算*",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "而且真要评估防护效果，正确用法是把它们当**测试样本**去测你自己的模型有没有被绕过，而不是",
+    "g · T10 `applyDecayToHits` 内联 `score*f` 绕过 `ap",
+    "的。（顺带验证了运维手册里那条「`--set-sparse` 对 Docker 数据盘无效」",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "er` 返回 **1**，修后 **2**。 ### #16 · 全局注册状态导致项目共用错",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "还没中。直接查最近的决策和会话列表。"
    ]
   },
   {
@@ -2371,24 +4169,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 13,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 44,
+   "goldText": "- 调研\"记忆系统的遗忘曲线/淘汰策略\"：LRU、基于信息增益的保留、基于引用次数的加权",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.3068454130664074
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 169,
-   "chars1": 951,
-   "chars2": 1760,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1153,
+   "chars1": 996,
+   "chars2": 2751,
    "clusters": 9,
    "groupSize": 0,
    "recovered": false,
@@ -2404,7 +4221,19 @@
     "你是只读调查员，深查 DSH 推演沙盘项目里\"预测万物/预测系统\"的现有结构，评",
     "调研两件事：Folia 项目（https://github.com/chthol",
     "哈喽",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+    "模型选型与节点接入方案讨论"
+   ],
+   "packHeads": [
+    "# 一、一句话：这是个什么东西 **一个\"属于项目、不属于任何厂商\"的本地记忆层**——你换",
+    "的场景是**中文 RP 对话**，CoT 的作用是「揣摩用户意图、调人设策略、翻记忆索引」，",
+    "2_0**（权重就吃掉 7.21G，没 KV 的地方），12G 才是它的地盘。你记忆里“40",
+    "上一轮把项目认错了** —— 你开发的是 `dsh-srelay-panel`（记忆台面板）",
+    "dbSig = 主库 + -wal` 的 `mtime:size`。 **实测依据**（本机",
+    "}). </system-reminder> 工作目录：D:\\dsh插件 记忆（只读研究为主",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "」其实是 **9-21 那场会话的标题**（取自开场第一句），不是还挂着的活儿。内容是这样的",
+    "化写法（告诉模型为什么，比光下命令服从率高）。一条同时盖住“不懂装懂”和“编共同记忆”（比如"
    ]
   },
   {
@@ -2412,25 +4241,44 @@
    "target": "2834f3824f9771dd",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 19,
-   "nAnchors": 6,
+   "rankDeep": 14,
+   "nAnchors": 5,
    "goldHits": 2,
    "goldLen": 14,
+   "goldText": "Z3/Z4 两份交接文档 ✅",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 153,
-   "chars1": 561,
-   "chars2": 1033,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 596,
+   "chars1": 555,
+   "chars2": 1307,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -2441,12 +4289,24 @@
     "按推演沙盘交接文档续作并审查会话归档",
     "寻找Office PPT制作Skill与开源方案",
     "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
-    "你是 ppt-designer。任务：用模板做《仿生纤毛触觉传感器》创业路演 P",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "你是 ppt-designer。任务：用模板做《仿生纤毛触觉传感器》创业路演 P",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
     "设计类AI助手系统的完整技术文档生成",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，"
+    "哈喽"
+   ],
+   "packHeads": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95-40df-",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "先找到并读取这份交接文档。",
+    "动手。下面是核对的完整清单和我看到的现状。 ## 读了什么（全部到位） **交接文档本体**",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "'zzprobe', A)` 仍回到 A。 ### Codex 额外检查（结论文档 + 已修",
+    "用——是，且已成体系 - **规划文档→交给其他 agent**：这就是我们的交接文档制度。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "还没中。直接查最近的决策和会话列表。"
    ]
   },
   {
@@ -2455,24 +4315,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 5,
    "goldLen": 68,
+   "goldText": "缺的是\"主动记住\"：现在会话开场的简报只注入决策和未决问题，所以新会话不知道\"用户机器是 8GB 显存\"这种约束，会反复给出不可行的建议",
    "base": {
     "strict": false,
-    "span": 0.4
+    "pref40": false,
+    "span": 0.6,
+    "spanIdf": 0.5551550116730026
    },
    "p1": {
     "strict": false,
-    "span": 0.6
+    "pref40": false,
+    "span": 0.6,
+    "spanIdf": 0.5551550116730026
    },
    "p2": {
     "strict": false,
-    "span": 0.6
+    "pref40": false,
+    "span": 0.6,
+    "spanIdf": 0.5551550116730026
    },
-   "chars0": 319,
-   "chars1": 745,
-   "chars2": 1536,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 893,
+   "chars1": 814,
+   "chars2": 2116,
    "clusters": 9,
    "groupSize": 0,
    "recovered": null,
@@ -2489,6 +4368,18 @@
     "呃，这是一个测试，新开的一个上下文。目前你有收到简报吗？",
     "盘点这台机器上已安装的学术论文类技能，目标是找出**thesis-pipelin",
     "调查这台 Windows 机器上已安装的学术论文写作相关技能与智能体的**实际能"
+   ],
+   "packHeads": [
+    "on Prompting + 2609.35356 SIP 分层：身份敏感样本（开场正事、冲",
+    "de 共享 relay.sqlite），项目记忆框架（SessionStart 简报 + p",
+    "上轮修了 | | 补 SQLite 超时 | ✅ 上轮修了 | | 七条过滤器（简报去噪） ",
+    "上轮修了 | | 补 SQLite 超时 | ✅ 上轮修了 | | 七条过滤器（简报去噪） ",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "查清楚了。简报里那条「未解决」其实是 **9-21 那场会话的标题**（取自开场第一句），不",
+    "seq: number, at?: string }`。 **当前的痛**：简报只显示 2 ",
+    "呃，这是一个测试，新开的一个上下文。目前你有收到简报吗？",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -2496,25 +4387,44 @@
    "target": "473adf91f642a899",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 14,
-   "nAnchors": 10,
+   "rankDeep": 5,
+   "nAnchors": 9,
    "goldHits": 2,
    "goldLen": 173,
+   "goldText": "人工判读其中约 35–40 条是用户对 AI 的指令/口语/技术陈述，不是\"否掉一条路\"：`你不用管过程`、`你不用做任何事`、`旧会话不用删，放着就行`（语义恰是**保留**）、`不用填满才知道`、`不用每章都烧朱雀额度`、`\"64K 能不能装下\"是可以精确预判的，不用填满才知道`、`决定/改为/不用\"就抓 80 字符…`（规则说明正文自身）",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 431,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1191,
    "chars1": 1188,
-   "chars2": 2376,
+   "chars2": 3136,
    "clusters": 6,
    "groupSize": 0,
    "recovered": false,
@@ -2522,41 +4432,72 @@
    "extrasTagged": 5,
    "packTitles": [
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "模型选型与节点接入方案讨论",
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
     "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
     "Selection side chat",
     "Selection side chat",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面"
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ],
+   "packHeads": [
+    "（按价值排）：** 1. **融合那条分支**（§13）—— 要单独一拍，它动检索主干，得先",
+    "报孤儿实例和句柄数——出事一条命令自证，不用再挂探针。 6. **远期**：语义检索启用前要",
+    "么简单：** 1. **失败不许静默**（这条最要紧）。现在模型挂了你会看到\"检索变差了\"但",
+    "排位。 4. **§9 的对比表**——认知框架值钱（\"新旧结论冲突\"确实是向量检索的死穴）",
+    "还在但进程本身掉了）。WMI 脱离方式拉起恢复，嵌入链路全系统复活（表情包/记忆检索/反应表",
+    "导致记忆地图可用率暴跌至 35% 和 15%。这些硬核实测数据证明：在本地优先的检索与抽取系",
+    "| | C. 抓进单独的侧表/侧库 | 物理隔离 | Schema 改动大，检索链路分叉，不",
+    "| | C. 抓进单独的侧表/侧库 | 物理隔离 | Schema 改动大，检索链路分叉，不",
+    "ry> <result># 本地角色扮演模型选型调研（标准更正版） &gt; 检索时间 20",
+    "agent-16gb）：`--kvmem-mtp-state replay`（未检索到 \\&"
    ]
   },
   {
    "query": "每开一个对话就多起一份服务又不回收的毛病，在哪几次会话里被算过账",
    "target": "646f6bd8b9b63e88",
    "kind": "cross",
-   "rank10": 7,
-   "rankDeep": 40,
-   "nAnchors": 10,
+   "rank10": 8,
+   "rankDeep": 0,
+   "nAnchors": 9,
    "goldHits": 5,
    "goldLen": 44,
+   "goldText": "1.【最高】你自己每开一个对话就 spawn 一份 MCP server 且不回收 ——",
    "base": {
-    "strict": true,
-    "span": 1
+    "strict": false,
+    "pref40": false,
+    "span": 0.4,
+    "spanIdf": 0.3160582727243674
    },
    "p1": {
     "strict": false,
-    "span": 0.6
+    "pref40": false,
+    "span": 0.6,
+    "spanIdf": 0.610539484637618
    },
    "p2": {
-    "strict": true,
-    "span": 1
+    "strict": false,
+    "pref40": false,
+    "span": 0.6,
+    "spanIdf": 0.610539484637618
    },
-   "chars0": 828,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.6,
+    "spanIdf": 0.610539484637618
+   },
+   "chars0": 1184,
    "chars1": 1188,
-   "chars2": 2802,
+   "chars2": 3163,
    "clusters": 8,
    "groupSize": 3,
    "recovered": null,
@@ -2564,15 +4505,27 @@
    "extrasTagged": 0,
    "packTitles": [
     "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
     "模型选型与节点接入方案讨论",
     "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
     "Selection side chat",
     "Selection side chat",
-    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015"
+    "所有盘现在都爆炸了没空间了看看什么情况"
+   ],
+   "packHeads": [
+    "20 多 G——这就是你说的「每次都要（重新压），很烦」的真正机制。 另外补一个事实：`fs",
+    "服务恢复（effort + 翻转双补丁干净版）。还有一个从 fork 文档里挖到的硬伤值得顺",
+    "l npm:pi-mcp-adapter 功能确认： 把所有 MCP 服务器通过一个代理工具",
+    "查完了，不动手，按你的问题逐条说。**先说一个必须知道的发现**，再答其余。 ## ⚠️ 重",
+    "动现有内容，只加一句）： > 「小日子素材是锦上添花不是口癖——一条回复最多带一个生活梗；岩",
+    "新进程——泄漏此刻仍在继续。对比文档的 16 个时间戳，现在的分布完全同构：**每开一个对话",
+    "） 从两段对话里提炼出的你的意图，按确定性排序： 1. **O 和 K 只留一个**（你原话",
+    "新进程——泄漏此刻仍在继续。对比文档的 16 个时间戳，现在的分布完全同构：**每开一个对话",
+    "新进程——泄漏此刻仍在继续。对比文档的 16 个时间戳，现在的分布完全同构：**每开一个对话",
+    "vhdx 只涨不缩的毛病。**压缩一下就能给 C 盘回收约 55 GB**，服务一个都不用删"
    ]
   },
   {
@@ -2580,41 +4533,72 @@
    "target": "9b4998c18819c311",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 5,
-   "nAnchors": 9,
+   "rankDeep": 4,
+   "nAnchors": 8,
    "goldHits": 3,
    "goldLen": 46,
+   "goldText": "以 Nature 级标准逐句润色论文语言：精简冗词、消除翻译腔、修正强弱声称、统一时态与术语",
    "base": {
-    "strict": true,
-    "span": 1
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
-    "strict": true,
-    "span": 1
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
-    "strict": true,
-    "span": 1
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 855,
-   "chars1": 1195,
-   "chars2": 2857,
-   "clusters": 9,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1176,
+   "chars1": 1187,
+   "chars2": 3171,
+   "clusters": 8,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
-   "extrasTagged": 1,
+   "extrasTagged": 0,
    "packTitles": [
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
     "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
     "你好",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "所有盘现在都爆炸了没空间了看看什么情况",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
-    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95"
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "现在有啥好用热门的这个mac down阅读器有没有markdown阅读器呃尽尽量",
+    "Fork of 科研工作流整包安装清单",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高"
+   ],
+   "packHeads": [
+    "评审、学术写作、PPT 海报与图表、基金申请书、假设生成、实验方案设计——基本把论文全流程的",
+    "pro\"——我在 Pi 扩展生态里找不到这个名称的包。搜索结果只有同名的学术研究论文（HPC",
+    "n）即可恢复训练时的语气——这给了一个不需要重训的兜底层。② **谄媚与复读都有论文级的度量",
+    "你好！我是 ZCode，很高兴见到你。 这里是学术论文写作与润色工作区，我可以帮你： - *",
+    "ess-anchor` 技能 | 已经在用，但\"靠人记得\"就是这个项目反复吃亏的那类 | *",
+    ":\\agent1super\\AGENTS.md`：105 行 → 75 行，只留论文工作流（",
+    "ess-anchor` 技能 | 已经在用，但\"靠人记得\"就是这个项目反复吃亏的那类 | *",
+    "门优化（对你这边的中文手稿很合适）、导出 HTML/DOCX/PDF。还有个对你论文工作流可",
+    "评审、学术写作、PPT 海报与图表、基金申请书、假设生成、实验方案设计——基本把论文全流程的",
+    "e。 - `PromptSource` 来源元数据模型。 - 来源许可证、作者、语言、内容类"
    ]
   },
   {
@@ -2623,24 +4607,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 1,
    "goldLen": 24,
+   "goldText": "④ 结论必须有真实命令与输出，不许只读代码下结论",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 487,
-   "chars1": 928,
-   "chars2": 2022,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 978,
+   "chars1": 974,
+   "chars2": 2515,
    "clusters": 8,
    "groupSize": 0,
    "recovered": null,
@@ -2657,6 +4660,18 @@
     "ninfer-ada-ternary 项目现状与资源发布说明",
     "你是红队审计员，审计一个刚落地的\"跨工具状态栈\"系统。只读审计，不改任何文件。审",
     "你是「推演沙盘项目专家研讨会」的查阅 B 棒（盘上实证查阅）。任务=不联网，纯用"
+   ],
+   "packHeads": [
+    "守卫模块（`src/chore-guard.mjs`）的二次加固，精准拔除了前期审计中抓到的",
+    "守卫模块（`src/chore-guard.mjs`）的二次加固，精准拔除了前期审计中抓到的",
+    "segfault，最终 Docker Webpack 构建通过。 - 交接路径审计： - 初",
+    "自动回滚\"尚不适用\"（实测确认原文压根没动过，没东西可回滚） | | **压缩审计写入没有事",
+    "料是否够 / 自建数据质量标准 / 量化退化路线）调研 3/3 完成。每条结论均要求给一手链",
+    "带指数退避重试；出处/会话记忆=零（issue-activity 只有操作者级审计）；13 ",
+    "\" - **证据链**（`evidence/receipts.ts`）：每条硬性要求都要 L",
+    "，门已经把 90% 放宽到 92% 仍不够。判停条件 gateExit===0 要求清掉所有",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -2665,30 +4680,50 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 11,
+   "nAnchors": 10,
    "goldHits": 2,
    "goldLen": 31,
+   "goldText": "④ 每个数字都要自己写探针复跑，禁止复用 Lead 的探针输出",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5793467473748841
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5793467473748841
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5793467473748841
    },
-   "chars0": 510,
-   "chars1": 1176,
-   "chars2": 2479,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1163,
+   "chars1": 1178,
+   "chars2": 3134,
    "clusters": 8,
    "groupSize": 0,
    "recovered": null,
    "extras": 0,
    "extrasTagged": 0,
    "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
@@ -2697,8 +4732,19 @@
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
-    "你是并行工作流的**支A：移植性修复**。只做这一件事，做完报告，不要碰别人的文"
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ],
+   "packHeads": [
+    "客户端就失效 | `query` 改可选；只有 `kind=sessions` 要求，缺了给",
+    "库回放数据硬对比 | 评估指标 | 10-15 真实简报基线 | 质量门禁要求 | L1~L",
+    "老项目收编进系统 | 在那个项目里说“**接入**” | | 项目要大交接/给别人 | 说“",
+    "它，导致明明改了文件却报\"实际没有改动任何文件\"。验证时用普通目录名。 按你的要求，这轮只测",
+    "不调 pnpm** —— 从根上不再砸兄弟插件 | 验证（独立跑的，不轻信脚本自己的结论）：",
+    "库回放数据硬对比 | 评估指标 | 10-15 真实简报基线 | 质量门禁要求 | L1~L",
+    "那些修复只是打补丁...根源是在源码那边的...能不能优雅一点或者是防压的”——要求在真实 ",
+    "‑agents and plan mode\"，但通过扩展、技能、包可以自己造或装别人造好的。",
+    "全部完成。下面按你要求，**先用大白话解释**，再说状态。 --- # 一、这些缺陷到底是怎",
+    "料是否够 / 自建数据质量标准 / 量化退化路线）调研 3/3 完成。每条结论均要求给一手链"
    ]
   },
   {
@@ -2706,25 +4752,44 @@
    "target": "24f9724fc84f40f1",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 17,
-   "nAnchors": 8,
+   "rankDeep": 10,
+   "nAnchors": 7,
    "goldHits": 3,
    "goldLen": 82,
+   "goldText": "- 语义档已实现但 **opt-in 且默认关闭**：本地 CPU 推理（transformers.js + onnx），只在检索路径上做「FTS 之后的追加命中」",
    "base": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6739094942805172
    },
    "p1": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6739094942805172
    },
    "p2": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6739094942805172
    },
-   "chars0": 649,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1179,
    "chars1": 1192,
-   "chars2": 2641,
+   "chars2": 3171,
    "clusters": 9,
    "groupSize": 0,
    "recovered": false,
@@ -2732,15 +4797,27 @@
    "extrasTagged": 1,
    "packTitles": [
     "模型选型与节点接入方案讨论",
-    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
-    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "你是**论文与工程调研员**。任务：为一套本地 AI 记忆层找出\"**用算法替代",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
     "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+   ],
+   "packHeads": [
+    "| 状态 | 证据 | |---|---|---| | 嵌入模型（Ollama 本地） | ",
+    "你是**论文与工程调研员**。任务：为一套本地 AI 记忆层找出\"**用算法替代小模型**\"",
+    "ecision 门禁**（未到期）。 - **L3 没跑过真模型**（本机无可用本地生成模型",
+    "ot; ### 4.2 中文部署指南 - `moe.sakanoy.com`「本地部署大模型",
+    "SessionRelay × SES —— 给 AI 编程会话做「跨会话记忆」的本地系统。 ",
+    "en3-8B/raw/main/tokenizer_config.json`，用本地 Pyt",
+    "ludeRestricted` 默认 false 这条锁死不动。 **图像配图本地化**。我",
+    "ntic enable`） | 🟢 **唯一能真正动 top-1 的路**——本地 CPU",
+    "ntic enable`） | 🟢 **唯一能真正动 top-1 的路**——本地 CPU",
+    "tps://github.com/jbrorepo/l5m)：一个 Rust 的本地混合检索"
    ]
   },
   {
@@ -2749,40 +4826,71 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 1,
-   "nAnchors": 11,
+   "nAnchors": 10,
    "goldHits": 2,
    "goldLen": 47,
+   "goldText": "ffff 类：cf4b90d/daf7b63 paths 修复（主目录/临时目录不算项目祖先）",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.2936605013411897
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.2936605013411897
    },
-   "chars0": 664,
-   "chars1": 1156,
-   "chars2": 2499,
-   "clusters": 9,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1142,
+   "chars1": 1150,
+   "chars2": 3014,
+   "clusters": 8,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
-   "extrasTagged": 4,
+   "extrasTagged": 5,
    "packTitles": [
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
     "ninfer-ada-ternary 项目现状与资源发布说明",
     "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
-    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
-    "「按 folia-qq发现页-交接-20261006.md 续作」",
     "Selection side chat",
-    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95"
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "Selection side chat"
+   ],
+   "packHeads": [
+    "说\"画个地图／开个地图／依赖图／看一下进度长什么样\"；接手已有地图的续作；收尾时判断一张页该",
+    "0 场**。 也就是说：**ADR 里\"六端落盘没有这个字段、归属只能猜\"这个判断，对 ZC",
+    "那 200 条有用得多——**经验库的质量明显高于决策库**。 ## 五、我的判断 1. *",
+    "0 场**。 也就是说：**ADR 里\"六端落盘没有这个字段、归属只能猜\"这个判断，对 ZC",
+    "，比你写下的东西更值得记录。** 每份交接都记了\"做了什么\"，很少记\"我在哪一步判断错了、为",
+    "+ 日志原行**。 60 > **只报\"部署不了\"而不带这三样，我们无法判断，也不会据此否掉",
+    "看完源码了。给你一个明确的判断，**不是\"照抄\"，而是\"挑该抄的\"**。 ## Fusion",
+    "--- ## 二、srelay watch 双实例（高优先级） ### 文档判断错在哪 | ",
+    "我的文本提取只抓到 3D 轮播焦点附近的渲染子集，不足以判断。改用硬证据——**看网络请求*",
+    "--- ## 二、srelay watch 双实例（高优先级） ### 文档判断错在哪 | "
    ]
   },
   {
@@ -2791,24 +4899,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 1,
    "goldLen": 34,
+   "goldText": "**顺便验：它是不是真的在用核心引擎排序**（而不是悄悄退回旧路径）",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 149,
-   "chars1": 943,
-   "chars2": 1731,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1185,
+   "chars1": 989,
+   "chars2": 2774,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -2825,6 +4952,18 @@
     "你是测试员。任务：真实加载一个 skill 并与之对话，验证它的多学派协作机制是",
     "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编"
+   ],
+   "packHeads": [
+    "议——用户消息→意图，AI 消息中的结构化动作→动作，工具返回/后续反馈→结果，配对三元组。",
+    "的，负结果不可信。 **已修**。干净尺子的第一批（`noRare: 30` 说明过滤真的生",
+    "t;` 模板，且实测两种模板差异很小（AIME24 31.3 vs 32.7），说明**标签",
+    "mjs（A–L 全绿才算数， C 段会因守护旧构建判红，那是预期，请忽略并说明）+ cd c",
+    "text 改用 recomputeSessionMetaText ⇒ 决策不再从检索索引消失",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "疾 | | 5 | **对话结构特征**：user→assistant 相邻确认配对（程序化",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "完成标准： ZCode 一句话派两个并行任务，两个 worktree 里的文件改动互不污染，",
+    "**（下面每个人有明确目录）。 ## 你要交的 实现 + 实测数字 + 一句话说明改了什么、"
    ]
   },
   {
@@ -2833,24 +4972,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 1,
    "goldLen": 51,
+   "goldText": "工作区：D:\\dsh插件  记忆（核心库在 core\\SessionRelay，是独立 git 仓库）",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 628,
-   "chars1": 1172,
-   "chars2": 2528,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1178,
+   "chars1": 1175,
+   "chars2": 3081,
    "clusters": 8,
    "groupSize": 0,
    "recovered": null,
@@ -2867,6 +5025,18 @@
     "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+   ],
+   "packHeads": [
+    "例锁：全链路 PASS。属主活着第二实例被拒（EADDRINUSE）；属主被杀后探测确认死亡",
+    "一，临时目录自身也算临时目录； - **A-10**：插件里那**第三个**向上探测（`fi",
+    "- **规划文档→交给其他 agent**：这就是我们的交接文档制度。工作区根目录躺着 20",
+    "仓库在（9/18 还在更新）但根目录没有 generation_config——可能在子目录",
+    "、可 Docker 部署、可通过网页和 MCP 使用的系统； - 是否可以把多个仓库合并进同",
+    "# 结论：选 Folia，Rhine 这条路在你这台机器上直接走不通 我把两个仓库的 REA",
+    "入口是 `--reasoning on/off/auto`（`auto`=从模板探测），直接",
+    "有 CHANGELOG,来源多为一次性安装。要查上游得先知道每个技能当初是从哪个仓库装的,而",
+    "一，临时目录自身也算临时目录； - **A-10**：插件里那**第三个**向上探测（`fi",
+    "ok:true`、日志一行不打 | ① 改成**熔断器半开**：30 分钟放一次探测，成功就"
    ]
   },
   {
@@ -2875,24 +5045,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 1,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 20,
+   "goldText": "任务：实现\"可视化面板\"（用户原话见下）",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.640074196624679
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.35992580337532104
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 782,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1185,
    "chars1": 1185,
-   "chars2": 2737,
+   "chars2": 3140,
    "clusters": 8,
    "groupSize": 0,
    "recovered": false,
@@ -2905,52 +5094,95 @@
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
     "奶茶上新自动同步（每2天10:33）",
-    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
     "「按 folia-qq发现页-交接-20261006.md 续作」",
-    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件"
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95"
+   ],
+   "packHeads": [
+    "**① dashboard.html 本地可视面板（补 3 的“一屏”）** 一个自包含 H",
+    "则版本、最后活动 | | 库浏览 | 逐项目看决策/未决/文件/话题；**经验库单独一页**",
+    "则版本、最后活动 | | 库浏览 | 逐项目看决策/未决/文件/话题；**经验库单独一页**",
+    "192px**，肉眼看不清，放仓库里等于噪音。 --- ## 三、抓到并修掉一个真 bug（",
+    "Cover` 已有懒加载，再往下优化要动 GridMap 本体，风险和收益我建议单独立项评估",
+    "我还能继续做的（按价值排）：** 1. **融合那条分支**（§13）—— 要单独一拍，它动",
+    "选量化下载**。 - 对比你现在的 5 bat 多端口方案：router 胜在“一个端口、面",
+    "r-guide/intelligent-assistant)口径是免费提供、没有单独计费额度",
+    "或者说优雅一点不要老是给补丁这样子越修越臃肿」 - 「还是没评论但是那个第一个问题已经修复了",
+    "时，单跑必过）。**我的改动没有引入任何回归**，但这个抖动会掩盖真实失败，值得单独收拾。 "
    ]
   },
   {
    "query": "只看截图不看代码的设计点评，在哪几次会话里派过",
    "target": "7dfc60598fd919eb",
    "kind": "cross",
-   "rank10": 7,
+   "rank10": 0,
    "rankDeep": 2,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 3,
    "goldLen": 30,
+   "goldText": "你只能看到一张截图，没有代码、没有设计说明、没有历史批评意见",
    "base": {
-    "strict": true,
-    "span": 1
+    "strict": false,
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.4159483631424911
    },
    "p1": {
-    "strict": true,
-    "span": 1
+    "strict": false,
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.7254688468314662
    },
    "p2": {
-    "strict": true,
-    "span": 1
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 745,
-   "chars1": 1183,
-   "chars2": 2729,
-   "clusters": 9,
-   "groupSize": 1,
-   "recovered": null,
-   "extras": 0,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1178,
+   "chars1": 1189,
+   "chars2": 3166,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
    "extrasTagged": 0,
    "packTitles": [
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "奶茶上新自动同步（每2天10:33）",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "你是一位**独立设计评论员**（critic）。你只能看到一张截图，没有代码、没",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "你是一位**独立设计评论员**（critic）。你只能看到一张截图，没有代码、没",
-    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实"
+    "你是一位**独立设计评论员**（critic）。你只能看到一张截图，没有代码、没",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "现在有啥好用热门的这个mac down阅读器有没有markdown阅读器呃尽尽量",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇"
+   ],
+   "packHeads": [
+    "ruct 逐帧拆解、粒子标题的三层粒子系统设计、JIEJOE 19 课索引、灵感截图； - ",
+    "gantt, table, list and calendar views」，截图含 Kan",
+    "\"仍有差异\"，正常清理被报成故障——**会误报的守卫比没有守卫更糟**（人会学会不看它）。 ",
+    "\"仍有差异\"，正常清理被报成故障——**会误报的守卫比没有守卫更糟**（人会学会不看它）。 ",
+    "** 所以：新建 ZCode 工作区时，目录被选在了工作区**里面**。我们的代码只会建 `",
+    "评审完成。我看的是这一版浅色态整页（1241×9785 全页截图，已分条放大逐段核对）。 -",
+    "** 所以：新建 ZCode 工作区时，目录被选在了工作区**里面**。我们的代码只会建 `",
+    "rd.json` 与 `dim3-bf16-card.json` 走的是两条不同代码路径，b",
+    "但**行内公式 `$E = mc^2$` 原样显示没解析**——和我之前给你拍的截图一致。 ",
+    "Windows symlink EPERM 环境用例），电台页和发现页我都实测截图确认过了。"
    ]
   },
   {
@@ -2959,24 +5191,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 1,
    "goldLen": 87,
+   "goldText": "**理由：** 它有真实的设计品味和勇气——它选了\"纸\"，选了单青绿强调、锈红表否决，造出了一套形状语言（实心方＝拍板、锈红菱形＝否决），这比九成内部工具都更像被\"设计\"过的",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 425,
-   "chars1": 1188,
-   "chars2": 2333,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1164,
+   "chars1": 1187,
+   "chars2": 3066,
    "clusters": 8,
    "groupSize": 0,
    "recovered": null,
@@ -2987,12 +5238,24 @@
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
     "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
     "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
     "ninfer-ada-ternary 项目现状与资源发布说明",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高"
+    "Selection side chat"
+   ],
+   "packHeads": [
+    "w/Pi spawn+文件栈就能实现，零新增常驻服务、零账号；而 PM 工具个个要求常驻服务",
+    "么多提示词啊什么他合起来之后的情况，你看一下吧。然后呢没有问题的话，就按照我们的要求，呃，你",
+    "么多提示词啊什么他合起来之后的情况，你看一下吧。然后呢没有问题的话，就按照我们的要求，呃，你",
+    "那些修复只是打补丁...根源是在源码那边的...能不能优雅一点或者是防压的”——要求在真实 ",
+    "它，导致明明改了文件却报\"实际没有改动任何文件\"。验证时用普通目录名。 按你的要求，这轮只测",
+    "i18n。`commandRegistryContract.test.ts` 要求每个静态命",
+    "ref-verifier）。 3. 写作时把你的实验数据 Excel 和学校格式要求丢给 a",
+    "**rung 计数 s8=3600、small_t=400**，阈值能碰到的只有每次预填末尾",
+    "绿的，**但不在 git 里**。 ## 关于 goal 的处置 goal 要求\"在声称完成",
+    "件规范。 * 用户已经拍板“打包带走运行时”（离线可用、不依赖全局 npm、不要求用户环境有"
    ]
   },
   {
@@ -3001,24 +5264,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 9,
+   "nAnchors": 8,
    "goldHits": 4,
    "goldLen": 41,
+   "goldText": "当前是根治轮：把记忆生命周期（存储清洗/压缩/淘汰/巩固）从外挂脚本变成框架内机制",
    "base": {
     "strict": false,
-    "span": 0.25
+    "pref40": false,
+    "span": 0.25,
+    "spanIdf": 0.32678450157649835
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.48353959611352637
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5187501932787555
    },
-   "chars0": 412,
-   "chars1": 886,
-   "chars2": 1842,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 963,
+   "chars1": 912,
+   "chars2": 2371,
    "clusters": 7,
    "groupSize": 0,
    "recovered": null,
@@ -3035,6 +5317,18 @@
     "你是「推演沙盘项目专家研讨会」的查阅 A 棒（外部对标查阅）。任务=联网调研业界",
     "你是「推演沙盘项目专家研讨会」的查阅 A 棒（外部对标查阅）。任务=联网调研业界",
     "我插入的外部键盘f盘里面有一堆那个照片和文件吧找一下有没有近期日期内的新增的照片"
+   ],
+   "packHeads": [
+    "`（任务沙盒内） - **铁律约束**：生产仓库 `D:\\dsh插件 记忆` 严格只读，真实",
+    "这种措施吗你仔细查一下别的****只是浮于表面的” - “呃你先把这次调查的记到记忆里面去应",
+    "`（任务沙盒内） - **铁律约束**：生产仓库 `D:\\dsh插件 记忆` 严格只读，真实",
+    "-3.7-flash 低思考+温度 0.3，**识图四条链全换它**：默认转述/记忆场景图/",
+    "差什么 **只有你能做的 1 件：** 再重启一次 DSH → 左栏就会出现「记忆台」。 *",
+    "pen-320`「他那句&apos;以前不行&apos;」—— 引述他人，非共同记忆\\n- ",
+    "：命令 + 输出，或 文件:行号 + 引用。 ## 仓库 D:/dsh插件 记忆/core/",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "我插入的外部键盘f盘里面有一堆那个照片和文件吧找一下有没有近期日期内的新增的照片特别是10月"
    ]
   },
   {
@@ -3042,41 +5336,72 @@
    "target": "e16a61ee537b11a6",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 14,
-   "nAnchors": 9,
+   "rankDeep": 13,
+   "nAnchors": 8,
    "goldHits": 3,
    "goldLen": 87,
+   "goldText": "- **一个状态机 + 一张 8 行策略表**：`idle→planned→gated→applied→verified`(+`rolled_back`/`skipped`)",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.21600667166903256
    },
    "p1": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.21600667166903256
    },
    "p2": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.21600667166903256
    },
-   "chars0": 513,
-   "chars1": 1035,
-   "chars2": 2242,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1185,
+   "chars1": 1152,
+   "chars2": 3130,
    "clusters": 8,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
-   "extrasTagged": 0,
+   "extrasTagged": 5,
    "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
-    "请精读文件 `D:\\dsh插件 记忆\\docs\\现状与需求总核对表-202610",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "对 SessionRelay 做**检索层 + 生命周期**的红队审查。 ## ",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "模型选型与节点接入方案讨论",
-    "背景：我们在自制一个「Agent 宏键盘」，对标 2026-07-15 Open"
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "请精读文件 `D:\\dsh插件 记忆\\docs\\现状与需求总核对表-202610",
+    "Selection side chat"
+   ],
+   "packHeads": [
+    "什么 | |---|---| | [README.md](<D:/dsh插件 记忆/core",
+    "cker 服务中断、那 6 个容器会停（跟刚才一样，我再帮你拉起来）。 按当前状态，压缩后 ",
+    "插件 hooks + worker。 文档：[模块地图](D:\\dsh插件 记忆\\docs\\",
+    "名的学术研究论文（HPCache、共享内存多处理器相关），与 AI agent 记忆无关。 ",
+    "2877–3684 行是一份**我从未核验过的全新报告**《SES 全生命周期记忆托管、跨目",
+    "player\\ai-collab-workspace D:\\dsh插件 记忆 E:\\work",
+    "COMPLEX/CREATIVE 三大槽服务的是她的**后台任务**（每日回顾、记忆巩固、情",
+    "小 隐私过滤——索引前剥掉 API key、.env 值、token 模式，会话记忆层不该把",
+    "已精读 `D:\\dsh插件 记忆\\docs\\现状与需求总核对表-20261013.md` 第",
+    "技术方案 §二 仓库目录结构 · git 归属与 commit 历史 · 本地记忆多个关键词"
    ]
   },
   {
@@ -3085,24 +5410,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 4,
    "goldLen": 57,
+   "goldText": "已知实测（别重复测）：跨会话近重复占 52.9%（E:\\music player 1005 条决策，重叠≥0.8）",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 962,
-   "chars1": 1022,
-   "chars2": 2653,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1085,
+   "chars1": 1045,
+   "chars2": 2777,
    "clusters": 7,
    "groupSize": 0,
    "recovered": null,
@@ -3119,6 +5463,18 @@
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
     "你在 Windows 11 (Git Bash) 环境做 DSH 插件**功能重"
+   ],
+   "packHeads": [
+    "结果**。你觉得只要把这个结构解析出来，就足够了。 ### 2. 绝对的“跨会话零上下文接手",
+    "te；**A 的重复在当前 CLI 已消失**（20 条零重复组）——但“同问题跨会话双显示",
+    "进下一个会话简报第一行。 2. **§11 通道 B「user_norms + 跨会话频次晋",
+    "进下一个会话简报第一行。 2. **§11 通道 B「user_norms + 跨会话频次晋",
+    "道」补了三件事，都已生效（app 在跑）： ## 三件顺手事 **1. 缓存跨会话了。** ",
+    "压缩记录里），但**搜不出来**了。 **实测数字**（代码里留着的）： > 跨会话近重复合",
+    "k 扫描跑完,看能不能把预填从 425–486 拉到 780 附近(**目标的另一半,而且不",
+    "压缩记录里），但**搜不出来**了。 **实测数字**（代码里留着的）： > 跨会话近重复合",
+    "- Docker 磁盘占用从约 58G 如何压缩和整理； - 最后要求生成一份可跨会话续作的",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3126,25 +5482,44 @@
    "target": "323c111a48c66a9c",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 18,
-   "nAnchors": 10,
+   "rankDeep": 9,
+   "nAnchors": 9,
    "goldHits": 2,
    "goldLen": 21,
+   "goldText": "引言里写清检索途径（哪个工具、什么查询词）",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5788851526474834
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5788851526474834
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 780,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1189,
    "chars1": 1183,
-   "chars2": 2757,
+   "chars2": 3166,
    "clusters": 7,
    "groupSize": 0,
    "recovered": false,
@@ -3156,11 +5531,23 @@
     "Selection side chat",
     "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
     "Selection side chat",
-    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
-    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别"
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ],
+   "packHeads": [
+    "ry> <result># 本地角色扮演模型选型调研（标准更正版） &gt; 检索时间 20",
+    "ionRelay 项目记忆 · 自动简报」+ 整个《AGENTS.md — 学术论文工作区配",
+    "不开 你的判断和报告结论一致。那 475 条决策的垃圾**根子在提取规则，不在检索**——嵌",
+    "ram 后不报错但完全不生效（“配置项是谎言”）。 依据 SIGIR '97 论文实现 se",
+    "不开 你的判断和报告结论一致。那 475 条决策的垃圾**根子在提取规则，不在检索**——嵌",
+    "结果。解析协议结构是确定性的，不需要语义理解。 SmartSearch 的论文结论与此同构：",
+    "`confirmed` 是**同构 bug**。已被列进\"不该抄\"。 ## 论文线（task",
+    "探针： 输出被 shell 包装器截断了，改成落盘再读： 探测跑通了（读数被工具做了去重压缩",
+    "答你最关心的问题:是,后面只要说\"用 thesis-pipeline 从零写一篇论文\"就能一",
+    "token，还在推进） | | **CoT 方法论调研** | ✅ 跑着（联网查论文较慢，第"
    ]
   },
   {
@@ -3168,26 +5555,45 @@
    "target": "62df568227aa34c7",
    "kind": "cross",
    "rank10": 0,
-   "rankDeep": 15,
-   "nAnchors": 7,
+   "rankDeep": 10,
+   "nAnchors": 6,
    "goldHits": 3,
    "goldLen": 79,
+   "goldText": "所谓「未决段」= 从会话里抽出来的「还没结论的问题」（key_questions），会在 DSH / ZCode 的自动简报里以一段「未决问题」注入模型上下文",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.5483414433360729
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 718,
-   "chars1": 1182,
-   "chars2": 2621,
-   "clusters": 8,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1143,
+   "chars1": 1135,
+   "chars2": 2995,
+   "clusters": 7,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
@@ -3198,11 +5604,23 @@
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
-    "奶茶上新自动同步（每2天10:33）",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "ninfer-ada-ternary 项目现状与资源发布说明",
-    "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝"
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261"
+   ],
+   "packHeads": [
+    "st”这个决策） **失败场景**：现在是 2026-10-06。状态栈又“出问题了”——`",
+    "H 端的记忆注入就 100% 失效了**（ZCode 侧是好的，md5 一致且含未决修复）。",
+    "ave --recent 1d」，出处会话叫「插件自测·可忽略」。 ## 三、未决：0 条 ",
+    "H 端的记忆注入就 100% 失效了**（ZCode 侧是好的，md5 一致且含未决修复）。",
+    "确认一个遗留问题：`default: standard` 指向不存在的预设。这不会导致启动失",
+    "加第三维 `wasAnswered`。**严格口径（同一批 100 场会话）：未决 53 →",
+    "加第三维 `wasAnswered`。**严格口径（同一批 100 场会话）：未决 53 →",
+    "**它现在每处理一个请求就打一行这个诊断，所以窗口疯狂刷。** ## 但真正的问题是这个 *",
+    "决定，因为两条路的工作量差一个数量级 ← 已修（v23） 决定方案走向的问题 ← **还没修",
+    "新的组装）。 ## 这件事对你的实际意义 **好处**：简报里的\"近期决策/未决问题\"每轮都"
    ]
   },
   {
@@ -3211,24 +5629,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 54,
+   "goldText": "写到：D:\\dsh插件  记忆\\docs\\research\\2026-10-18-语义档引擎与模型选型.md",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.2970866761116187
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.2970866761116187
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.2970866761116187
    },
-   "chars0": 424,
-   "chars1": 911,
-   "chars2": 1927,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1035,
+   "chars1": 957,
+   "chars2": 2541,
    "clusters": 7,
    "groupSize": 0,
    "recovered": null,
@@ -3245,6 +5682,18 @@
     "呃查一下调研一下就是我们这边就是国内外或者说最好国内比较好一点比较方便一点的或者",
     "你是本地大模型选型调研员。任务：彻底调查 **Qwen3.6-35B-A3B（及",
     "你是本地大模型选型调研员。任务：对 **Ornith-1.5-35B-A3B 这"
+   ],
+   "packHeads": [
+    "4 件按红队裁定缓装/不装，理由见后。 ## 一、逐件核伪表（注册表直查 + 本地实测，非转",
+    "可回滚 | | **神经网络（嵌入）** | **真跑过** | 有嵌入源抽象（本地/远程两",
+    "可回滚 | | **神经网络（嵌入）** | **真跑过** | 有嵌入源抽象（本地/远程两",
+    "/ 延迟 | ✅ 零成本、离线、**SQL 5–14ms** | ❌ 要模型（本地或云），几",
+    "了。 ## 红队报告（红队技能流程 · 授权=自有机器） **威胁模型**：本地意外/恶意进",
+    "/ 延迟 | ✅ 零成本、离线、**SQL 5–14ms** | ❌ 要模型（本地或云），几",
+    "en3-8B/raw/main/tokenizer_config.json`，用本地 Pyt",
+    "给的显存大概都有多大然后呢可以不取怎样的东西拿来跑我觉得呃花一点这种羊毛拿去部署本地模型到这",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3253,24 +5702,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 23,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 2,
    "goldLen": 94,
+   "goldText": "但交接件漏了：watch.ts:360-375 **已经有 lifecycle 宿主定时器**（5min tick），真正的重叠是它与 per-worker archiveTimer 撞车",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
-   "chars0": 41,
-   "chars1": 370,
-   "chars2": 644,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 587,
+   "chars1": 509,
+   "chars2": 1204,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -3287,6 +5755,18 @@
     "哈喽",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ],
+   "packHeads": [
+    "机器/干净 profile\"上跑过 | 中 | 有价值但要环境 | | 9 | 清理 `D:",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "查完了。先说结论：**删的东西全部安全，但我要坦白一件事；另外 DSH 没有官方清理机制，而",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "还没中。直接查最近的决策和会话列表。",
+    "在一个长期项目里干活：SessionRelay × SES —— 给 AI 编程会话做「跨会",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3295,25 +5775,44 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 1,
    "goldLen": 17,
+   "goldText": "5. **数字必须绑样本与口径**",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 582,
-   "chars1": 1104,
-   "chars2": 2355,
-   "clusters": 7,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1144,
+   "chars1": 1099,
+   "chars2": 2900,
+   "clusters": 8,
    "groupSize": 0,
    "recovered": null,
    "extras": 0,
@@ -3323,12 +5822,24 @@
     "奶茶上新自动同步（每2天10:33）",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "ninfer-ada-ternary 项目现状与资源发布说明",
-    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需"
+   ],
+   "packHeads": [
+    "每个结论都有数或实测撑着，不是拍脑袋。 一、你的数据已经把三个根因钉死了 症状 数字 结论 ",
+    "得正是时候——确实该开新对话了（这轮对话已经很长）。我先把手稿整理成一份**完整交接文档**",
+    "得住、翻得到\"，但\"开口就问对\"还不行。** 我把它标成\"可用、未到好用\"，写进交接了。 #",
+    "得住、翻得到\"，但\"开口就问对\"还不行。** 我把它标成\"可用、未到好用\"，写进交接了。 #",
+    "3 已经就绪，随时可以开聊验毒舌边界和 CoT 一体性。 要我先把审计发现补进交接文档、还是",
+    "面。 **检索**：FTS5 关键词为主，已有“二代多路融合”的尝试。实测数字很诚实：**关",
+    "比边际 CI 重叠灵敏得多），CI 跨 0 就判「不显著」。 ## 你提的两个数字都复现了，",
+    "完什么、§5 别重踩的坑）。 ## 开工三读（只读，别跳） ① 上面那份交接件 ② docs",
+    "ght 与 jina 代理均失败），仅有搜索摘要中的参数与 ~51 tok/s 数字。 - ",
+    "模块状态和依赖关系 | | 仪式层（换班） | **handoff** | 正式交接时的深度"
    ]
   },
   {
@@ -3337,24 +5848,43 @@
    "kind": "cross",
    "rank10": 2,
    "rankDeep": 2,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 3,
    "goldLen": 22,
+   "goldText": "# 未决段 precision 人工判读报告",
    "base": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6527919342919877
    },
    "p1": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6527919342919877
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 32,
-   "chars1": 375,
-   "chars2": 645,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6527919342919877
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.6527919342919877
+   },
+   "chars0": 590,
+   "chars1": 513,
+   "chars2": 1212,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -3371,6 +5901,18 @@
     "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
     "你是网文追读审稿员。对《死亡换乘》（都市悬疑长篇，起点番茄风，96 章已写完前 ",
     "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ],
+   "packHeads": [
+    "融合那条分支**（§13）—— 要单独一拍，它动检索主干，得先过基准 2. **未决过滤器合",
+    "你要判读一批「未决问题」样本的 precision。这是 `D:\\dsh插件 记忆` 项目的",
+    "ne.ts`，**无越界** ### 需要你统一接的 config.json 清单（不在我写",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "还没中。直接查最近的决策和会话列表。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3379,24 +5921,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 36,
-   "nAnchors": 10,
+   "nAnchors": 9,
    "goldHits": 3,
    "goldLen": 104,
+   "goldText": ", ...` 不动 `last_event_at`、不插新消息、不增 session 数 → 指纹恒等，但 `plugins/dsh/src/brief-sql.mjs:246-279` 的输出会变 → 假绿",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p1": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.21538655108782723
    },
    "p2": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.21538655108782723
    },
-   "chars0": 215,
-   "chars1": 861,
-   "chars2": 1628,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1052,
+   "chars1": 907,
+   "chars2": 2472,
    "clusters": 9,
    "groupSize": 0,
    "recovered": false,
@@ -3413,6 +5974,18 @@
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "渲染歌曲队列与视频标题查询",
     "排查本地doctor服务及本地搜索故障"
+   ],
+   "packHeads": [
+    "） │ └─ 干活时：DSH 插件 ── 自动把简报塞进 system prompt（不用你",
+    "码都免疫（守卫用 `@( )` 包裹、守门用 `ForEach-Object` 输出行），所",
+    "曲线。** 这是议题方向 1 的核心问题，我搜遍 arXiv API（3 组不同查询）、HF",
+    "收到了，确实有简报进来。在我这一轮收到的上下文里，开头有一段 **「SessionRelay",
+    "哈喽！我在。 简报里挂着一条上次的尾巴：有个方案核查说整体成立，但有 2 处工具名/机制需要",
+    "seq: number, at?: string }`。 **当前的痛**：简报只显示 2 ",
+    "修** | `__testRenderBrief(空决策+有经验)` 现在出完整简报 | |",
+    "869B（平均 ~256B/簇）⇒ L3 压缩对我们是**质量收益（同主题合流、简报更短），",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3421,24 +5994,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 19,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 1,
    "goldLen": 25,
+   "goldText": "你是**独立代码复审员**（只读，禁止修改任何文件",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 355,
-   "chars1": 822,
-   "chars2": 1735,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 963,
+   "chars1": 891,
+   "chars2": 2348,
    "clusters": 7,
    "groupSize": 0,
    "recovered": true,
@@ -3455,6 +6047,18 @@
     "你是**独立复审员**（红队式复核）。任务：复核两批改动，只读、不改任何文件，最",
     "你是 T1「地图内核」的实现者。工作树（唯一写入目标）：D:/dsh插件 记忆/",
     "你是终审员，快速验证一轮修复后的终态（只读，15 分钟内完成，聚焦不展开）。 对"
+   ],
+   "packHeads": [
+    "Count` —— **每捕获一条消息就只写 `message_count` 这一列**，五",
+    "照分数。可引用，但不可复现、不可外推。\\n\\n3. **「CoT 占比超过多少会导致非思考场",
+    "是「先影子后接线」——影子阶段不许改任何现有行为，只记录不生效。 影子期看不出效果是正常的，",
+    "Count` —— **每捕获一条消息就只写 `message_count` 这一列**，五",
+    "是「先影子后接线」——影子阶段不许改任何现有行为，只记录不生效。 影子期看不出效果是正常的，",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "乘罚已消，但 `lengthNorm:false` 仍不是真正的关。单变量实验（只改 `me",
+    "ErrorCode/MapError/Res + id·rank·status 校验） - ",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3463,24 +6067,43 @@
    "kind": "cross",
    "rank10": 9,
    "rankDeep": 9,
-   "nAnchors": 9,
+   "nAnchors": 8,
    "goldHits": 4,
    "goldLen": 109,
+   "goldText": "删一个文件、同时加一个文件 ⇒ `nf` 不变、`ds`/`kq` 不变、`t` 不变（refresh 不碰 last_event_at）⇒ **七项指纹逐字恒等，守卫不 SKIP，拿两份不同快照判「两份实现已漂」**",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.25,
+    "spanIdf": 0.20314260920166882
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 234,
-   "chars1": 828,
-   "chars2": 1621,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.25,
+    "spanIdf": 0.20314260920166882
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 1089,
+   "chars1": 897,
+   "chars2": 2484,
    "clusters": 7,
    "groupSize": 3,
    "recovered": null,
@@ -3497,6 +6120,18 @@
     "你是审计团队 A4\"Windows 编码方案加装影响审计员\"。第一步：用 Ski",
     "你是**独立代码复审员**（只读，禁止修改任何文件；临时脚本放 `D:\\Temp",
     "你是**独立代码复审员**（只读，禁止修改任何文件；临时脚本放 `D:\\Temp"
+   ],
+   "packHeads": [
+    "三处**静默假绿**（最危险的那类：把\"没判\"打印成\"判过\"） **❶ §H 指纹漏掉派生列",
+    "三处**静默假绿**（最危险的那类：把\"没判\"打印成\"判过\"） **❶ §H 指纹漏掉派生列",
+    "你是**独立复审员**（红队式复核）。任务：复核两批改动，只读、不改任何文件，最后用中文交一",
+    "预算」 - `dc1d218` check-versions.mjs §H 的库指纹守卫 #",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "轮按 id 取回\"最近 10 分钟内还被写过\"的消息（最多 64 条），**正文指纹变了才再",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "不变、`t` 不变（refresh 不碰 last_event_at）⇒ **七项指纹逐字恒",
+    "## 严重问题 1. **§H 指纹有整类盲区：`message_count` / `ori"
    ]
   },
   {
@@ -3505,24 +6140,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 32,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 2,
    "goldLen": 32,
+   "goldText": "不要跑 vitest / recall-bench / 守门脚本",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.36865103187528037
    },
    "p1": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.36865103187528037
    },
    "p2": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.6313489681247196
    },
-   "chars0": 92,
-   "chars1": 1025,
-   "chars2": 1776,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1366,
+   "chars1": 1048,
+   "chars2": 3058,
    "clusters": 9,
    "groupSize": 0,
    "recovered": false,
@@ -3539,6 +6193,18 @@
     "之前不是说那个你给我搞了好几个模式嘛在d s h里面然后呢呃有好几个预设嘛然后我",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 "
+   ],
+   "packHeads": [
+    "读时只读联邦\" - §13 架构升级四：三大自演进飞轮 + 969 字符五维简报合成器 - ",
+    "读时只读联邦\" - §13 架构升级四：三大自演进飞轮 + 969 字符五维简报合成器 - ",
+    "查清楚了。简报里那条「未解决」其实是 **9-21 那场会话的标题**（取自开场第一句），不",
+    "收到了，确实有简报进来。在我这一轮收到的上下文里，开头有一段 **「SessionRelay",
+    "seq: number, at?: string }`。 **当前的痛**：简报只显示 2 ",
+    "拿来用没有任何障碍。往这个方向我能陪你往下挖:分析目标样本、梳理还原顺序、写解析脚本都行。 ",
+    "执行 | 2026-10-03 00:36，返回码 **0**（成功） | | 脚本 | [",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "869B（平均 ~256B/簇）⇒ L3 压缩对我们是**质量收益（同主题合流、简报更短），",
+    "cripts/bench-verify-questions.mjs` —— 校验脚本 ## "
    ]
   },
   {
@@ -3547,33 +6213,52 @@
    "kind": "cross",
    "rank10": 7,
    "rankDeep": 7,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 3,
    "goldLen": 79,
+   "goldText": "1. 自动基准加「语义臂」——core/SessionRelay/scripts/recall-bench.ts 现在只有 K/S/M 三条**纯词法**臂，",
    "base": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.24685101240284582
    },
    "p1": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.24685101240284582
    },
    "p2": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.5894179593917387
    },
-   "chars0": 813,
-   "chars1": 1191,
-   "chars2": 2803,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.24685101240284582
+   },
+   "chars0": 1185,
+   "chars1": 1185,
+   "chars2": 3161,
    "clusters": 7,
    "groupSize": 4,
    "recovered": null,
    "extras": 0,
    "extrasTagged": 0,
    "packTitles": [
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
@@ -3581,6 +6266,18 @@
     "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
     "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
     "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ],
+   "packHeads": [
+    "ified`、`uses=50`——它已经进注入层了。证据是：**这次会话开头的自动简报里就",
+    "前做到哪、核心阻塞是什么）”，可用率预计直接跃升至 80% 以上。 2. **自动推翻旧决策",
+    "前做到哪、核心阻塞是什么）”，可用率预计直接跃升至 80% 以上。 2. **自动推翻旧决策",
+    "例接管。在 Windows 上用命名管道更干净：管道名是内核对象，随持有进程死亡自动消失，连",
+    "事 这条判据我**只改了内核一处**，两侧客户端（DSH + ZCode）**自动拿到了**",
+    "3 种甘特/时间线/日历/统计/仪表盘）+MIT+免费内置 Butler 式规则自动化，绑 ",
+    "事 这条判据我**只改了内核一处**，两侧客户端（DSH + ZCode）**自动拿到了**",
+    "内存调整**和 VHDX 回收（现 20G，清了 7.4GB 构建缓存但虚拟盘不自动缩小，需",
+    "code/hooks/statebrief/brief.mjs` | 你开会话时自动注入的那",
+    "l、**creative writing、QA、role-playing**，用自动生成的 "
    ]
   },
   {
@@ -3589,24 +6286,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 15,
-   "nAnchors": 11,
+   "nAnchors": 10,
    "goldHits": 3,
    "goldLen": 53,
+   "goldText": "已知可行路线（来自竞品 AstrBot 的实践）：**不需要模型，只需要一张「标签 ↔ 记忆」的关系表**",
    "base": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.49492446919295735
    },
    "p1": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.49492446919295735
    },
    "p2": {
     "strict": false,
-    "span": 0.6666666666666666
+    "pref40": false,
+    "span": 0.6666666666666666,
+    "spanIdf": 0.5050755308070426
    },
-   "chars0": 196,
-   "chars1": 472,
-   "chars2": 990,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 692,
+   "chars1": 610,
+   "chars2": 1494,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -3623,6 +6339,18 @@
     "你的任务：**纯网络只读调研**（不要动本地任何文件、不要安装任何东西）——调研",
     "你的任务：**只读调研**（绝对不要修改/删除/重启任何东西，不要执行 pnpm",
     "你在 D:\\agent1super 这个 Windows 工作区里做只读调研（不"
+   ],
+   "packHeads": [
+    "记。要退随时能退 | | **中文优先** | 用 jieba 分词，不是拿英文那套硬套 |",
+    "在，且今天刚用过 就是 `model-thinking-router.ts` 那套模式：按 ",
+    "你在为一套本地 AI 记忆层项目（SessionRelay / SES）做**竞品调研**，",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "的通病（每个 Chromium 子进程都吃内存），加上它常驻 229MB 语音模型。你32G",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3631,40 +6359,71 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 26,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 2,
    "goldLen": 56,
+   "goldText": "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编程会话做「跨会话记忆」的本地系统",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5004525738972809
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 602,
-   "chars1": 1027,
-   "chars2": 2309,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1167,
+   "chars1": 1041,
+   "chars2": 2900,
    "clusters": 9,
    "groupSize": 0,
    "recovered": false,
    "extras": 5,
-   "extrasTagged": 5,
+   "extrasTagged": 3,
    "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
     "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
     "模型选型与节点接入方案讨论",
     "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇"
+   ],
+   "packHeads": [
+    "什么 | |---|---| | [README.md](<D:/dsh插件 记忆/core",
+    "（守护 30 秒入库）；**注入不自动**——pi 本地模型靠调 MCP 工具查记忆，弱模型",
+    "记的“避开什么的”应该就是它里面的 `anti-stuck`（死磕拦截）。 - 记忆插件有*",
+    "托盘重启 AstrBot 并 E2E 验证 5. [pending] 汇报 + 记忆更新]",
+    "是不是真的达到了这样子的效果而且我们是做了一个呃一个零接触的那种上下文接续的一个记忆框架还是",
+    "小 隐私过滤——索引前剥掉 API key、.env 值、token 模式，会话记忆层不该把",
+    "`（任务沙盒内） - **铁律约束**：生产仓库 `D:\\dsh插件 记忆` 严格只读，真实",
+    "交接-20261013-v3.md`（锚点审计 23 项过，含第二轮 §10），记忆库与 r",
+    "上一轮把项目认错了** —— 你开发的是 `dsh-srelay-panel`（记忆台面板）",
+    "，所以这条路理论上能走，但**没人验证过，而且它依赖 QQ 网页版的 HTML 结构，QQ "
    ]
   },
   {
@@ -3673,24 +6432,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 20,
-   "nAnchors": 9,
+   "nAnchors": 8,
    "goldHits": 3,
    "goldLen": 23,
+   "goldText": "理由：不加版本号，存量库不会重算，改了等于没改",
    "base": {
     "strict": false,
-    "span": 0.3333333333333333
+    "pref40": false,
+    "span": 0.3333333333333333,
+    "spanIdf": 0.34042308150682743
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 106,
-   "chars1": 708,
-   "chars2": 1288,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1000,
+   "chars1": 800,
+   "chars2": 2191,
    "clusters": 10,
    "groupSize": 0,
    "recovered": false,
@@ -3707,6 +6485,18 @@
     "DS H模型API频繁重试问题",
     "今天是 2026-10-06。专项核实：中国大陆用户能用的几个\"免费 GPU N",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编"
+   ],
+   "packHeads": [
+    "值钱的一件 **\"未决问题\"那套抽取修完，第一次对存量数据生效了。** 以前改了规则只对将来",
+    "0261013.md` 的 §25/§26/§27（本轮实测数据） ## 本轮改了什么（给你",
+    "是 `srelay`）：本地 AI 会话记忆层——采集各 AI 工具的会话 → 抽取 → 存",
+    "你是论文与工程调研员。任务：为一个本地 AI 记忆层项目调研\"如何优雅地抽取**环境事实**",
+    "precision/recall）。代价：半天；收益：之后每个改动可证明，终结\"改了不知道有",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "-RT.md`（你要修的具体条目在里面，带行号+代码引文+触发条件） ## 硬规则（违反=白"
    ]
   },
   {
@@ -3715,24 +6505,43 @@
    "kind": "cross",
    "rank10": 2,
    "rankDeep": 2,
-   "nAnchors": 4,
+   "nAnchors": 3,
    "goldHits": 1,
    "goldLen": 35,
+   "goldText": "生成一个单文件 HTML + SVG 动画：一只加州褐鹈鹕正在骑自行车",
    "base": {
-    "strict": false,
-    "span": 0
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": true,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 39,
-   "chars1": 519,
-   "chars2": 874,
+   "own0": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 727,
+   "chars1": 611,
+   "chars2": 1571,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -3749,6 +6558,18 @@
     "请看两张安卓截图（呼吸会话进行中，音景播放中）： A. C:\\Users\\crx",
     "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 ",
     "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ],
+   "packHeads": [
+    "---|---| | KAT 35B | **PASS**：场景完整、鹈鹕真的在骑车、20 ",
+    "生成一个单文件 HTML + SVG 动画：一只加州褐鹈鹕正在骑自行车。硬件要求：1. 鹈鹕",
+    "还没中。直接查最近的决策和会话列表。",
+    "在一个长期项目里干活：SessionRelay × SES —— 给 AI 编程会话做「跨会",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "我来读取那个会话的交接上下文，看看进度做到哪了。",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "rite\" / \"cross\" / \"temporal\" - target = 会话 id ",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3757,24 +6578,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 1,
    "goldLen": 56,
+   "goldText": "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编程会话做「跨会话记忆」的本地系统",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 118,
-   "chars1": 358,
-   "chars2": 717,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 559,
+   "chars1": 519,
+   "chars2": 1166,
    "clusters": 5,
    "groupSize": 0,
    "recovered": null,
@@ -3791,6 +6631,18 @@
     "对《死亡换乘》第 1-8 章做连贯性核查（六条逻辑链）。你是六队编队之一，只管 ",
     "对《死亡换乘》第 9-15 章做连贯性核查（六条逻辑链）。你是六队编队之一，只管",
     "对《死亡换乘》第 31-38 章做连贯性核查（六条逻辑链）。你是六队编队之一，只"
+   ],
+   "packHeads": [
+    "| 冷路径余量不多 → 加断言 | 待做 | | 4 | 压缩默认值**等集中测试出最优再定",
+    "f cluster centroids`\\n- VendiScore 在重复样本测试中**低",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "查清楚了然后那个应用宝马去最重要的就是多档位呃呃不也不是多难度的所以最终呢是要做测试一下就是",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3799,24 +6651,43 @@
    "kind": "cross",
    "rank10": 2,
    "rankDeep": 2,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 4,
    "goldLen": 47,
+   "goldText": "看到 DSH（DeepSeek Harness）渲染进程崩了，我先找到那个崩溃诊断日志看看原因",
    "base": {
     "strict": false,
-    "span": 0.25
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0.75
+    "pref40": false,
+    "span": 0.75,
+    "spanIdf": 0.7132978104316953
    },
    "p2": {
     "strict": false,
-    "span": 0.75
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 34,
-   "chars1": 350,
-   "chars2": 623,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0.75,
+    "spanIdf": 0.7132978104316953
+   },
+   "chars0": 589,
+   "chars1": 511,
+   "chars2": 1187,
    "clusters": 10,
    "groupSize": 1,
    "recovered": null,
@@ -3833,6 +6704,18 @@
     "请用 Read 工具读取这张图片：D:\\agent1super\\微信图片_202",
     "请逐张查看以下 6 张 PNG（一本中文小说 Word 排版的 PDF 渲染页，",
     "workflow subagent actor#1@3"
+   ],
+   "packHeads": [
+    "PU + 2.1GB 内存**，全是纯浪费。 ### 🟡 GPU：正常的桌面渲染 + 一块",
+    "081 端口正常监听，目前稳定约 6 分钟）。 ### 崩溃记录 今天有两份渲染进程崩溃日志",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "查完了，**一个进程都没动**。 --- ## 结论：CPU 和 GPU 是两码事 ### ",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3841,24 +6724,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 11,
-   "nAnchors": 6,
+   "nAnchors": 5,
    "goldHits": 2,
    "goldLen": 18,
+   "goldText": "状态栈-交接-20260922.md",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": false,
+    "span": 0.5,
+    "spanIdf": 0.5234378345724027
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 316,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1075,
    "chars1": 1081,
-   "chars2": 2123,
+   "chars2": 2883,
    "clusters": 8,
    "groupSize": 0,
    "recovered": false,
@@ -3875,6 +6777,18 @@
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
     "ninfer-ada-ternary 项目现状与资源发布说明",
     "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95"
+   ],
+   "packHeads": [
+    "/ AAC。 另外说明一件事：这次会话开头有个 hook 往对话里注入了一份状态简报，内容是",
+    "elay-eco（暂缓推送——用户要求全部做完、测试通过后再推） ## 现在的状态（开工前先",
+    "elay-eco（暂缓推送——用户要求全部做完、测试通过后再推） ## 现在的状态（开工前先",
+    "放心断电——训练跑在实例上，跟你本机无关 我实测验证过了，不是推测。训练进程的状态是： ``",
+    "b`/`37bf154` 8c 假红 · `1b3ae4b` 扫描表 **最终状态**：六门",
+    "Docker CLI。 - 不把 DSH、Pi、SessionRelay 等共享状态链路整体",
+    "- **§5-8**：待你验的活体项、环境坑、产物索引、脱敏确认 ## 收尾状态 - 评论*",
+    "b`/`37bf154` 8c 假红 · `1b3ae4b` 扫描表 **最终状态**：六门",
+    "r-serve.exe`,这次它在装车前就被停了。备份仍然留着。 ## 现在的状态 净卡上重",
+    "我来读取那个会话的交接上下文，看看进度做到哪了。"
    ]
   },
   {
@@ -3883,24 +6797,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 8,
+   "nAnchors": 7,
    "goldHits": 1,
    "goldLen": 29,
+   "goldText": "Temp 里现在还剩 9.68 GB，是当前活跃会话的快照",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 60,
-   "chars1": 372,
-   "chars2": 669,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 592,
+   "chars1": 512,
+   "chars2": 1213,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -3917,6 +6850,18 @@
     "哈喽",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ],
+   "packHeads": [
+    "+ 1G /swapfile；**0905 已清场**：AstrBot QQ 机器人栈（do",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "/ InkOS 那会儿的踩坑（glob/grep 跨卷中文路径 timeout、备份脚本幂等",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "还没中。直接查最近的决策和会话列表。",
+    "在一个长期项目里干活：SessionRelay × SES —— 给 AI 编程会话做「跨会",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   },
   {
@@ -3925,82 +6870,144 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 9,
+   "nAnchors": 8,
    "goldHits": 1,
    "goldLen": 43,
+   "goldText": "问：用户明明在项目 A 的会话里，却绑定了项目 B，这时会去搜 B —— 这是想要的吗",
    "base": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 801,
-   "chars1": 1187,
-   "chars2": 2782,
-   "clusters": 6,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 1176,
+   "chars1": 1186,
+   "chars2": 3159,
+   "clusters": 5,
    "groupSize": 0,
    "recovered": null,
    "extras": 0,
    "extrasTagged": 0,
    "packTitles": [
     "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
     "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
-    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
-    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需"
+   ],
+   "packHeads": [
+    "客户端就失效 | `query` 改可选；只有 `kind=sessions` 要求，缺了给",
+    "有量过的改动不要提交。 2. **判据只许有一份**：同一判断逻辑不许在多个文件各写一遍。 ",
+    "有量过的改动不要提交。 2. **判据只许有一份**：同一判断逻辑不许在多个文件各写一遍。 ",
+    "刷新面板”。 **修复**： 1. **立刻重刷**三块面板（3/3 成功），复核 D 盘面",
+    "库回放数据硬对比 | 评估指标 | 10-15 真实简报基线 | 质量门禁要求 | L1~L",
+    "库回放数据硬对比 | 评估指标 | 10-15 真实简报基线 | 质量门禁要求 | L1~L",
+    "有量过的改动不要提交。 2. **判据只许有一份**：同一判断逻辑不许在多个文件各写一遍。 ",
+    "/ 发布模块采集契约 1 会话 2 消息 ✓。 ## 追加授权两项的实测（按你要求的顺序） ",
+    "stryHeartbeatFresh()` —— 面板和生命周期都调它，不可能再各写一套。第",
+    "39 / state-brief.ts:36-58），AGENTS.md:92 要求看板&a"
    ]
   },
   {
    "query": "那份现状核对表在几次会话里被当材料读",
    "target": "22119793e4f65f7c",
    "kind": "cross",
-   "rank10": 0,
+   "rank10": 1,
    "rankDeep": 1,
-   "nAnchors": 5,
+   "nAnchors": 4,
    "goldHits": 2,
    "goldLen": 132,
+   "goldText": "请精读文件 `D:\\dsh插件  记忆\\docs\\现状与需求总核对表-20261013.md` 的**第 1 行到第 707 行**（即 §1 到 §16，2026-10-13 的历史部分），然后给我一份**事实浓缩 digest**，不要评价、不要建议，只要事实",
    "base": {
     "strict": false,
-    "span": 0.5
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
-    "strict": false,
-    "span": 1
+    "strict": true,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 609,
-   "chars1": 1140,
-   "chars2": 2471,
-   "clusters": 9,
-   "groupSize": 0,
-   "recovered": false,
-   "extras": 5,
-   "extrasTagged": 5,
+   "own0": {
+    "strict": false,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "own1": {
+    "strict": false,
+    "pref40": true,
+    "span": 1,
+    "spanIdf": 1
+   },
+   "chars0": 987,
+   "chars1": 983,
+   "chars2": 2560,
+   "clusters": 8,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
    "packTitles": [
-    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
-    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
-    "你是**论文与工程调研员**。任务：为一套本地 AI 记忆层找出\"**用算法替代",
+    "请精读文件 `D:\\dsh插件 记忆\\docs\\现状与需求总核对表-202610",
     "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "command这个端点模型的deepseek v4.1flash你看看我们现在接",
     "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
-    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
-    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
-    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实"
+    "Selection side chat",
+    "Selection side chat",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "寻找Office PPT制作Skill与开源方案",
+    "你是 ppt-designer。任务：用模板做《仿生纤毛触觉传感器》创业路演 P",
+    "ninfer-ada-ternary 项目现状与资源发布说明"
+   ],
+   "packHeads": [
+    "请精读文件 `D:\\dsh插件 记忆\\docs\\现状与需求总核对表-20261013.md`",
+    "已全部读完，只读未动手。下面是核对的完整清单和我看到的现状。 ## 读了什么（全部到位） *",
+    "dit.mjs --chain` 盘上枚举生成，不是手抄）** + §0 一分钟现状 + §",
+    "--- ## 你要的文档写好了 **`D:\\dsh插件 记忆\\docs\\现状与需求总核对表-",
+    "--- ## 你要的文档写好了 **`D:\\dsh插件 记忆\\docs\\现状与需求总核对表-",
+    "--- ## 你要的文档写好了 **`D:\\dsh插件 记忆\\docs\\现状与需求总核对表-",
+    "核验下来，你之前那版“旧方案”对 memrelay 现状的判断基本准确，但有一处需要修正：*",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "留（和思考路由正交，不冲突）。 ## 3. kvmem 稳定性真就这样？——是现状，不是宿命"
    ]
   },
   {
@@ -4009,24 +7016,43 @@
    "kind": "cross",
    "rank10": 0,
    "rankDeep": 0,
-   "nAnchors": 7,
+   "nAnchors": 6,
    "goldHits": 1,
    "goldLen": 26,
+   "goldText": "UI 上有 L1/L2/L3 三个层，涉及三块能力：",
    "base": {
     "strict": false,
-    "span": 0
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p1": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
    "p2": {
     "strict": false,
-    "span": 1
+    "pref40": false,
+    "span": 1,
+    "spanIdf": 1
    },
-   "chars0": 167,
-   "chars1": 537,
-   "chars2": 1054,
+   "own0": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "own1": {
+    "strict": false,
+    "pref40": false,
+    "span": 0,
+    "spanIdf": 0
+   },
+   "chars0": 737,
+   "chars1": 652,
+   "chars2": 1630,
    "clusters": 10,
    "groupSize": 0,
    "recovered": null,
@@ -4043,6 +7069,18 @@
     "盘点这台机器上已安装的学术论文类技能，目标是找出**thesis-pipelin",
     "调查这台 Windows 机器上已安装的学术论文写作相关技能与智能体的**实际能",
     "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\"
+   ],
+   "packHeads": [
+    "m 里埋事实、对话中自然调用） | 324 条 | | **思考反泄漏** | 三层防线：①",
+    "八九是 WebUI 的默认 max tokens 太小。修复方向就是找到那个聊天界面的 ma",
+    "个可用**。 停止重试。 ## 结论：这是 harness侧的故障，需要你在界面处理 错误信",
+    "## 1. 搜索框下方那堆字——已彻底去掉 **那是一句源码注释被渲染到了界面上。** `G",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "Bicycle)是个经典的 SVG 图像生成基准测试，用来评估 AI 的视觉生成能力。让我先",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）",
+    "（该会话只有标题/话题命中，正文已归档或为空）"
    ]
   }
  ]
