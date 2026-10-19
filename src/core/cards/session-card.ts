@@ -105,8 +105,60 @@ function quoteOf(msgs: Msg[], seq: number, needle: string, max: number): string 
   return lead + body + '…';
 }
 
+/** 卡片装配的中间形状：两条入口（正文抽取 / 库里已抽取）都先归一到这里 */
+interface CardParts {
+  decisions: Array<{ text: string; kind: 'decision' | 'negative'; seq: number; msgId?: string | number }>;
+  unresolved: Array<{ q: string; seq: number; msgId?: string | number }>;
+  topics: string[];
+  files: string[];
+  summary: string;
+}
+
 /**
- * 生成会话卡。
+ * **装配的唯一实现**：evidence 平铺顺序（先决策后未决）、引文上限、时间跨度、消息条数
+ * 四件事只在这里写一次。两条入口（`buildSessionCard` / `buildSessionCardFromStored`）
+ * 只负责"从哪里拿 decisions/questions"，拿完都汇到这里 —— 否则两个入口迟早各拼一套，
+ * 同一个会话在导出与简报里的 evidence 顺序就会不一致（本仓头号故障的典型形态）。
+ *
+ * @param quoteMsgs 引文来源消息；来自库里的条目（正文可能已归档）传空数组，
+ *                  此时 quoteOf 退回抽取文本本身 —— 宁可短，不可编造。
+ */
+function assembleCard(parts: CardParts, info: CardInfo, max: number, quoteMsgs: Msg[]): SessionCard {
+  const ev = (msgId: string | number | undefined, seq: number, needle: string): CardEvidence => ({
+    msgId: msgId === undefined || msgId === null ? null : String(msgId),
+    seq,
+    quote: quoteOf(quoteMsgs, seq, needle, max),
+  });
+  const decisionItems = parts.decisions.map((d) => ({
+    text: d.text,
+    kind: d.kind,
+    evidence: ev(d.msgId, d.seq, d.text),
+  }));
+  const unresolvedItems = parts.unresolved.map((q) => ({
+    q: q.q,
+    evidence: ev(q.msgId, q.seq, q.q),
+  }));
+  // 跨度：端点优先用 info（meta 模式下正文可能已归档，消息时间不一定覆盖全会话）
+  const from = info.firstAt ? info.firstAt.slice(0, 10) : null;
+  const to = (info.lastAt ?? info.firstAt) ? (info.lastAt ?? info.firstAt).slice(0, 10) : null;
+  const a = from ? Date.parse(from) : NaN;
+  const b = to ? Date.parse(to) : NaN;
+  const days = Number.isFinite(a) && Number.isFinite(b) ? Math.max(0, Math.round((b - a) / 86400_000)) : null;
+  return {
+    title: info.title ?? '（无标题）',
+    decisions: decisionItems,
+    unresolved: unresolvedItems,
+    topics: parts.topics,
+    files: parts.files,
+    span: { from, to, days },
+    messageCount: info.messageCount,
+    evidence: [...decisionItems.map((d) => d.evidence), ...unresolvedItems.map((u) => u.evidence)],
+    summary: parts.summary,
+  };
+}
+
+/**
+ * 生成会话卡（**从正文抽取**）。
  *
  * @param msgs 会话消息（顺序即抽取器处理顺序；seqNum/id/createdAt 只用于出处）
  * @param info 会话级元信息（标题 / 条数 / 来源 / 时间端点）
@@ -132,33 +184,90 @@ export function buildSessionCard(msgs: Msg[], info: CardInfo, opts: CardOptions 
     codeBlockCount: 0,
     keyExchanges: [],
   };
-  const ev = (msgId: string | undefined, seq: number, needle: string): CardEvidence => ({
-    msgId: msgId ?? null, seq, quote: quoteOf(clean, seq, needle, max),
-  });
-  const decisionItems = decisions.map((d) => ({
-    text: d.text,
-    kind: (d.kind ?? 'decision') as 'decision' | 'negative',
-    evidence: ev(d.msgId, d.seq, d.text),
-  }));
-  const unresolvedItems = questions.filter((q) => q.unresolved).map((q) => ({
-    q: q.q,
-    evidence: ev(q.msgId, q.seq, q.q),
-  }));
-  // 跨度：端点优先用 info（meta 模式下正文可能已归档，消息时间不一定覆盖全会话）
-  const from = info.firstAt ? info.firstAt.slice(0, 10) : null;
-  const to = (info.lastAt ?? info.firstAt) ? (info.lastAt ?? info.firstAt).slice(0, 10) : null;
-  const a = from ? Date.parse(from) : NaN;
-  const b = to ? Date.parse(to) : NaN;
-  const days = Number.isFinite(a) && Number.isFinite(b) ? Math.max(0, Math.round((b - a) / 86400_000)) : null;
-  return {
-    title: info.title ?? '（无标题）',
-    decisions: decisionItems,
-    unresolved: unresolvedItems,
-    topics,
-    files,
-    span: { from, to, days },
-    messageCount: info.messageCount,
-    evidence: [...decisionItems.map((d) => d.evidence), ...unresolvedItems.map((u) => u.evidence)],
+  return assembleCard({
+    decisions: decisions.map((d) => ({
+      text: d.text, seq: d.seq, msgId: d.msgId, kind: (d.kind ?? 'decision') as 'decision' | 'negative',
+    })),
+    unresolved: questions.filter((q) => q.unresolved).map((q) => ({ q: q.q, seq: q.seq, msgId: q.msgId })),
+    topics, files,
     summary: summaryRule(info.title, meta, { messageCount: info.messageCount, source: info.source, firstAt: info.firstAt, lastAt: info.lastAt }),
+  }, info, max, clean);
+}
+
+/** 库里已抽取的一条决策（`sessions.decisions` / hop 包 `decisions` 的形状） */
+export interface StoredDecision {
+  text: string;
+  seq?: number;
+  at?: string;
+  /** 稳定主键。库里可能是 INTEGER（messages.id）——装配时统一归一成字符串（与读端同规） */
+  msgId?: string | number;
+  kind?: 'decision' | 'negative';
+  pinned?: boolean;
+}
+
+/** 库里已抽取的一条问题（`sessions.key_questions` / hop 包 `questions` 的形状） */
+export interface StoredQuestion {
+  q: string;
+  seq?: number;
+  at?: string;
+  msgId?: string | number;
+  unresolved?: boolean;
+}
+
+export interface StoredCardInput {
+  decisions?: StoredDecision[];
+  questions?: StoredQuestion[];
+  /** 会话行上的派生列（topics / files_mentioned）；不给就是空 */
+  topics?: string[];
+  files?: string[];
+}
+
+/** seq 归一：库里可能是字符串/缺失 —— 缺失按 0（"位置未知"），不编造一个真实序号 */
+function seqOf(v: unknown): number {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  if (typeof v === 'string' && v.trim() !== '' && Number.isFinite(Number(v))) return Number(v);
+  return 0;
+}
+
+/**
+ * 生成会话卡（**从库里已抽取的条目**）。
+ *
+ * 为什么需要这条入口（而不是让调用方自己拼 Msg[] 再抽一遍）：
+ *   · 简报/导出里的会话，决策与未决**已经在库里**（sessions.decisions / key_questions），
+ *     且带着抽取期写入的 msgId —— 那才是读端唯一能稳定回跳的锚点；
+ *   · 归档会话正文已蒸发（messages 为空），从正文抽取会得到一张空卡，
+ *     而库里的结论仍在 —— 卡片必须能只靠库里的条目成立；
+ *   · 同一场会话在"简报"与"检索结果"里必须说同一件事：两条入口共用 assembleCard，
+ *     evidence 顺序与引文上限不可能分叉。
+ *
+ * ⚠️ 这里**不再跑** extractDecisions / ambiguous 判据：库里条目已经过抽取守卫与
+ * recompute（判据只在 extract.ts 一处）。此处只做形状归一 + 展示裁剪。
+ */
+export function buildSessionCardFromStored(stored: StoredCardInput, info: CardInfo, opts: CardOptions = {}): SessionCard {
+  const max = Math.max(1, Math.floor(opts.maxQuote ?? QUOTE_MAX));
+  const decisions = (Array.isArray(stored.decisions) ? stored.decisions : [])
+    .filter((d) => String(d?.text ?? '').trim() !== '')
+    .map((d) => ({
+      text: String(d.text).trim(),
+      kind: (d.kind === 'negative' ? 'negative' : 'decision') as 'decision' | 'negative',
+      seq: seqOf(d.seq),
+      msgId: d.msgId,
+    }));
+  const unresolved = (Array.isArray(stored.questions) ? stored.questions : [])
+    .filter((q) => q?.unresolved === true && String(q.q ?? '').trim() !== '')
+    .map((q) => ({ q: String(q.q).trim(), seq: seqOf(q.seq), msgId: q.msgId }));
+  const topics = Array.isArray(stored.topics) ? stored.topics.map(String) : [];
+  const files = Array.isArray(stored.files) ? stored.files.map(String) : [];
+  // 摘要仍由 summaryRule 生成（与库里 summary_rule 列同源），不另写一套拼接
+  const meta: ExtractedMeta = {
+    files, topics,
+    decisions: decisions.map((d) => ({ text: d.text, seq: d.seq, msgId: d.msgId === undefined ? undefined : String(d.msgId), kind: d.kind })),
+    questions: unresolved.map((q) => ({ q: q.q, seq: q.seq, msgId: q.msgId === undefined ? undefined : String(q.msgId), unresolved: true })),
+    codeBlockCount: 0,
+    keyExchanges: [],
   };
+  return assembleCard({
+    decisions, unresolved, topics, files,
+    summary: summaryRule(info.title, meta, { messageCount: info.messageCount, source: info.source, firstAt: info.firstAt, lastAt: info.lastAt }),
+  }, info, max, []);
 }

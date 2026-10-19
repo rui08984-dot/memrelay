@@ -31,6 +31,14 @@ export interface HopSessionFile {
   origin: string;
   author: string | null;
   summary_rule: string | null;
+  /**
+   * 会话消息条数（`sessions.message_count`）。
+   *
+   * 为什么必须带出来：[1021 会话卡接简报] 归档会话的 `messages` 已被裁空，
+   * 若卡片用 `messages.length` 当条数，一场 183 条消息的会话会显示「0 条消息」——
+   * 这是"看起来精确、其实错"的那类数字。可选字段：老包没有就退回 messages.length。
+   */
+  message_count?: number;
   topics: string[];
   files: string[];
   // [fork 1015] pinned（决策置顶，`srelay pin`）与 kind（ADR-001 否定性决策标记）是**用户态**，

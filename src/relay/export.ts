@@ -11,7 +11,8 @@ import type { ScopePredicate } from '../core/scope/evaluator.js';
 import { assembleScope } from '../core/scope/assemble.js';
 import { redactText, type RedactHit } from './redact.js';
 import { buildManifest, packHop, type HopSessionFile } from './hop.js';
-import { buildHandoff, buildTimeline } from './handoff-md.js';
+import { buildHandoff, buildTimeline, type HandoffSessionGroup } from './handoff-md.js';
+import { groupSessions } from '../search-svc/session-groups.js';
 import { projectIdOf } from '../shared/paths.js';
 import { loadIgnoreRules, isSessionBlocked } from '../capture/ignore.js';
 import type { StatsCounter } from '../core/stats/counter.js';
@@ -55,6 +56,8 @@ export interface ExportResult {
 interface ExportData {
   sessions: HopSessionFile[];
   decisions: Array<{ at: string; source: string; sessionId: string; title: string | null; text: string; seq: number; pinned?: boolean; kind?: 'decision' | 'negative'; msgId?: string | number }>;
+  /** 多会话组（给 HANDOFF 会话摘要段用；失败时为空数组 = 退回逐条卡片） */
+  groups: HandoffSessionGroup[];
   topicMap: Record<string, string[]>;
   fileMap: Record<string, number>;
   messageCount: number;
@@ -111,6 +114,9 @@ function buildExportData(opts: ExportOptions): ExportData {
       origin: full.origin,
       author: full.author,
       summary_rule: rd(full.summaryRule, 'summary'),
+      // [1021 会话卡接简报] 条数必须原样带出：归档会话 messages 为空，
+      // 卡片若用 messages.length 会把「183 条消息」显示成「0 条」。
+      message_count: full.messageCount,
       topics: full.topics,
       files: full.files,
       decisions: full.decisions.map((d) => ({ ...d, text: rd(d.text, 'decision', d.seq) ?? d.text })),
@@ -121,6 +127,17 @@ function buildExportData(opts: ExportOptions): ExportData {
   }
 
   sessions.sort((a, b) => a.created_at.localeCompare(b.created_at));
+  // [1021 会话卡接简报] 多会话组：复用 groupSessions（**唯一分组判据**），
+  // 供 HANDOFF「会话摘要」段把同一主题的几场会话合成一组。score 用最近活动时间：
+  // 导出侧没有检索分数，组代表取"组里最近动过的那场"是最合理的近似。
+  // 分组是呈现增强：失败时退回逐条卡片，不丢会话、也不装成"没有组"以外的事。
+  let groups: HandoffSessionGroup[] = [];
+  try {
+    groups = groupSessions(opts.db, sessions.map((s) => ({
+      sessionId: s.id,
+      score: Date.parse(s.last_event_at ?? s.created_at) || 0,
+    })));
+  } catch { groups = []; }
   // [fork 1015] 这个投影**曾经是白名单**，把 pinned 与 kind 悄悄吃了：导出的 decisions 汇总里
   // 置顶状态与"否掉一条路"的标记全丢，导入后用户置顶的东西从简报里消失、negative 退化成普通决策。
   // 现在把用户态字段一并带上（仍是可选字段，老包读不到就是 undefined，语义同缺省）。
@@ -142,7 +159,7 @@ function buildExportData(opts: ExportOptions): ExportData {
     const pats = h.hits.map((x) => `${x.pattern}×${x.count}`).join(', ');
     return `${h.session} ${h.field}${where}: ${pats}`;
   });
-  return { sessions, decisions, topicMap, fileMap, messageCount, redactionHits: allRedactionHits.length, redactionLines, ignoredByRules };
+  return { sessions, decisions, groups, topicMap, fileMap, messageCount, redactionHits: allRedactionHits.length, redactionLines, ignoredByRules };
 }
 
 export function runExport(opts: ExportOptions): ExportResult {
@@ -152,7 +169,7 @@ export function runExport(opts: ExportOptions): ExportResult {
   files['metadata/decisions.json'] = JSON.stringify(data.decisions, null, 2) + '\n';
   files['metadata/topics.json'] = JSON.stringify(data.topicMap, null, 2) + '\n';
   files['metadata/files.json'] = JSON.stringify(data.fileMap, null, 2) + '\n';
-  files['summary/HANDOFF.md'] = buildHandoff(path.basename(opts.root), data.sessions, data.decisions, FOOTER);
+  files['summary/HANDOFF.md'] = buildHandoff(path.basename(opts.root), data.sessions, data.decisions, FOOTER, { groups: data.groups });
   files['summary/timeline.md'] = buildTimeline(data.sessions);
   if (data.redactionHits > 0) {
     files['summary/redaction-report.txt'] = data.redactionLines.join('\n') + '\n';
@@ -183,7 +200,7 @@ export function runExport(opts: ExportOptions): ExportResult {
 /** markdown / summary 直出（方针 §8.4 --format）：summary 为免会话细节的精简版 */
 export function runExportMarkdown(opts: ExportOptions & { summaryOnly?: boolean }): { file: string; sessionCount: number; ignoredByRules: number } {
   const data = buildExportData(opts);
-  const md = buildHandoff(path.basename(opts.root), data.sessions, data.decisions, FOOTER, { summaryOnly: opts.summaryOnly });
+  const md = buildHandoff(path.basename(opts.root), data.sessions, data.decisions, FOOTER, { summaryOnly: opts.summaryOnly, groups: data.groups });
   const out = opts.output ?? path.join(process.cwd(), opts.summaryOnly ? 'SUMMARY.md' : 'HANDOFF.md');
   fs.writeFileSync(out, md, 'utf8');
   insertTransferLog(opts.db, 'export', out, null, null, data.sessions.map((s) => s.id));
