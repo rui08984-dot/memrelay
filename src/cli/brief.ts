@@ -28,9 +28,10 @@ import { passesUnresolvedFilters, passesBriefFilters, UNR_SLOTS } from './brief-
 //   所以它们至今仍在简报里。展示层必须按**同一份**判据再拦一道（见 collectBrief 那段注释）。
 //   同一份判据的三个使用者：core/extract（抽取端拒收）、core/audit（只读体检计数）、本文件（展示层隐藏）。
 import { vagueDecisionObject } from '../core/extract/extract.js';
-import { openGlobalAuditReadonly } from '../core/audit/audit.js';
+import { openGlobalAuditReadonly, scanArchivedUnresolved } from '../core/audit/audit.js';
 import { latestAuditAlert } from '../core/lifecycle/audit-stage.js';
 import { groupSessions } from '../search-svc/session-groups.js';
+import { readPageIfExists } from '../map/index.js';
 // [task-13] 会话卡接进 brief：装配（buildSessionCardFromStored）与行格式（renderCardLines）
 // 全部 import 自 core/cards —— 本文件不写判据、不写第二套卡片格式；
 // 这里只决定「给哪几场出卡 + 放不放得下」，实现在 cli/brief-cards.ts。
@@ -80,6 +81,12 @@ export interface BriefPayload {
    * 为什么放在 payload 最前：P0 是"不可逆的数据缺失"，它比"最近定了什么"更该先看到。
    */
   auditAlert: string | null;
+  /**
+   * 🗺 地图给的「下一步」（`.sessionrelay/map/map.json` 的 context.next）。
+   * null = 没有地图 / 地图没写 next（正常状态，整行不渲染）。
+   * 为什么放进简报：交接包里「现在该干什么」不该靠 agent 去翻地图文件。
+   */
+  nextStep: { next: string | null; doing: string[] } | null;
   decisions: DecisionRow[];
   unresolved: UnresolvedRow[];
   counts: {
@@ -94,6 +101,8 @@ export interface BriefPayload {
      * 渲染末尾说明行请调 hiddenFragmentsNote()，别在客户端另写一种说法。
      */
     fragmentsHidden: number;
+    /** 归档会话的未决被隐藏的条数（正文已删、出处永久指空） */
+    archivedUnresolvedHidden: number;
   };
   recentFiles: RecentFileRow[];
   /**
@@ -189,18 +198,29 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
   //   修法：先多取（4× 上限），过滤完再截。取多了只是多读几行 JSON，代价远小于简报缺条目。
   //   不直接无上限取：库大时 listUnresolved 会把全部未决读进内存，那是另一个极端。
   const UNR_FETCH = Math.max(100, limit * 4);
-  const unresolved = listUnresolved(db, projectId, UNR_FETCH)
+  // [10-19 用户拍板] 归档会话的未决**从简报隐藏**（不标 lost、不迁移）：
+  //   这些会话正文已被 runArchive 删除，未决的出处 msgId/seq 永久指空，回跳只会报「原文已归档」。
+  //   判据复用 audit 的 scanArchivedUnresolved（同一份），不另写 SQL；
+  //   隐藏数量落进 counts 并由渲染层明说（不静默）。
+  const archivedSessionsWithUnresolved = (() => {
+    try { return new Set(scanArchivedUnresolved(db, projectId).items.map((i) => i.sessionId)); }
+    catch { return new Set<string>(); }
+  })();
+  const unresolvedBeforeArchiveFilter = listUnresolved(db, projectId, UNR_FETCH)
     .filter((r) => new Date(r.at).getTime() >= cutoff)
-    .filter((r) => passesUnresolvedFilters(r.q))
+    .filter((r) => passesUnresolvedFilters(r.q));
+  const unresolved = unresolvedBeforeArchiveFilter
+    .filter((r) => !archivedSessionsWithUnresolved.has(r.sessionId))
     .slice(0, limit);
+  const archivedUnresolvedHidden = unresolvedBeforeArchiveFilter.length - unresolved.length;
   const recentFiles = listRecentFiles(db, { days: opts.days ?? 7, top: opts.top ?? 3 });
   const relatedSessions = collectRelatedGroups(db, [
     ...decisions.map((d) => ({ sessionId: d.sessionId, at: d.at })),
     ...unresolved.map((u) => ({ sessionId: u.sessionId, at: u.at })),
   ]);
   const experiences = collectExperiences(root ?? process.cwd(), opts);
-  return { auditAlert: collectAuditAlert(root), relatedSessions, experiences, decisions, unresolved, recentFiles,
-    counts: { decisions: decisions.length, decisionsRaw: rawDecisions.length, folded, unresolved: unresolved.length, fragmentsHidden } };
+  return { auditAlert: collectAuditAlert(root), nextStep: collectNextStep(root), relatedSessions, experiences, decisions, unresolved, recentFiles,
+    counts: { decisions: decisions.length, decisionsRaw: rawDecisions.length, folded, unresolved: unresolved.length, fragmentsHidden, archivedUnresolvedHidden } };
 }
 
 export async function cmdBrief(opts: { limit?: number; days?: number; top?: number; json?: boolean }): Promise<void> {
@@ -223,6 +243,10 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     // 审计 P0 永远排第一行（红字）：它是"不可逆的数据缺失"，比"最近定了什么"更急。
     // 无 P0 时 auditAlert 为 null —— 这里不打印任何"审计正常"，静默就是正常。
     if (pay.auditAlert) head.push(pc.red(pay.auditAlert));
+    // 🗺 下一步排在计数行**之前**：交接包里「现在该干什么」比「定了什么」更该先看到。
+    // 没有地图 / 地图没写 next 时整行不出现（不占位、不写「无」）。
+    if (pay.nextStep?.next) head.push(pc.cyan('🗺 下一步：') + pay.nextStep.next.slice(0, 120));
+    if (pay.nextStep?.doing?.length) head.push(pc.dim('  ↳ 进行中：' + pay.nextStep.doing.join(' / ')));
     head.push(`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`);
     for (const r of pay.recentFiles) head.push(pc.dim(`  🗂 ${r.file}（${r.sessions} 场）`));
     for (const d of pay.decisions.slice(0, 5)) head.push(`  ${pc.dim(d.at?.slice(0, 10) ?? '')} ${d.kind === 'negative' ? pc.red('✗') : pc.green('✓')} ${d.text.slice(0, 60)}`);
@@ -257,6 +281,11 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
       const note = hiddenFragmentsNote(pay.counts.fragmentsHidden);
       if (note) tail.push(pc.dim('  ' + note));
     }
+    // [10-19 用户拍板] 归档未决隐藏也要**说出来**：正文已删、出处永久指空，
+    //   用户看到未决少了 N 条必须知道为什么（否则会以为记忆丢了）。
+    if (pay.counts.archivedUnresolvedHidden > 0) {
+      tail.push(pc.dim('  已隐藏 ' + String(pay.counts.archivedUnresolvedHidden) + ' 条归档会话的未决（正文已归档、出处无法回跳；不是丢失）'));
+    }
 
     // 出卡的会话 = 简报里**被点名**的那些（决策行在前、未决行在后），去重后前 BRIEF_CARD_MAX 场。
     // 挑选判据只有这份 list（"简报点了名"）；卡片里放什么、长什么样全在 core/cards。
@@ -277,7 +306,10 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
 
 /** 供测试与调用方核对预算账本：跑一遍**同一个** cmdBrief 取数 → 拼装路径，返回账本 */
 export function briefComposeForTest(db: DB, pay: BriefPayload): BriefComposeResult {
-  const head: string[] = [`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`];
+  const head: string[] = [];
+  if (pay.nextStep?.next) head.push('🗺 下一步：' + pay.nextStep.next.slice(0, 120));
+  if (pay.nextStep?.doing?.length) head.push('  ↳ 进行中：' + pay.nextStep.doing.join(' / '));
+  head.push(`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`);
   for (const r of pay.recentFiles) head.push(`  🗂 ${r.file}（${r.sessions} 场）`);
   for (const d of pay.decisions.slice(0, 5)) head.push(`  ${d.at?.slice(0, 10) ?? ''} ${d.kind === 'negative' ? '✗' : '✓'} ${d.text.slice(0, 60)}`);
   for (const u of pay.unresolved.slice(0, UNR_SLOTS)) head.push(`  ◻ ${u.q.slice(0, 60)}`);
@@ -341,6 +373,28 @@ function collectRelatedGroups(db: DB, refs: Array<{ sessionId: string; at: strin
  *   · 全局库不存在 —— 全新用户还没跑过生命周期，正常状态，静默；
  *   · 全局库打不开（被占用/损坏）—— **要留痕**，否则 P0 会静默消失（本项目最嫌恶的失效）。
  */
+/**
+ * 🗺 地图的「下一步」。只读；没有地图 / 读坏了 → null（简报其余部分不受影响）。
+ *
+ * 为什么只取 context.next 与 doing/todo 节点：交接包里「现在该干什么」
+ * 只能来自**人写的意图**（地图账本），不能由 brief 自己猜。
+ */
+export function collectNextStep(root: string | undefined): { next: string | null; doing: string[] } | null {
+  if (!root) return null;
+  try {
+    const got = readPageIfExists(root, undefined);
+    if (!got.ok || !got.value) return null;
+    const page = got.value.page;
+    const next = typeof page.context?.next === 'string' && page.context.next.trim() !== '' ? page.context.next.trim() : null;
+    const doing = (Array.isArray(page.nodes) ? page.nodes : [])
+      .filter((n) => n.status === 'doing' || n.status === 'todo')
+      .slice(0, 3)
+      .map((n) => String(n.label ?? n.id));
+    if (!next && doing.length === 0) return null;
+    return { next, doing };
+  } catch { return null; }
+}
+
 function collectAuditAlert(root: string | undefined): string | null {
   if (!root) return null;
   const g = openGlobalAuditReadonly();
@@ -350,7 +404,16 @@ function collectAuditAlert(root: string | undefined): string | null {
     }
     return null;
   }
-  try { return latestAuditAlert(g.db, root); } finally { try { g.db.close(); } catch { /* 已关 */ } }
+  try {
+    const alert = latestAuditAlert(g.db, root);
+    if (!alert) return null;
+    // [10-19 用户拍板] 归档会话的未决已从简报隐藏（不标 lost、不迁移）——
+    //   那么顶部就不该再挂着一条⚠让人天天处理它。
+    //   **不是**把问题藏掉：audit / health_events / `srelay audit` 里照旧计数，只是简报降噪。
+    //   若将来决定处理它们，去掉这一条即可恢复告警。
+    if (alert.includes('归档会话仍有未决')) return null;
+    return alert;
+  } finally { try { g.db.close(); } catch { /* 已关 */ } }
 }
 
 /** 经验段的取数：**没命中就返回空数组**，由调用方决定整段渲不渲染 */

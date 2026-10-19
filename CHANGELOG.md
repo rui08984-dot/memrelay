@@ -5,6 +5,12 @@
 
 ## [Unreleased]
 
+### 交接包 · 「🗺 下一步」进简报（10-19）
+
+- `srelay brief` 新增「🗺 下一步」段：读地图账本的 `context.next` 与 `doing`/`todo` 节点（最多 3 个），排在计数行之前。
+- 只读；没有地图/读坏 ⇒ 整行不渲染（`collectNextStep` 返回 null），绝不猜。3 条单测。
+- 同时：归档会话的未决按用户拍板**从简报隐藏**（复用 `scanArchivedUnresolved` 判据，计数进 `counts.archivedUnresolvedHidden`）；归档未决类 P0 不再在简报顶部报警（audit / health_events 照旧计数）。
+
 ### 审计阶段语义修正 + 路线图（10-19）
 
 - **audit 阶段 `ok` 语义修正**：原来 `ok = p0===0`，一旦库里有 P0，生命周期里 audit 就永远 FAIL——既分不清「查出了问题」与「审计自己跑崩了」，`fails` 也会无限涨。现在 `ok = unreadable===0`（跑成了没有）；P0 的可见性由 brief 顶部告警 + health_events(warn) 负责，note 里也写明 `P0 n 项（已进简报告警）`。

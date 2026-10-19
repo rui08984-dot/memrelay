@@ -39,8 +39,8 @@ function projectDb(): DB {
 }
 
 describe('简报顶部 · 审计告警', () => {
-  it('最近一次审计是 P0 ⇒ auditAlert 出现在 payload（简报第一行）；修好后静默', () => {
-    const alert = '⚠ 审计 P0：32 条归档会话仍有未决';
+  it('FTS 类 P0 ⇒ auditAlert 出现在 payload；修好后静默', () => {
+    const alert = '⚠ 审计 P0：FTS 索引不一致 3 行';
     withGlobal((g) => {
       logHealthEvent(g, 'audit', 'warn', alert, JSON.stringify({ root: tmp, p0: 1, p1: 0, skipped: 0, alert, hits: [] }));
     });
@@ -57,6 +57,15 @@ describe('简报顶部 · 审计告警', () => {
     try {
       expect(collectBrief(db2, 'p', {}, tmp).auditAlert).toBeNull();
     } finally { db2.close(); }
+  });
+
+  it('归档未决类 P0 **不在简报顶部报警**（用户已拍板隐藏；audit/health_events 里照旧计数）', () => {
+    const alert = '⚠ 审计 P0：32 条归档会话仍有未决';
+    withGlobal((g) => {
+      logHealthEvent(g, 'audit', 'warn', alert, JSON.stringify({ root: tmp, p0: 1, p1: 0, skipped: 0, alert, hits: [] }));
+    });
+    const db = projectDb();
+    try { expect(collectBrief(db, 'p', {}, tmp).auditAlert).toBeNull(); } finally { db.close(); }
   });
 
   it('别的项目的 P0 不会串到本项目简报里', () => {
