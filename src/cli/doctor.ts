@@ -18,6 +18,8 @@ import { detectSources } from './init.js';
 import { pc } from './ui.js';
 import { listPages } from '../map/index.js';
 import { checkSources } from '../map/stale.js';
+// 自愈判据只有一份：检查与 --fix 都走 core/selfheal.ts（两份判据必然漂移成「体检说健康、修复按另一套改」）
+import { runSelfHeal, resolveSelfHealMode, type SelfHealReport, type SelfHealMode } from '../core/selfheal.js';
 
 type Level = 'ok' | 'warn' | 'err';
 interface Check { name: string; level: Level; detail: string; fix?: string }
@@ -58,7 +60,51 @@ function collectDocLines(): string[] {
   return out;
 }
 
-export async function cmdDoctor(): Promise<void> {
+export interface DoctorOptions {
+  /** 真正动手（默认 dry-run，只报告） */
+  fix?: boolean;
+  /** 强制 dry-run；与 --fix 同时给出时以它为准 */
+  dryRun?: boolean;
+}
+
+/**
+ * 自愈块的输出（每项一行：改了什么 / 跳过了为什么）。
+ * 颜色只在 cli 层加：selfheal.ts 只产出结构化结果，测试才能断言「改了什么」而不吃 ANSI。
+ */
+function printSelfHeal(report: SelfHealReport, mode: SelfHealMode): void {
+  console.log('');
+  console.log(report.apply
+    ? pc.bold('🩹 自愈（--fix：真动手；只修插件副本缺文件 / 面板 vendor 落后）')
+    : pc.bold('🩹 自愈清单（dry-run：只报告不改动；加 --fix 才动手）'));
+  if (mode.note) console.log(pc.dim('  ' + mode.note));
+  const src = [
+    '插件源 ' + (report.sources.plugin ?? '缺失'),
+    '面板源 ' + (report.sources.panel ?? '缺失'),
+    '内核 ' + (report.sources.dist ?? 'dist 缺失'),
+  ].join(' · ');
+  console.log(pc.dim('  ' + src));
+  for (const s of report.steps) {
+    const icon = s.status === 'clean' ? pc.green('✅')
+      : s.status === 'fixed' ? pc.green('🩹')
+        : s.status === 'planned' ? pc.yellow('⚠️ ')
+          : s.status === 'failed' ? pc.red('❌')
+            : pc.dim('⏭️ ');
+    console.log(`${icon} ${s.label.padEnd(40)} ${s.summary}`);
+  }
+  const c = report.counts;
+  const bits = [report.apply ? `已修 ${c.fixed}` : `待修 ${c.planned}（dry-run）`];
+  if (c.clean > 0) bits.push(`无需修 ${c.clean}`);
+  if (c.skipped > 0) bits.push(`跳过 ${c.skipped}`);
+  if (c.failed > 0) bits.push(pc.red(`失败 ${c.failed}`));
+  console.log(pc.dim(`  自愈小结：${bits.join(' · ')}`));
+  for (const n of report.notes) console.log(pc.dim('  注：' + n));
+  if (report.apply && c.fixed > 0) {
+    // 不重启进程是硬边界：换掉的只是磁盘上的副本，常驻进程仍持有旧模块
+    console.log(pc.dim('  副本已更新 —— 重启 DSH 才生效（doctor 不重启进程、不动用户配置）'));
+  }
+}
+
+export async function cmdDoctor(opts: DoctorOptions = {}): Promise<void> {
   const checks: Check[] = [];
 
   // 1 Node 版本（engines 要求 >=22；better-sqlite3/jieba 预编译按新 ABI 分发）
@@ -396,10 +442,19 @@ export async function cmdDoctor(): Promise<void> {
     const icon = k.level === 'ok' ? pc.green('✅') : k.level === 'warn' ? pc.yellow('⚠️ ') : pc.red('❌');
     console.log(`${icon} ${k.name.padEnd(18)} ${k.detail}${k.fix ? pc.dim(`  → ${k.fix}`) : ''}`);
   }
+
+  // ── 自愈：已知且安全的两类（默认 dry-run；--fix 才动手）──
+  // 放在检查之后：先看见哪里坏了，再看见「已经修了什么 / 为什么没修」。
+  // 失败只计数不抛出：一项修不动不该让整份体检崩掉，也不该掩盖其它项的结果。
+  const mode = resolveSelfHealMode(opts);
+  const heal = runSelfHeal({ apply: mode.apply });
+  printSelfHeal(heal, mode);
+
   const errs = checks.filter((k) => k.level === 'err').length;
   const warns = checks.filter((k) => k.level === 'warn').length;
   console.log(pc.dim(`\n${checks.length} 项检查：${checks.length - errs - warns} 通过 · ${warns} 提示 · ${errs} 失败`));
-  if (errs > 0) process.exit(1);
+  // 修复失败也算失败退出：静默成功比没有更坏（它会让人以为已经修好了）
+  if (errs > 0 || heal.counts.failed > 0) process.exit(1);
 
   function c(name: string, level: Level, detail: string, fix?: string): Check { return { name, level, detail, fix }; }
 }

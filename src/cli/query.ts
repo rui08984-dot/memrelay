@@ -1,8 +1,10 @@
 // srelay search / show / list（方针 §8.2；出处块强制 D10；B 档 scope 契约对 CLI 同样生效）
 import { loadConfig, type CaptureMode } from '../shared/config.js';
 import { assembleScope } from '../core/scope/assemble.js';
-import { searchSessions } from '../search-svc/engine.js';
+import { searchSessions, DEFAULT_TITLE_BOOST, type SearchExplain } from '../search-svc/engine.js';
 import { groupSessions } from '../search-svc/session-groups.js';
+// [10-19 任务 D] 检索自校准第一步：只采集 open 事件，不改检索结果/排序。
+import { rememberSearch, recordSearchOpen } from '../search-svc/feedback.js';
 import { findSessionByPrefix, getSession, listSessions, getMessageRange, isNoteSession } from '../store/db.js';
 import { openStats } from '../core/stats/counter.js';
 import { requireRoot, openRelayDb, pc, fmtDate, stateBadge } from './ui.js';
@@ -12,6 +14,27 @@ export interface SearchFlags {
   limit?: number; json?: boolean;
   /** [1021 namespace] 跨项目联邦检索（只读扇出 + 名次轮转合并）。默认 false = 只查本项目 */
   global?: boolean;
+  /** [10-19 · 任务 B] 打印每条命中的分数构成（engine 的 explain 字段；默认关 = 零开销） */
+  explain?: boolean;
+}
+
+/**
+ * [10-19 · 任务 B] 把 engine 的 explain 渲染成一行可读的乘法链。
+ *
+ * 显示只做四舍五入，不改任何数值；titleWeight 与 searchSessions 的默认值同源
+ * （CLI 不传 titleBoost，所以 DEFAULT_TITLE_BOOST 就是实际生效的那个权重）。
+ */
+function formatExplain(e: SearchExplain, titleWeight: number = DEFAULT_TITLE_BOOST): string {
+  const w = Number.isFinite(titleWeight) && titleWeight > 0 ? titleWeight : 0;
+  const titleMul = 1 + w * e.titleOverlap;
+  return [
+    `base ${e.baseScore.toFixed(3)}`,
+    `覆盖 ×${e.coverageBoost.toFixed(2)}（${Math.round(e.coverage * 100)}%）`,
+    `长度 ×${e.lengthPenalty.toFixed(2)}`,
+    `时间 ×${e.recency.toFixed(2)}`,
+    `标题 ×${titleMul.toFixed(2)}（${Math.round(e.titleOverlap * 100)}%）`,
+    `⇒ ${e.finalScore.toFixed(3)}`,
+  ].join(' · ');
 }
 
 /**
@@ -46,7 +69,11 @@ async function cmdSearchGlobal(query: string, flags: SearchFlags): Promise<void>
 
 export async function cmdSearch(query: string, flags: SearchFlags): Promise<void> {
   // 全局态走独立分支：不打开本库、不吃本项目 scope/decay（跨项目时这些没有意义）
-  if (flags.global) return cmdSearchGlobal(query, flags);
+  if (flags.global) {
+    // 容错不许静默：global 合并的是名次、不是分数（不同库 BM25 不可比），--explain 在这里没有定义
+    if (flags.explain) console.error(pc.dim('提示：--global 跨库检索按名次合并，不提供 --explain 分数构成。'));
+    return cmdSearchGlobal(query, flags);
+  }
   // 注：空查询/非法 limit 的校验在下面统一做（global 分支自己也会走到各自的校验）
   // [10-19] 参数校验前置：空查询 / 非法 limit 原来会一路走到「未找到」，
   //   把「你参数给错了」伪装成「库里没有」——这是本项目最贵的一种失败（静默失败）。
@@ -89,7 +116,13 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
       semanticReserve: cfg.semantic?.reserve_slots,
       // [1021] 时间衰减（cfg.decay.enabled 默认 false ⇒ 不传等于旧行为，单一变量）
       decay: cfg.decay,
+      // [10-19 · 任务 B] 默认 false：不填 explain、不额外查询；--explain 时才生成明细
+      explain: flags.explain === true,
     });
+    // [10-19 任务 D] 记住本次候选（**进程内存**，TTL 5 分钟）：同进程的 srelay show 据此记 open。
+    //   只写内存、不改 hits。CLI 的 search / show 通常是两个进程，这条路实际很少触发——
+    //   但判据仍是 feedback.ts 那一份（MCP 与 CLI 不各写一套）。
+    rememberSearch(cfg.identity.project_id ?? root, query, hits.map((h) => h.sessionId));
     if (flags.json) {
       const rows = hits.map((h) => {
         const s = getSession(db, h.sessionId);
@@ -98,6 +131,8 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
           createdAt: s?.created_at ?? null, state: s?.state ?? null,
           score: Number(h.score.toFixed(3)), coverage: h.coverage, viaMeta: h.viaMeta,
           viaSemantic: h.viaSemantic ?? false,
+          // [10-19 · 任务 B] --explain 时带出完整打分明细（字段名与 engine 的 SearchExplain 一致）
+          ...(h.explain ? { explain: h.explain } : {}),
           snippet: h.snippet, provenance: { sessionId: h.sessionId },
         };
       });
@@ -124,6 +159,8 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
       const no = pc.cyan(`${i + 1}.`);
       console.log(`${no} ${(s?.title ?? h.sessionId).slice(0, 44)}  ${pc.dim(`${s?.source ?? ''} · ${fmtDate(s?.created_at)} · `)}${stateBadge(s?.state ?? '')}`);
       if (h.snippet) console.log(pc.dim(`   ${h.snippet.slice(0, 100)}`));
+      // [10-19 · 任务 B] 为什么排在这里：base × 覆盖 × 长度 × 时间 × 标题 ⇒ final
+      if (h.explain) console.log(pc.dim(`   打分：${formatExplain(h.explain)}`));
       if (!h.viaMeta) console.log(pc.dim(`   srelay show ${h.sessionId} · 命中覆盖 ${Math.round(h.coverage * 100)}%`));
     });
     // [10-19] 多会话组（只在真的分出来时才打印，避免每条命中都刷一遍噪音）
@@ -152,6 +189,8 @@ export async function cmdShow(idPrefix: string, opts: { range?: string; json?: b
   try {
     const s = findSessionByPrefix(db, idPrefix, cfg.identity.project_id ?? root);
     if (!s) { console.log(pc.red('✗ 未找到会话：') + idPrefix); process.exitCode = 1; return; }
+    // [10-19 任务 D] 反馈采集：同进程刚检索过、且该会话在候选里 → 记一条 open（旁路，不影响 show）
+    recordSearchOpen({ project: cfg.identity.project_id ?? root, sessionId: s.id, openKind: 'cli_show' });
     const [from, to] = parseRange(opts.range, s.message_count);
     if (opts.json) {
       const msgs = getMessageRange(db, s.id, from, to);

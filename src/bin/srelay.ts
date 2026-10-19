@@ -223,6 +223,7 @@ program
   .option('--until <date>')
   .option('--limit <n>', '默认 10')
   .option('--global', '跨项目联邦检索（只读；默认只查本项目）')
+  .option('--explain', '打印每条命中的分数构成（为什么排在这里）')
   .option('--json', '机器格式')
   .action(async (q: string[], flags) => {
     const { cmdSearch } = await import('../cli/query.js');
@@ -258,8 +259,10 @@ program
 
 program
   .command('doctor')
-  .description('环境自检与修复建议')
-  .action(async () => { const { cmdDoctor } = await import('../cli/doctor.js'); await cmdDoctor(); });
+  .description('环境自检与修复建议（--fix 只修已知且安全的两类：插件副本缺文件 / 面板 vendor 落后）')
+  .option('--fix', '真正动手修复（默认 dry-run，只报告会改什么）')
+  .option('--dry-run', '强制只看计划（与 --fix 同给时以 dry-run 为准）')
+  .action(async (opts) => { const { cmdDoctor } = await import('../cli/doctor.js'); await cmdDoctor(opts as never); });
 
 program
   .command('audit')

@@ -5,6 +5,12 @@
 
 ## [Unreleased]
 
+### 三力落地：可解释 / 自愈 / 反馈采集（10-19）
+
+- **B 检索可解释**：`srelay search --explain` 打印每条的分数构成（title 命中 / 覆盖度 / 长度惩罚 / 衰减 / 基础分 → 最终分）。`SearchHit.explain` 仅在 opts.explain 时填充，**不加时零开销、排序逐条不变**（7 条单测钉住）。
+- **C 自愈**：`srelay doctor --fix`（默认 dry-run）。只修两类已知安全项：插件副本缺文件（从 `plugins/dsh` 补拷）、面板 vendor 落后（同步源码）。实测一次修 5 项、复查 0 待修；失败不影响其它项，每条都打印「改了什么/跳过原因」。13 条单测。
+- **D 反馈采集**（自校准第一步）：全局库新表 `search_feedback`（查询只存 sha256 前 16 位，明文不入库）；候选只留进程内存 TTL 5 分钟；`srelay_search → srelay_show` 与 CLI 同链路记一条 open 事件。不改检索结果；库坏了也不让 show 失败。5 条单测。
+
 ### 交接包 · 「🗺 下一步」进简报（10-19）
 
 - `srelay brief` 新增「🗺 下一步」段：读地图账本的 `context.next` 与 `doing`/`todo` 节点（最多 3 个），排在计数行之前。

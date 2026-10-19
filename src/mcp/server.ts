@@ -17,6 +17,8 @@ import { openExisting, listSessions, listDecisions, listUnresolved,
          getSessionFull, metaTextOf, type DB } from '../store/db.js';
 import { searchSessions } from '../search-svc/engine.js';
 import { groupSessions } from '../search-svc/session-groups.js';
+// [10-19 任务 D] 零模型检索自校准第一步：只采集 open 事件，不改检索结果/排序。
+import { rememberSearch, recordSearchOpen } from '../search-svc/feedback.js';
 import { runExport, runExportMarkdown } from '../relay/export.js';
 import { runImport, runRelease } from '../relay/import.js';
 import { ZipSlipError, IntegrityError } from '../relay/hop.js';
@@ -295,6 +297,10 @@ export function buildServer(get: () => ServeCtx, select?: (p: string) => Promise
 //   这不是写错，是**漏写**，而且没有任何断言会发现 —— 判据散在两处的典型。
 //   顺带按同文件 205-209 的规矩用 `cfgNow`（每次重读）而不是缓存的 `cur.cfg`。
 const hits = searchSessions(cur.db, { project: cur.project, query: args.query, limit: args.limit ?? 10, extraWhere: asm.where, semanticHits: semHits, semanticReserve: cfgNow.semantic?.reserve_slots, decay: cfgNow.decay });
+    // [10-19 任务 D] 记住本次候选（**只写进程内存**，TTL 5 分钟），供 srelay_show 判 open。
+    //   名次 = hits 的顺序（1 起）＝用户真正看到的名次；不改 hits、不进响应体。
+    //   只接 kind=sessions：它是唯一带「名次」的会话候选列表（files 分支是文件路径检索）。
+    rememberSearch(cur.project, args.query, hits.map((h) => h.sessionId));
     const out = hits.map((h) => ({
       ...sessionBrief(cur.db, h.sessionId),
       score: Number(h.score.toFixed(3)),
@@ -343,6 +349,9 @@ const hits = searchSessions(cur.db, { project: cur.project, query: args.query, l
     const { db, project } = get();
     const s = findSessionByPrefix(db, args.session_id, project) ?? getSession(db, args.session_id);
     if (!s) return toolOut({ found: false, reason: '未找到会话' });
+    // [10-19 任务 D] 反馈采集：本进程刚检索过、且这个会话在候选里 → 记一条 open。
+    //   旁路：recordSearchOpen 自己吞掉库错误，**绝不**影响 show 的返回（不改检索结果）。
+    recordSearchOpen({ project, sessionId: s.id, openKind: 'mcp_show' });
     const DEFAULT_MSGS = 20;    // 上下文安全护栏（D22）
     const DEFAULT_CHARS = 1000;
     const HARD_TOTAL = 50 * 1024; // 50KB 硬顶

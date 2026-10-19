@@ -35,6 +35,67 @@ export interface SearchHit {
   viaRRF?: boolean;
   /** [1017 夜 · 标签图谱] 由**标签共现扩展**补进来的命中（与语义路同构：只做加法，可标记可统计） */
   viaTag?: boolean;
+  /**
+   * [10-19 · 任务 B] 可解释性：**只在 SearchOptions.explain === true 时填充**（默认 undefined）。
+   * 回答「这条为什么排第一」——每一项都是乘到分数上的倍率，不是分数增量。
+   */
+  explain?: SearchExplain;
+}
+
+/**
+ * [10-19 · 任务 B] 一条命中的分数构成（`srelay search --explain` 的输出契约）。
+ *
+ * 公式（**严格成立**；baseScore 是反解出来的残差）：
+ *   finalScore = baseScore × coverageBoost × lengthPenalty × recency × (1 + titleWeight × titleOverlap)
+ *
+ * · coverageBoost —— 覆盖度加权：`1 + COVERAGE_BOOST × coverage²`（与 searchOnce 同一份实现）
+ * · lengthPenalty —— 会话长度惩罚：`lenPenaltyOf(message_count)`（与打分同一份实现）
+ * · recency       —— 时间衰减乘数；未启用衰减 / 未参与衰减的命中 = 1
+ * · titleOverlap  —— 标题+话题里命中的查询词元比例（0..1；权重由 titleBoost 提供）
+ *
+ * 多路融合（fusedSearch）/ 改写 / 标签扩展的命中：路权重与去重逻辑都算进 baseScore，
+ * 上面四个因子仍按同一定义给出，因此等式对每一条命中都成立，不会出现「加不起来」的明细。
+ * 默认不填 —— 生成它需要额外查询，不能进默认档。
+ */
+export interface SearchExplain {
+  titleOverlap: number;
+  coverage: number;
+  coverageBoost: number;
+  lengthPenalty: number;
+  recency: number;
+  baseScore: number;
+  finalScore: number;
+}
+
+/** 覆盖度加权的**唯一**乘数实现（打分与可解释性共用；COVERAGE_BOOST=0 → 1）。 */
+function coverageBoostFactor(coverage: number): number {
+  if (!(COVERAGE_BOOST > 0)) return 1;
+  const cov = Math.max(0, Math.min(1, coverage ?? 0));
+  return 1 + COVERAGE_BOOST * cov * cov;
+}
+
+/** 标题重排可用的查询词元（与 applyTitleBoost 同一判据：长度 ≥2）。 */
+function titleTokensOf(query: string): string[] {
+  return (parseQuery(query) as { units: string[][] }).units.flat().filter((t) => t.length >= 2);
+}
+
+/** 标题+话题的小写词袋（applyTitleBoost 与 --explain 共用；取不到 = 空袋）。 */
+function titleBagOf(db: DB, sids: string[]): Map<string, string> {
+  const bag = new Map<string, string>();
+  if (sids.length === 0) return bag;
+  try {
+    const ph = sids.map(() => '?').join(',');
+    const rows = db.prepare('SELECT id, title, topics FROM sessions WHERE id IN (' + ph + ')')
+      .all(...sids) as Array<{ id: string; title: string | null; topics: string | null }>;
+    for (const r of rows) bag.set(r.id, ((r.title ?? '') + ' ' + (r.topics ?? '')).toLowerCase());
+  } catch { /* 取不到 = 没有标题信息（不猜） */ }
+  return bag;
+}
+
+/** 标题/话题命中的查询词元比例（0..1）；空袋或没有词元 = 0。 */
+function titleOverlapOf(tokens: string[], bag: string): number {
+  if (bag === '' || tokens.length === 0) return 0;
+  return tokens.filter((t) => bag.includes(t.toLowerCase())).length / tokens.length;
 }
 
 interface UnitHits {
@@ -235,6 +296,12 @@ export interface SearchOptions {
    * 默认关；传数值（如 0.5）才启用 —— 先量再开，别靠直觉。
    */
   titleBoost?: number | null;
+  /**
+   * [10-19 · 任务 B] 返回每条命中的分数构成（默认 false）。
+   * 默认不填 explain、不做任何额外查询 —— 与旧行为逐字节等价（零开销）。
+   * 打开后**只读**：不参与打分、不改排序；`--explain` 前后的命中 id/顺序必须逐条一致（测试钉住）。
+   */
+  explain?: boolean;
 }
 
 /** 一次查询扩展的溯源信息（**排查「为什么扩成这些词」的唯一入口**） */
@@ -422,10 +489,7 @@ function searchOnce(db: DB, opts: SearchOptions): SearchHit[] {
   //   覆盖 1/3 加 0.4×，覆盖 2/3 加 1.6×，覆盖 3/3 加 3.6×）。零模型、纯算术、无额外查询。
   //   COVERAGE_BOOST=0 时等于旧行为，便于单变量 A/B。
   if (COVERAGE_BOOST > 0 && hits.length > 0) {
-    for (const h of hits) {
-      const cov = Math.max(0, Math.min(1, h.coverage ?? 0));
-      h.score *= 1 + COVERAGE_BOOST * cov * cov;
-    }
+    for (const h of hits) h.score *= coverageBoostFactor(h.coverage);
   }
 
   if (opts.lengthNorm !== false && hits.length > 0) {
@@ -513,7 +577,7 @@ function mergeAdditive(hits: SearchHit[], extra: SearchHit[], reserve: number, l
  * · 年龄取 `last_event_at ?? created_at`：一次 IN 查询批量取，不做 N+1。
  * · 类别固定用 `decision`（检索命中的是会话级记录；未决/经验各有自己的通道，不走这条）。
  */
-function applyDecayToHits(db: DB, hits: SearchHit[], cfg: DecayConfig): SearchHit[] {
+function applyDecayToHits(db: DB, hits: SearchHit[], cfg: DecayConfig, explain = false): SearchHit[] {
   const ids = hits.map((h) => h.sessionId);
   const ph = ids.map(() => '?').join(',');
   const ages = new Map<string, string | null>();
@@ -527,7 +591,19 @@ function applyDecayToHits(db: DB, hits: SearchHit[], cfg: DecayConfig): SearchHi
   //   于是「判据」又散成了两份：decay.ts 一份、engine.ts 一份，改一处忘一处就分叉。
   //   现在统一走 `applyDecay()` —— 它是这条链上唯一该做乘法的地方。
   return hits
-    .map((h) => ({ ...h, score: applyDecay(h.score, ageMsOf(ages.get(h.sessionId), now), 'decision', cfg) }))
+    .map((h) => {
+      const before = h.score;
+      const after = applyDecay(before, ageMsOf(ages.get(h.sessionId), now), 'decision', cfg);
+      if (explain) {
+        // 记录**实际乘上的**系数（不是重新算一遍衰减曲线）：applyDecay 对非正分数原样返回，
+        // 此时真实系数是 1，重算会得到 <1 的假明细。
+        h.explain = {
+          ...(h.explain ?? { titleOverlap: 0, coverage: h.coverage ?? 0, coverageBoost: 1, lengthPenalty: 1, baseScore: before, finalScore: before }),
+          recency: Number.isFinite(before) && before > 0 ? after / before : 1,
+        };
+      }
+      return { ...h, score: after };
+    })
     .sort((a, b) => b.score - a.score || (b.coverage ?? 0) - (a.coverage ?? 0));
 }
 
@@ -542,22 +618,61 @@ function applyDecayToHits(db: DB, hits: SearchHit[], cfg: DecayConfig): SearchHi
 export function applyTitleBoost(db: DB, hits: SearchHit[], opts: SearchOptions): SearchHit[] {
   const w = Number(opts.titleBoost);
   if (!Number.isFinite(w) || w <= 0 || hits.length === 0) return hits;
-  const tokens = (parseQuery(opts.query) as { units: string[][] }).units.flat().filter((t) => t.length >= 2);
+  const tokens = titleTokensOf(opts.query);
   if (tokens.length === 0) return hits;
-  const bag = new Map<string, string>();
-  try {
-    const ph = hits.map(() => '?').join(',');
-    const rows = db.prepare('SELECT id, title, topics FROM sessions WHERE id IN (' + ph + ')').all(...hits.map((h) => h.sessionId)) as Array<{ id: string; title: string | null; topics: string | null }>;
-    for (const r of rows) bag.set(r.id, ((r.title ?? '') + ' ' + (r.topics ?? '')).toLowerCase());
-  } catch { return hits; }
+  // [10-19 · 任务 B] 词袋/重叠判据抽到 titleBagOf/titleOverlapOf —— applyTitleBoost 与
+  // --explain 必须用同一份计算，不能再各写一遍（否则「打分明细」会和真实乘数分叉）。
+  const bag = titleBagOf(db, hits.map((h) => h.sessionId));
+  if (bag.size === 0) return hits;
   const boosted = hits.map((h) => {
-    const b = bag.get(h.sessionId) ?? '';
-    if (b === '') return h;
-    const overlap = tokens.filter((t) => b.includes(t.toLowerCase())).length / tokens.length;
+    const overlap = titleOverlapOf(tokens, bag.get(h.sessionId) ?? '');
     return overlap > 0 ? { ...h, score: h.score * (1 + w * overlap) } : h;
   });
   boosted.sort((a, b) => b.score - a.score);
   return boosted;
+}
+
+/**
+ * [10-19 · 任务 B] 给返回结果补上 explain（**只在 opts.explain 时调用**）。
+ *
+ * 为什么在出口统一算、而不是在每个乘数点记账：
+ *   ① 多路（主路 / 融合 / 改写 / 语义 / 标签）的分数来源不同，逐点记账会让「公式」在
+ *      不同路径上长得不一样；出口按同一定义反解 baseScore，任何一条命中都满足同一个等式。
+ *   ② 只读：不动 score、不动数组顺序；opts.explain 前后命中逐条一致由测试钉住。
+ *   ③ 默认根本不进这个函数 —— 零额外查询、零对象分配。
+ *
+ * 代价（仅 --explain 时）：两次批查（message_count / title+topics），不按条 N+1。
+ */
+function attachExplain(db: DB, hits: SearchHit[], opts: SearchOptions): SearchHit[] {
+  if (hits.length === 0) return hits;
+  const ids = hits.map((h) => h.sessionId);
+  const counts = new Map<string, number>();
+  try {
+    const ph = ids.map(() => '?').join(',');
+    const rows = db.prepare('SELECT id, message_count AS c FROM sessions WHERE id IN (' + ph + ')')
+      .all(...ids) as Array<{ id: string; c: number }>;
+    for (const r of rows) counts.set(r.id, Number(r.c ?? 0));
+  } catch { /* 取不到 = 不惩罚（与打分路径同一条容错纪律） */ }
+  const tokens = titleTokensOf(opts.query);
+  const bag = tokens.length > 0 ? titleBagOf(db, ids) : new Map<string, string>();
+  const tbRaw = Number(opts.titleBoost ?? DEFAULT_TITLE_BOOST);
+  const titleWeight = Number.isFinite(tbRaw) && tbRaw > 0 ? tbRaw : 0;
+  return hits.map((h) => {
+    const coverage = Math.max(0, Math.min(1, h.coverage ?? 0));
+    const coverageBoost = coverageBoostFactor(coverage);
+    const lengthPenalty = opts.lengthNorm !== false ? lenPenaltyOf(counts.get(h.sessionId) ?? 0) : 1;
+    const titleOverlap = tokens.length > 0 ? titleOverlapOf(tokens, bag.get(h.sessionId) ?? '') : 0;
+    // recency 由 applyDecayToHits 记下**实际乘上的**系数；没走衰减的命中保持 1。
+    const recency = h.explain?.recency ?? 1;
+    const product = coverageBoost * lengthPenalty * recency * (1 + titleWeight * titleOverlap);
+    const baseScore = Number.isFinite(h.score) && Number.isFinite(product) && product > 0
+      ? h.score / product
+      : h.score;
+    return {
+      ...h,
+      explain: { titleOverlap, coverage, coverageBoost, lengthPenalty, recency, baseScore, finalScore: h.score },
+    };
+  });
 }
 
 export function searchSessions(db: DB, opts: SearchOptions): SearchHit[] {
@@ -581,7 +696,7 @@ export function searchSessions(db: DB, opts: SearchOptions): SearchHit[] {
   //   语义：只乘排序分数、不过滤（floor 保底 0.25），老记录仍能搜到只是排后面。
   //   默认仍关（见 DEFAULT_DECAY 的理由：本库最老记录只有 66 天，量程外的效应不该进默认档）。
   if (opts.decay?.enabled === true && hits.length > 0) {
-    hits = applyDecayToHits(db, hits, opts.decay);
+    hits = applyDecayToHits(db, hits, opts.decay, opts.explain === true);
   }
   if (tb > 0) {
     hits = applyTitleBoost(db, hits, { ...opts, titleBoost: tb });
@@ -590,12 +705,16 @@ export function searchSessions(db: DB, opts: SearchOptions): SearchHit[] {
   // 放在这里而不是塞进 searchCore 里，是为了让「扩展」严格等于「旧行为 + 一条路」——
   // 单一变量，A/B 才干净（历史教训：融合闸门那次对照组是脏的，见 lengthNorm 注释）。
   // 默认值只认 DEFAULT_TAG_EXPAND 这一处（别在调用点再写一个 false —— 那会让「默认是什么」散成 N 份）
+  // [10-19 · 任务 B] explain 只加在**最终返回**的命中上（切片之后）：
+  //   默认路径不调用、不查询、不分配；打开后只读，不参与排序。
+  const finish = (out: SearchHit[]): SearchHit[] =>
+    (opts.explain === true ? attachExplain(db, out, { ...opts, titleBoost: tb }) : out);
   if ((opts.tagExpand ?? DEFAULT_TAG_EXPAND) !== true) {
-    return tb > 0 ? hits.slice(0, wantLimit) : hits;
+    return finish(tb > 0 ? hits.slice(0, wantLimit) : hits);
   }
-  if (opts.tagInFusion === true) return tb > 0 ? hits.slice(0, wantLimit) : hits;   // 融合模式已在 fusedSearch 内部并过路了
+  if (opts.tagInFusion === true) return finish(tb > 0 ? hits.slice(0, wantLimit) : hits);   // 融合模式已在 fusedSearch 内部并过路了
   const expanded = tagExpandPath(db, opts, hits);
-  return tb > 0 ? expanded.slice(0, wantLimit) : expanded;
+  return finish(tb > 0 ? expanded.slice(0, wantLimit) : expanded);
 }
 
 /** 原 searchSessions 主体，逐字未改（仅改名）—— 对外行为经 searchSessions 包装后保持不变 */
