@@ -15,7 +15,7 @@
 //   P0 base      产品自带 snippet（excerpt：围绕**第一个查询单元**取 120 字）
 //   P1 best@120  同预算（120 字），改取**该会话内锚点覆盖最高的那条消息**
 //                → 与 P0 的差别**只**来自「选哪条消息」，不来自「给多少字」
-//   P2 best@320  产品 snippet + 最佳消息 200 字窗口（≈4 倍预算）
+//   P2 best@320  产品 snippet + 最佳消息 200 字窗口（实测 ≈2.4 倍预算，见运行输出）
 //                → 「上下文更宽」的上限；用来区分「选错消息」与「给字太少」
 //
 // 用法：
@@ -371,13 +371,26 @@ const bucketOf = (r: Row) => (r.rank10 === 1 ? 'rank 1' : r.rank10 >= 2 && r.ran
 const BUCKETS = ['rank 1', 'rank 2-10', 'rank ' + (LIMIT + 1) + '-' + DEEP, '>' + DEEP + '/不可达'];
 
 const S0 = stat(rows, (r) => r.base), S1 = stat(rows, (r) => r.p1), S2 = stat(rows, (r) => r.p2);
-// 「自己那条」口径：分母 = 目标进 top-10 的题（只有那时包里才有它自己的一段）
+// ── 「自己那条」口径（本报告的主口径）──────────────────────────────────────
+// 为什么必须单列：整包 span 会把「**别的会话**凑巧命中同样几个锚点词」也算成覆盖。
+// 而目标不在 top-10 时，包里根本**没有**目标那一段 ⇒ 那些 span=1 按构造就不可能是
+// 目标的证据。实测这个假阳性占比很大（见下面的 FP 行），所以主口径只认目标自己那段。
 const intop = rows.filter((r) => r.rank10 >= 1);
 const O0 = stat(intop, (r) => r.own0), O1 = stat(intop, (r) => r.own1);
 const oFull0 = intop.filter((r) => r.own0.span >= 1).length;
 const oFull1 = intop.filter((r) => r.own1.span >= 1).length;
 const oStrict0 = intop.filter((r) => r.own0.strict).length;
 const oStrict1 = intop.filter((r) => r.own1.strict).length;
+// 全样本分母（95）下的主口径，直接与 hit@10 同分母可比
+const ownAll0 = rows.filter((r) => r.own0.span >= 1).length;
+const ownAll1 = rows.filter((r) => r.own1.span >= 1).length;
+// 整包 span 的假阳性率：span=1 但目标不在包里 ⇒ 只能来自别的会话的词面重合
+const fpRate = (pick: (r: Row) => Cov) => {
+  const cov = rows.filter((r) => pick(r).span >= 1);
+  const fp = cov.filter((r) => r.rank10 === 0).length;
+  return { cov: cov.length, fp, rate: cov.length === 0 ? 0 : Math.round((fp / cov.length) * 1000) / 10 };
+};
+const FP0 = fpRate((r) => r.base), FP1 = fpRate((r) => r.p1), FP2 = fpRate((r) => r.p2);
 const S0e = stat(evid, (r) => r.base), S1e = stat(evid, (r) => r.p1);
 const b01 = evid.filter((r) => r.base.span >= 1 && r.p1.span < 1).length;
 const c01 = evid.filter((r) => r.base.span < 1 && r.p1.span >= 1).length;
@@ -419,18 +432,25 @@ console.log('    （按 limit=' + DEEP + ' 的返回序列数前 ' + LIMIT + ' �
 console.log('');
 console.log('【② 证据覆盖率】分母 n=' + n + '（' + ne + ' 题有可定位证据句；' + (n - ne) + ' 题目标会话无正文/无锚点句，按「未覆盖」计，与 hit@10 同分母可比）');
 console.log('  包          严格整句  句首40字   span=1.0   平均span  平均span(idf)');
-const line = (label: string, s: { n: number; strict: number; full: number; mean: number; meanIdf: number }) =>
+const line = (label: string, s: { n: number; strict: number; pref40: number; full: number; mean: number; meanIdf: number }) =>
   console.log('  ' + label.padEnd(11) + ' ' + fmt(s));
 line('P0 base', S0);
 line('P1 best@120', S1);
 line('P2 best@320', S2);
-console.log('  ── 「自己那条」口径（分母 = 目标进 top-' + LIMIT + ' 的 ' + intop.length + ' 题；只取目标会话自己在包里那段）──');
+console.log('  ⚠ 整包 span 有**结构性假阳性**：目标不在 top-' + LIMIT + ' 时包里没有目标那一段，');
+console.log('    此时 span=1 只能来自「别的会话凑巧命中同样几个锚点词」——按构造不是目标的证据。');
+console.log('    假阳性率（span=1 且目标不在包里 / 全部 span=1）：P0 ' + FP0.fp + '/' + FP0.cov + ' = ' + FP0.rate + '%'
+  + '　P1 ' + FP1.fp + '/' + FP1.cov + ' = ' + FP1.rate + '%'
+  + '　P2 ' + FP2.fp + '/' + FP2.cov + ' = ' + FP2.rate + '%');
+console.log('    ⇒ **整包 span 不作结论依据**，只作「上下文里出现过这些词」的下界参考。');
+console.log('  ── 「自己那条」口径（主口径；分母 = 目标进 top-' + LIMIT + ' 的 ' + intop.length + ' 题）──');
 console.log('     ' + 'P0 own'.padEnd(11) + ' 严格整句 ' + String(pct(oStrict0, intop.length)).padStart(5) + '%'
   + '　span=1.0 ' + String(pct(oFull0, intop.length)).padStart(5) + '%'
   + '　平均 span ' + O0.mean.toFixed(3));
 console.log('     ' + 'P1 own'.padEnd(11) + ' 严格整句 ' + String(pct(oStrict1, intop.length)).padStart(5) + '%'
   + '　span=1.0 ' + String(pct(oFull1, intop.length)).padStart(5) + '%'
   + '　平均 span ' + O1.mean.toFixed(3));
+console.log('     全样本分母（' + n + '，与 hit@' + LIMIT + ' 同分母）：own span=1.0　P0 ' + ownAll0 + ' = ' + pct(ownAll0, n) + '%　P1 ' + ownAll1 + ' = ' + pct(ownAll1, n) + '%');
 console.log('     配对 own P0→P1：span=1.0 +' + intop.filter((r) => r.own0.span < 1 && r.own1.span >= 1).length
   + ' / -' + intop.filter((r) => r.own0.span >= 1 && r.own1.span < 1).length
   + '　p=' + mcnemarExact(intop.filter((r) => r.own0.span >= 1 && r.own1.span < 1).length, intop.filter((r) => r.own0.span < 1 && r.own1.span >= 1).length).toFixed(4));
@@ -499,7 +519,13 @@ if (OUT) {
         P2: { ...S2, mean: Number(S2.mean.toFixed(4)), meanIdf: Number(S2.meanIdf.toFixed(4)) },
       },
       mcnemar: { p01: mcnemarExact(b01, c01), p02: mcnemarExact(b02, c02), pPref01: mcnemarExact(bP, cP) },
-      own: { n: intop.length, P0: { strict: oStrict0, full: oFull0, mean: Number(O0.mean.toFixed(4)) }, P1: { strict: oStrict1, full: oFull1, mean: Number(O1.mean.toFixed(4)) } },
+      own: {
+        n: intop.length,
+        P0: { strict: oStrict0, full: oFull0, mean: Number(O0.mean.toFixed(4)) },
+        P1: { strict: oStrict1, full: oFull1, mean: Number(O1.mean.toFixed(4)) },
+        allDenom: { P0: ownAll0, P1: ownAll1, n },
+      },
+      falsePositive: { P0: FP0, P1: FP1, P2: FP2 },
       chars: { p0: avgChars((r) => r.chars0), p1: avgChars((r) => r.chars1), p2: avgChars((r) => r.chars2) },
       clusters: {
         avg: Number(avgClusters.toFixed(3)), multiGroups: multi, inTop10: inTop10.length, recover: { ok: rec, denom: cond.length },

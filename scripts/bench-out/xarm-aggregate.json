@@ -1,7 +1,7 @@
 {
- "at": "2026-10-19T12:55:14.686Z",
- "dbPath": "D:/agent1super/.sessionrelay/relay.sqlite",
- "fingerprint": "sessions=680 messages=30863 maxMsgId=473948 bytes=60006400 mtime=2026-10-19T12:52:37.479Z",
+ "at": "2026-10-19T13:10:48.677Z",
+ "dbPath": "scripts/tmp-xarm/snapshot.sqlite",
+ "fingerprint": "sessions=680 messages=30866 maxMsgId=473951 bytes=60014592 mtime=2026-10-19T12:55:47.504Z",
  "qfile": "scripts/bench-questions-paraphrase-v2.json",
  "limit": 10,
  "deep": 50,
@@ -58,6 +58,28 @@
     "strict": 5,
     "full": 9,
     "mean": 0.5191
+   },
+   "allDenom": {
+    "P0": 9,
+    "P1": 9,
+    "n": 95
+   }
+  },
+  "falsePositive": {
+   "P0": {
+    "cov": 41,
+    "fp": 30,
+    "rate": 73.2
+   },
+   "P1": {
+    "cov": 41,
+    "fp": 29,
+    "rate": 70.7
+   },
+   "P2": {
+    "cov": 59,
+    "fp": 42,
+    "rate": 71.2
    }
   },
   "chars": {
@@ -162,7 +184,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.619873417751908
+    "spanIdf": 0.6198745137133413
    },
    "p1": {
     "strict": false,
@@ -180,7 +202,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.3834877531076176
+    "spanIdf": 0.38348656791284663
    },
    "own1": {
     "strict": false,
@@ -1038,13 +1060,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5578812935274083
+    "spanIdf": 0.5579204955595949
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5578812935274083
+    "spanIdf": 0.5579204955595949
    },
    "p2": {
     "strict": false,
@@ -1111,19 +1133,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.4499599960772947
+    "spanIdf": 0.44996104760854916
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5500400039227054
+    "spanIdf": 0.5500389523914508
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5500400039227054
+    "spanIdf": 0.5500389523914508
    },
    "own0": {
     "strict": false,
@@ -1135,7 +1157,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5500400039227054
+    "spanIdf": 0.5500389523914508
    },
    "chars0": 1039,
    "chars1": 830,
@@ -1184,31 +1206,31 @@
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6887381776753522
+    "spanIdf": 0.6887377376241168
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6887381776753522
+    "spanIdf": 0.6887377376241168
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6887381776753522
+    "spanIdf": 0.6887377376241168
    },
    "own0": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6887381776753522
+    "spanIdf": 0.6887377376241168
    },
    "own1": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6887381776753522
+    "spanIdf": 0.6887377376241168
    },
    "chars0": 327,
    "chars1": 327,
@@ -1257,19 +1279,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5034524763149126
+    "spanIdf": 0.503411170927787
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5034524763149126
+    "spanIdf": 0.503411170927787
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5034524763149126
+    "spanIdf": 0.503411170927787
    },
    "own0": {
     "strict": false,
@@ -1555,7 +1577,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5089726971985069
+    "spanIdf": 0.5089724535538883
    },
    "p2": {
     "strict": false,
@@ -1987,31 +2009,31 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5670173203655161
+    "spanIdf": 0.5670561247618797
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5670173203655161
+    "spanIdf": 0.5670561247618797
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5670173203655161
+    "spanIdf": 0.5670561247618797
    },
    "own0": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5670173203655161
+    "spanIdf": 0.5670561247618797
    },
    "own1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5670173203655161
+    "spanIdf": 0.5670561247618797
    },
    "chars0": 912,
    "chars1": 832,
@@ -2060,13 +2082,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5956436814737476
+    "spanIdf": 0.595641315654532
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5956436814737476
+    "spanIdf": 0.595641315654532
    },
    "p2": {
     "strict": false,
@@ -2212,7 +2234,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5544483033377153
+    "spanIdf": 0.5544876493978256
    },
    "p2": {
     "strict": false,
@@ -2279,13 +2301,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.30843626925704415
+    "spanIdf": 0.3084401267851232
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.691563730742956
+    "spanIdf": 0.6915598732148769
    },
    "p2": {
     "strict": false,
@@ -2425,7 +2447,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6440373018152924
+    "spanIdf": 0.6440346638737737
    },
    "p1": {
     "strict": false,
@@ -2443,7 +2465,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6440373018152924
+    "spanIdf": 0.6440346638737737
    },
    "own1": {
     "strict": false,
@@ -2504,7 +2526,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5876181208758541
+    "spanIdf": 0.5876161366293166
    },
    "p2": {
     "strict": false,
@@ -2522,7 +2544,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5876181208758541
+    "spanIdf": 0.5876161366293166
    },
    "chars0": 1179,
    "chars1": 1192,
@@ -2571,19 +2593,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.25,
-    "spanIdf": 0.15793657674322414
+    "spanIdf": 0.15793809079862137
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.47515514978946505
+    "spanIdf": 0.47515561015728885
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.47515514978946505
+    "spanIdf": 0.47515561015728885
    },
    "own0": {
     "strict": false,
@@ -2650,7 +2672,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.25367073662503475
+    "spanIdf": 0.25367435150452244
    },
    "p2": {
     "strict": false,
@@ -2717,7 +2739,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.31821278163346206
+    "spanIdf": 0.3182129958626469
    },
    "p1": {
     "strict": true,
@@ -2735,7 +2757,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.31821278163346206
+    "spanIdf": 0.3182129958626469
    },
    "own1": {
     "strict": true,
@@ -2790,19 +2812,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.40550763601793216
+    "spanIdf": 0.4055096913328315
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.40550763601793216
+    "spanIdf": 0.4055096913328315
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5273983803193472
+    "spanIdf": 0.5273976293393987
    },
    "own0": {
     "strict": false,
@@ -2942,13 +2964,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6512058992339264
+    "spanIdf": 0.6512027437710761
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6512058992339264
+    "spanIdf": 0.6512027437710761
    },
    "own0": {
     "strict": false,
@@ -3015,13 +3037,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.35116770394278796
+    "spanIdf": 0.3511673774606173
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.35116770394278796
+    "spanIdf": 0.3511673774606173
    },
    "own0": {
     "strict": false,
@@ -3161,13 +3183,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.7423519992915171
+    "spanIdf": 0.7423504970792751
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.7423519992915171
+    "spanIdf": 0.7423504970792751
    },
    "own0": {
     "strict": false,
@@ -3301,19 +3323,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.33138577044966794
+    "spanIdf": 0.33138584107232816
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.33138577044966794
+    "spanIdf": 0.33138584107232816
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6184393684263794
+    "spanIdf": 0.618440536734044
    },
    "own0": {
     "strict": false,
@@ -3374,13 +3396,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.75,
-    "spanIdf": 0.7875547421935037
+    "spanIdf": 0.787553974111964
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.75,
-    "spanIdf": 0.7875547421935037
+    "spanIdf": 0.787553974111964
    },
    "p2": {
     "strict": false,
@@ -3447,19 +3469,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.35250293834035096
+    "spanIdf": 0.3525058056501937
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.35250293834035096
+    "spanIdf": 0.3525058056501937
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.35250293834035096
+    "spanIdf": 0.3525058056501937
    },
    "own0": {
     "strict": false,
@@ -3593,19 +3615,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.35135255865464304
+    "spanIdf": 0.3513694718871072
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6486474413453569
+    "spanIdf": 0.6486305281128928
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6512095527110432
+    "spanIdf": 0.651192698965095
    },
    "own0": {
     "strict": false,
@@ -3745,13 +3767,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5872063306082502
+    "spanIdf": 0.5872045984556652
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5872063306082502
+    "spanIdf": 0.5872045984556652
    },
    "own0": {
     "strict": false,
@@ -3812,31 +3834,31 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6629740060577828
+    "spanIdf": 0.6629710703438045
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6629740060577828
+    "spanIdf": 0.6629710703438045
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6629740060577828
+    "spanIdf": 0.6629710703438045
    },
    "own0": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6629740060577828
+    "spanIdf": 0.6629710703438045
    },
    "own1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6629740060577828
+    "spanIdf": 0.6629710703438045
    },
    "chars0": 765,
    "chars1": 628,
@@ -3958,13 +3980,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6331158865587952
+    "spanIdf": 0.6330977289579949
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6851049398796814
+    "spanIdf": 0.6851400187289988
    },
    "p2": {
     "strict": false,
@@ -4104,19 +4126,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.2,
-    "spanIdf": 0.2903401621780247
+    "spanIdf": 0.2903444254524191
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.2,
-    "spanIdf": 0.23374363479802482
+    "spanIdf": 0.23374791281804072
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.4,
-    "spanIdf": 0.3607118742095723
+    "spanIdf": 0.36069931338292277
    },
    "own0": {
     "strict": false,
@@ -4183,7 +4205,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.3068454130664074
+    "spanIdf": 0.30684910944150096
    },
    "p2": {
     "strict": false,
@@ -4323,19 +4345,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.6,
-    "spanIdf": 0.5551550116730026
+    "spanIdf": 0.5551458621356136
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.6,
-    "spanIdf": 0.5551550116730026
+    "spanIdf": 0.5551458621356136
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6,
-    "spanIdf": 0.5551550116730026
+    "spanIdf": 0.5551458621356136
    },
    "own0": {
     "strict": false,
@@ -4469,19 +4491,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.4,
-    "spanIdf": 0.3160582727243674
+    "spanIdf": 0.31605303624615944
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.6,
-    "spanIdf": 0.610539484637618
+    "spanIdf": 0.6105352240679565
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6,
-    "spanIdf": 0.610539484637618
+    "spanIdf": 0.6105352240679565
    },
    "own0": {
     "strict": false,
@@ -4493,7 +4515,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.6,
-    "spanIdf": 0.610539484637618
+    "spanIdf": 0.6105352240679565
    },
    "chars0": 1184,
    "chars1": 1188,
@@ -4688,19 +4710,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5793467473748841
+    "spanIdf": 0.5793794158273375
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5793467473748841
+    "spanIdf": 0.5793794158273375
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5793467473748841
+    "spanIdf": 0.5793794158273375
    },
    "own0": {
     "strict": false,
@@ -4761,19 +4783,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6739094942805172
+    "spanIdf": 0.6739092975515105
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6739094942805172
+    "spanIdf": 0.6739092975515105
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6739094942805172
+    "spanIdf": 0.6739092975515105
    },
    "own0": {
     "strict": false,
@@ -4834,7 +4856,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.2936605013411897
+    "spanIdf": 0.29366413027700433
    },
    "p1": {
     "strict": false,
@@ -4846,7 +4868,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.2936605013411897
+    "spanIdf": 0.29366413027700433
    },
    "own0": {
     "strict": false,
@@ -5053,13 +5075,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.640074196624679
+    "spanIdf": 0.6400717528749554
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.35992580337532104
+    "spanIdf": 0.3599282471250447
    },
    "p2": {
     "strict": false,
@@ -5126,13 +5148,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.4159483631424911
+    "spanIdf": 0.41594637872790396
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.7254688468314662
+    "spanIdf": 0.7254674678004078
    },
    "p2": {
     "strict": false,
@@ -5272,19 +5294,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.25,
-    "spanIdf": 0.32678450157649835
+    "spanIdf": 0.32678270611275645
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.48353959611352637
+    "spanIdf": 0.4835400097490664
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5187501932787555
+    "spanIdf": 0.5187497344688683
    },
    "own0": {
     "strict": false,
@@ -5345,19 +5367,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.21600667166903256
+    "spanIdf": 0.21600901634239547
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.21600667166903256
+    "spanIdf": 0.21600901634239547
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.21600667166903256
+    "spanIdf": 0.21600901634239547
    },
    "own0": {
     "strict": false,
@@ -5491,13 +5513,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5788851526474834
+    "spanIdf": 0.5788831516582141
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5788851526474834
+    "spanIdf": 0.5788831516582141
    },
    "p2": {
     "strict": false,
@@ -5564,7 +5586,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.5483414433360729
+    "spanIdf": 0.5483218819267237
    },
    "p1": {
     "strict": false,
@@ -5637,19 +5659,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.2970866761116187
+    "spanIdf": 0.29709065180562116
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.2970866761116187
+    "spanIdf": 0.29709065180562116
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.2970866761116187
+    "spanIdf": 0.29709065180562116
    },
    "own0": {
     "strict": false,
@@ -5856,13 +5878,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6527919342919877
+    "spanIdf": 0.6527921748730688
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6527919342919877
+    "spanIdf": 0.6527921748730688
    },
    "p2": {
     "strict": false,
@@ -5874,13 +5896,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6527919342919877
+    "spanIdf": 0.6527921748730688
    },
    "own1": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.6527919342919877
+    "spanIdf": 0.6527921748730688
    },
    "chars0": 590,
    "chars1": 513,
@@ -5935,13 +5957,13 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.21538655108782723
+    "spanIdf": 0.21538854522512618
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.21538655108782723
+    "spanIdf": 0.21538854522512618
    },
    "own0": {
     "strict": false,
@@ -6075,7 +6097,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.25,
-    "spanIdf": 0.20314260920166882
+    "spanIdf": 0.20314330561123525
    },
    "p1": {
     "strict": false,
@@ -6093,7 +6115,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.25,
-    "spanIdf": 0.20314260920166882
+    "spanIdf": 0.20314330561123525
    },
    "own1": {
     "strict": false,
@@ -6148,19 +6170,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.36865103187528037
+    "spanIdf": 0.3686539790322102
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.36865103187528037
+    "spanIdf": 0.3686539790322102
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.6313489681247196
+    "spanIdf": 0.6313460209677898
    },
    "own0": {
     "strict": false,
@@ -6221,19 +6243,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.24685101240284582
+    "spanIdf": 0.24685290376680918
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.24685101240284582
+    "spanIdf": 0.24685290376680918
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.5894179593917387
+    "spanIdf": 0.5894197039885961
    },
    "own0": {
     "strict": false,
@@ -6245,7 +6267,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.24685101240284582
+    "spanIdf": 0.24685290376680918
    },
    "chars0": 1185,
    "chars1": 1185,
@@ -6294,19 +6316,19 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.49492446919295735
+    "spanIdf": 0.49492144993715925
    },
    "p1": {
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.49492446919295735
+    "spanIdf": 0.49492144993715925
    },
    "p2": {
     "strict": false,
     "pref40": false,
     "span": 0.6666666666666666,
-    "spanIdf": 0.5050755308070426
+    "spanIdf": 0.5050785500628407
    },
    "own0": {
     "strict": false,
@@ -6367,7 +6389,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5004525738972809
+    "spanIdf": 0.5004113471503561
    },
    "p1": {
     "strict": false,
@@ -6440,7 +6462,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.3333333333333333,
-    "spanIdf": 0.34042308150682743
+    "spanIdf": 0.3404229620246625
    },
    "p1": {
     "strict": false,
@@ -6665,7 +6687,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.75,
-    "spanIdf": 0.7132978104316953
+    "spanIdf": 0.7132986125365799
    },
    "p2": {
     "strict": false,
@@ -6683,7 +6705,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.75,
-    "spanIdf": 0.7132978104316953
+    "spanIdf": 0.7132986125365799
    },
    "chars0": 589,
    "chars1": 511,
@@ -6732,7 +6754,7 @@
     "strict": false,
     "pref40": false,
     "span": 0.5,
-    "spanIdf": 0.5234378345724027
+    "spanIdf": 0.5234372139769361
    },
    "p1": {
     "strict": false,

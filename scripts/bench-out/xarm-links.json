@@ -1,11 +1,17 @@
 {
- "at": "2026-10-19T12:18:55.266Z",
- "cmd": "npx tsx scripts/xarm-links.ts D:/agent1super/.sessionrelay/relay.sqlite --sweep",
+ "at": "2026-10-19T13:12:20.518Z",
+ "cmd": "npx tsx scripts/xarm-links.ts D:/agent1super/.sessionrelay/relay.sqlite --sweep --diag",
  "db": {
   "path": "D:\\agent1super\\.sessionrelay\\relay.sqlite",
-  "bytes": 59977728,
-  "mtime": "2026-10-19T12:10:27.129Z",
-  "opened": "readonly"
+  "bytes": 60026880,
+  "mtime": "2026-10-19T13:07:57.972Z",
+  "opened": "readonly",
+  "fingerprint": {
+   "sessions": 680,
+   "messages": 30883,
+   "session_links": 0,
+   "max_last_event_at": "2026-10-19T13:10:34.020Z"
+  }
  },
  "params": {
   "project": "proj_d--agent1super",
@@ -33,7 +39,7 @@
   "sessions": 680,
   "session_links_rows": 0,
   "x_items": 95,
-  "x_target_in_top50": 66
+  "x_target_in_top50": 65
  },
  "edges": {
   "total": 18914,
@@ -112,9 +118,9 @@
  "eval": {
   "n": 95,
   "base": {
-   "hit1": 9,
-   "hit10": 31,
-   "mrr": 18.2
+   "hit1": 11,
+   "hit10": 34,
+   "mrr": 19.9
   },
   "main": {
    "label": "main",
@@ -125,25 +131,25 @@
    "degMean": 5,
    "count": {
     "hit1": 4,
-    "hit10": 26,
-    "mrr": 12.5
+    "hit10": 30,
+    "mrr": 13.1
    },
    "prop": {
-    "hit1": 9,
-    "hit10": 31,
-    "mrr": 17.8
+    "hit1": 11,
+    "hit10": 34,
+    "mrr": 20
    },
    "expand": {
-    "hit1": 9,
-    "hit10": 27,
-    "mrr": 16.1,
-    "added": 2772
+    "hit1": 11,
+    "hit10": 30,
+    "mrr": 17.8,
+    "added": 2759
    },
-   "up": 22,
-   "down": 28,
-   "same": 16,
-   "targetLinked": 63,
-   "bridge": 34
+   "up": 23,
+   "down": 29,
+   "same": 13,
+   "targetLinked": 64,
+   "bridge": 35
   },
   "control": {
    "label": "control",
@@ -153,26 +159,26 @@
    "degMax": 5,
    "degMean": 5,
    "count": {
-    "hit1": 4,
-    "hit10": 24,
-    "mrr": 11.6
+    "hit1": 7,
+    "hit10": 28,
+    "mrr": 14
    },
    "prop": {
-    "hit1": 5,
-    "hit10": 30,
-    "mrr": 14.4
+    "hit1": 8,
+    "hit10": 31,
+    "mrr": 16.9
    },
    "expand": {
-    "hit1": 9,
-    "hit10": 26,
-    "mrr": 15.7,
-    "added": 3724
+    "hit1": 11,
+    "hit10": 29,
+    "mrr": 17.4,
+    "added": 3725
    },
-   "up": 14,
-   "down": 37,
-   "same": 15,
-   "targetLinked": 33,
-   "bridge": 4
+   "up": 12,
+   "down": 36,
+   "same": 17,
+   "targetLinked": 35,
+   "bridge": 6
   },
   "grid": [
    {
@@ -187,12 +193,12 @@
      27
     ],
     "prop": [
-     9,
-     30
+     11,
+     32
     ],
     "expand": [
-     9,
-     29
+     11,
+     32
     ]
    },
    {
@@ -204,15 +210,15 @@
     "degMax": 5,
     "count": [
      4,
-     26
+     30
     ],
     "prop": [
-     9,
-     31
+     11,
+     34
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -224,15 +230,15 @@
     "degMax": 8,
     "count": [
      7,
-     28
+     32
     ],
     "prop": [
-     9,
-     31
+     11,
+     35
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -247,12 +253,12 @@
      27
     ],
     "prop": [
-     9,
-     30
+     11,
+     32
     ],
     "expand": [
-     9,
-     29
+     11,
+     32
     ]
    },
    {
@@ -264,15 +270,15 @@
     "degMax": 5,
     "count": [
      4,
-     26
+     30
     ],
     "prop": [
-     9,
-     31
+     11,
+     34
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -284,15 +290,15 @@
     "degMax": 8,
     "count": [
      7,
-     28
+     32
     ],
     "prop": [
-     9,
-     31
+     11,
+     35
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -307,12 +313,12 @@
      27
     ],
     "prop": [
-     9,
-     30
+     11,
+     32
     ],
     "expand": [
-     9,
-     29
+     11,
+     32
     ]
    },
    {
@@ -324,15 +330,15 @@
     "degMax": 5,
     "count": [
      4,
-     26
+     30
     ],
     "prop": [
-     9,
-     31
+     11,
+     34
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -344,15 +350,15 @@
     "degMax": 8,
     "count": [
      7,
-     28
+     32
     ],
     "prop": [
-     9,
-     31
+     11,
+     35
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -367,12 +373,12 @@
      27
     ],
     "prop": [
-     9,
-     30
+     11,
+     32
     ],
     "expand": [
-     9,
-     29
+     11,
+     32
     ]
    },
    {
@@ -384,15 +390,15 @@
     "degMax": 5,
     "count": [
      4,
-     25
+     29
     ],
     "prop": [
-     9,
-     31
+     11,
+     34
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -403,16 +409,16 @@
     "degMean": 7.7,
     "degMax": 8,
     "count": [
-     7,
-     27
+     6,
+     32
     ],
     "prop": [
-     9,
-     31
+     11,
+     35
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -427,12 +433,12 @@
      27
     ],
     "prop": [
-     9,
-     29
+     11,
+     32
     ],
     "expand": [
-     9,
-     29
+     11,
+     32
     ]
    },
    {
@@ -444,15 +450,15 @@
     "degMax": 5,
     "count": [
      4,
-     25
+     28
     ],
     "prop": [
-     9,
-     30
+     11,
+     34
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -463,16 +469,16 @@
     "degMean": 6.7,
     "degMax": 8,
     "count": [
-     6,
-     25
+     5,
+     31
     ],
     "prop": [
-     9,
-     29
+     11,
+     35
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -487,12 +493,12 @@
      26
     ],
     "prop": [
-     9,
-     30
+     11,
+     33
     ],
     "expand": [
-     9,
-     29
+     11,
+     32
     ]
    },
    {
@@ -504,15 +510,15 @@
     "degMax": 5,
     "count": [
      4,
-     23
+     25
     ],
     "prop": [
-     9,
-     30
+     11,
+     34
     ],
     "expand": [
-     9,
-     28
+     11,
+     31
     ]
    },
    {
@@ -523,16 +529,16 @@
     "degMean": 5.3,
     "degMax": 8,
     "count": [
-     6,
+     5,
      27
     ],
     "prop": [
-     9,
-     29
+     11,
+     35
     ],
     "expand": [
-     9,
-     27
+     11,
+     30
     ]
    },
    {
@@ -543,16 +549,16 @@
     "degMean": 2.1,
     "degMax": 3,
     "count": [
-     3,
-     23
+     5,
+     28
     ],
     "prop": [
-     7,
-     30
+     9,
+     32
     ],
     "expand": [
-     9,
-     30
+     11,
+     33
     ]
    },
    {
@@ -563,16 +569,16 @@
     "degMean": 2.7,
     "degMax": 5,
     "count": [
-     2,
-     22
+     5,
+     26
     ],
     "prop": [
-     7,
-     30
+     9,
+     32
     ],
     "expand": [
-     9,
-     29
+     11,
+     32
     ]
    },
    {
@@ -583,16 +589,16 @@
     "degMean": 3.1,
     "degMax": 8,
     "count": [
-     2,
-     22
+     5,
+     26
     ],
     "prop": [
-     7,
-     30
+     9,
+     32
     ],
     "expand": [
-     9,
-     29
+     11,
+     32
     ]
    },
    {
@@ -603,16 +609,16 @@
     "degMean": 1.7,
     "degMax": 3,
     "count": [
-     7,
-     30
+     8,
+     27
     ],
     "prop": [
-     9,
-     34
+     11,
+     33
     ],
     "expand": [
-     9,
-     31
+     11,
+     34
     ]
    },
    {
@@ -623,16 +629,16 @@
     "degMean": 2,
     "degMax": 5,
     "count": [
-     7,
-     30
+     8,
+     27
     ],
     "prop": [
-     9,
-     34
+     11,
+     33
     ],
     "expand": [
-     9,
-     31
+     11,
+     34
     ]
    },
    {
@@ -643,19 +649,80 @@
     "degMean": 2.3,
     "degMax": 8,
     "count": [
-     7,
-     30
+     8,
+     27
     ],
     "prop": [
-     9,
-     34
+     11,
+     33
     ],
     "expand": [
-     9,
-     31
+     11,
+     34
     ]
    }
   ]
+ },
+ "diag": {
+  "strata": [
+   {
+    "label": "w>=0.4",
+    "n": 40,
+    "aToB": 2.5,
+    "bToA": 5,
+    "either": 7.5
+   },
+   {
+    "label": "w>=1",
+    "n": 40,
+    "aToB": 2.5,
+    "bToA": 12.5,
+    "either": 12.5
+   },
+   {
+    "label": "w>=2",
+    "n": 39,
+    "aToB": 7.7,
+    "bToA": 5.1,
+    "either": 10.3
+   }
+  ],
+  "random": {
+   "label": "随机对",
+   "n": 33,
+   "aToB": 0,
+   "bToA": 0,
+   "either": 0
+  },
+  "mcnemar": {
+   "b10": 7,
+   "b01": 0,
+   "chi2": 5.14,
+   "p": "<0.05"
+  },
+  "position": {
+   "nbAbove": 23,
+   "nbBelow": 24,
+   "nbNone": 48
+  },
+  "subset_base2to10": {
+   "n": 23,
+   "base": {
+    "n": 23,
+    "h1": 0,
+    "h10": 23
+   },
+   "count": {
+    "n": 23,
+    "h1": 0,
+    "h10": 17
+   },
+   "prop": {
+    "n": 23,
+    "h1": 0,
+    "h10": 22
+   }
+  }
  },
  "examples": [
   {

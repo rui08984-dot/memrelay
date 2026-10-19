@@ -337,9 +337,8 @@ if (has('diag')) {
   diag.strata = strata; diag.random = randomCtl;
   diag.mcnemar = { b10, b01, chi2: Number(chi.toFixed(2)), p: chi > 3.84 ? '<0.05' : '>=0.05' };
   diag.position = { nbAbove, nbBelow, nbNone };
-  diag.subset_base2to10 = { n: subIdx.length, baseHit1: baseRank.filter((r) => r === 1).length, countHit1: rc.filter((r) => r === 1).length, propHit1: rp.filter((r) => r === 1).length,
-    countHit10: rc.filter((r) => r > 0 && r <= 10).length, propHit10: rp.filter((r) => r > 0 && r <= 10).length,
-    baseHit10: baseRank.filter((r) => r > 0 && r <= 10).length };
+  const sub = (a: number[]) => subIdx.reduce((o, i) => { const r = a[i]; o.n++; if (r === 1) o.h1++; if (r > 0 && r <= 10) o.h10++; return o; }, { n: 0, h1: 0, h10: 0 });
+  diag.subset_base2to10 = { n: subIdx.length, base: sub(baseRank), count: sub(rc), prop: sub(rp) };
 }
 
 // ── 6. 分层 + 样例 ──
@@ -361,7 +360,14 @@ const dupExamples = edges.filter((e) => e.dup).slice(0, 5).map((e) => ({ weight:
 const out = {
   at: new Date().toISOString(),
   cmd: 'npx tsx scripts/xarm-links.ts ' + argv.join(' '),
-  db: { path: path.resolve(dbPath), bytes: dbStat.size, mtime: dbStat.mtime.toISOString(), opened: 'readonly' },
+  db: { path: path.resolve(dbPath), bytes: dbStat.size, mtime: dbStat.mtime.toISOString(), opened: 'readonly',
+    // 库是活的（守护每轮在写）：这几个数才是「这批数字属于哪个快照」的指纹，复现时先核对
+    fingerprint: {
+      sessions: nSessions,
+      messages: (db.prepare('SELECT COUNT(*) c FROM messages').get() as { c: number }).c,
+      session_links: nLinks,
+      max_last_event_at: (db.prepare('SELECT MAX(last_event_at) m FROM sessions').get() as { m: string | null }).m,
+    } },
   params: { project: PID, alpha: ALPHA, dfcap: DFCAP, tagcap: TAGEAP, caps: built.caps, tier: TIER, topk: TOPK, linkweight: LINKW, limit: LIMIT, dupjac: DUPJAC },
   facts: { sessions: nSessions, session_links_rows: nLinks, x_items: items.length, x_target_in_top50: inTop50.filter(Boolean).length },
   edges: { total: edges.length, dup: edges.length - live.length, live: live.length, multi_signal: live.filter((e) => e.nsig >= 2).length,
@@ -407,7 +413,7 @@ if (Object.keys(diag).length) {
   console.log('  McNemar hit@1: 变差 ' + m.b10 + ' / 变好 ' + m.b01 + ' · chi2=' + m.chi2 + ' p' + m.p);
   const p2 = diag.position as Record<string, unknown>;
   console.log('  位置：邻居排在目标前 ' + p2.nbAbove + ' · 后 ' + p2.nbBelow + ' · 无 ' + p2.nbNone);
-  const sb = diag.subset_base2to10 as Record<string, unknown>;
-  console.log('  子集(base rank 2-10) n=' + sb.n + ' base h1=' + sb.baseHit1 + ' count h1=' + sb.countHit1 + ' prop h1=' + sb.propHit1);
+  const sb = diag.subset_base2to10 as { n: number; base: Acc; count: Acc; prop: Acc };
+  console.log('  子集(base rank 2-10，只统计这 ' + sb.n + ' 题) base ' + sb.base.h1 + '/' + sb.base.h10 + '  count ' + sb.count.h1 + '/' + sb.count.h10 + '  prop ' + sb.prop.h1 + '/' + sb.prop.h10 + ' (hit@1/hit@10)');
 }
 console.log('已写 ' + OUT);

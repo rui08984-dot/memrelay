@@ -16,6 +16,7 @@ import { openExisting, listSessions, listDecisions, listUnresolved,
          insertScopeLog, addSessionLink, getLinkedSessions, createNoteSession,
          getSessionFull, metaTextOf, type DB } from '../store/db.js';
 import { searchSessions } from '../search-svc/engine.js';
+import { groupSessions } from '../search-svc/session-groups.js';
 import { runExport, runExportMarkdown } from '../relay/export.js';
 import { runImport, runRelease } from '../relay/import.js';
 import { ZipSlipError, IntegrityError } from '../relay/hop.js';
@@ -307,9 +308,19 @@ const hits = searchSessions(cur.db, { project: cur.project, query: args.query, l
     const respBytes = Buffer.byteLength(JSON.stringify(out), 'utf8');
     const tokenHint = `本次响应约 ${Math.round(respBytes / 3)} tokens。深入时省 token：srelay_show(role:'user') 只看用户提问；srelay_search(kind:'decisions') 直接拿结论`;
     const hint2 = buildHint(cur.db, cur.cfg, cur.project, callPred, hits.length);
+    // [10-19] 多会话呈现：用户问「在哪几次会话里……」，答案是一组会话。
+    //   只新增 groups 字段（hits 结构一字不动）⇒ 老调用方零影响；
+    //   分组只在**已返回的命中集合内**做，不引入集合外会话（不改检索结果）。
+    const groups = groupSessions(cur.db, hits.map((h) => ({ sessionId: h.sessionId, score: h.score })));
     return toolOut({
       kind: 'sessions', query: args.query, scoped: !!asm.where, escaped: asm.escaped,
       count: out.length, hits: out,
+      groups: groups.map((g) => ({
+        lead: g.lead,
+        sessions: g.sessionIds,
+        ...(g.sharedTopics.length ? { sharedTopics: g.sharedTopics } : {}),
+        ...(g.sharedFiles.length ? { sharedFiles: g.sharedFiles } : {}),
+      })),
       estimated_tokens: Math.round(respBytes / 3),
       hint: [tokenHint, hint2].filter(Boolean).join(' | '),
     });
