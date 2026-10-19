@@ -22,9 +22,19 @@ import { requireRoot, openRelayDb, pc } from './ui.js';
 import { openGlobal, pickForInjection, type LessonRow } from '../store/global.js';
 import { resolveDomain, resolveWorkspaceId } from '../shared/workspace.js';
 import { passesUnresolvedFilters, passesBriefFilters, UNR_SLOTS } from './brief-filter.js';
+// [task-14] 存量决策碎片的判据：**只 import，绝不复制**。
+//   「换成我们的了」「换成你的问法」这类句子的闸门（vagueDecisionObject）住在抽取端，
+//   它只影响**新提取**；1021 之前入库的旧碎片永远不会再被抽取端碰一次，
+//   所以它们至今仍在简报里。展示层必须按**同一份**判据再拦一道（见 collectBrief 那段注释）。
+//   同一份判据的三个使用者：core/extract（抽取端拒收）、core/audit（只读体检计数）、本文件（展示层隐藏）。
+import { vagueDecisionObject } from '../core/extract/extract.js';
 import { openGlobalAuditReadonly } from '../core/audit/audit.js';
 import { latestAuditAlert } from '../core/lifecycle/audit-stage.js';
 import { groupSessions } from '../search-svc/session-groups.js';
+// [task-13] 会话卡接进 brief：装配（buildSessionCardFromStored）与行格式（renderCardLines）
+// 全部 import 自 core/cards —— 本文件不写判据、不写第二套卡片格式；
+// 这里只决定「给哪几场出卡 + 放不放得下」，实现在 cli/brief-cards.ts。
+import { collectBriefCards, composeBriefWithCards, BRIEF_BUDGET_RATIO, type BriefComposeResult, type BriefCardBlock } from './brief-cards.js';
 
 /** 简报「相关会话」段的分组条目（组内 ≥2 场；单场不进这一段——决策/未决列表已经点了名） */
 export interface BriefRelatedGroup {
@@ -47,6 +57,22 @@ export const RELATED_MAX_GROUPS = 3;
 /** 参与分组的会话上限（IN (...) 的参数必须有界；60 场已覆盖简报 200 条决策的来源集合） */
 export const RELATED_MAX_REFS = 60;
 
+/**
+ * [task-14] 简报末尾那行说明的**唯一写法**（判据/口径都只有一份，文案也只有一份）。
+ *
+ * 为什么要打印：过滤是**静默**的 —— 用户看到决策从 8 条变成 6 条，却没有任何解释，
+ * 第一反应会是"记忆丢了"。说明行把"少掉的"变成看得见的事实：**已隐藏 N 条疑似碎片（旧数据）**，
+ * 括号里的「旧数据」是在说清口径 —— 这些条目是抽取端闸门上线**之前**入库的，
+ * 所以它们不会自己消失；想核对/清理请用 `srelay decisions`（全量仍可见），本命令不动库。
+ *
+ * @returns N ≤ 0 时返回 null —— 没有碎片就**一个字都不打**（每天多一行「已隐藏 0 条」是噪音，
+ *          而且会让读者以为简报一直在藏东西）。
+ */
+export function hiddenFragmentsNote(n: number): string | null {
+  const v = Number.isFinite(n) ? Math.floor(n) : 0;
+  return v > 0 ? `已隐藏 ${v} 条疑似碎片（旧数据）` : null;
+}
+
 export interface BriefPayload {
   /**
    * 审计告警（**简报第一行**）：生命周期 audit 阶段最近一次对本项目的结论为 P0 时非空，
@@ -56,7 +82,19 @@ export interface BriefPayload {
   auditAlert: string | null;
   decisions: DecisionRow[];
   unresolved: UnresolvedRow[];
-  counts: { decisions: number; decisionsRaw?: number; folded?: number; unresolved: number };
+  counts: {
+    decisions: number;
+    decisionsRaw?: number;
+    folded?: number;
+    unresolved: number;
+    /**
+     * [task-14] 展示层按 vagueDecisionObject 拦下的**存量碎片**条数（0 = 没有）。
+     * 它们仍完整躺在库里、检索/导出/面板一条不少 —— 这个数只是"这一次少显示了几条"，
+     * 与 counts.decisions 互补（decisions + fragmentsHidden ≈ 过完既有过滤后的条数）。
+     * 渲染末尾说明行请调 hiddenFragmentsNote()，别在客户端另写一种说法。
+     */
+    fragmentsHidden: number;
+  };
   recentFiles: RecentFileRow[];
   /**
    * 「相关会话」段：简报里被点名的会话中，**同一主题的多条会话**合成一组（最多 3 组）。
@@ -115,7 +153,26 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
       const t = Date.parse(String(dd.at ?? ''));
       return !Number.isFinite(t) || t >= cutoff;   // 时间不可解析时宁可保留（容错不静默丢）
     });
-  const { rows: decisions, folded } = foldNearDuplicates<DecisionRow>(rawDecisions, 0.8, lengthRatioGate);
+  // ── [task-14] 存量决策碎片：**展示层**再拦一道（判据 import 自 core/extract，不复制正则）──
+  //   病历：简报里仍然出现『换成我们的了』『换成你的问法』这类句子。原因不是判据坏了，是
+  //   **时机**：vagueDecisionObject 是**抽取端**闸门（extract.ts 的 plausibleDecision 里那道），
+  //   只拦得住"此后新提取的"；旧数据早已入库，抽取端这辈子不会再碰它们一次 ⇒ 永远显示。
+  //   处置口径（与全仓一致）：**只影响这一次显示** —— 库一个字节不动、不删数据，
+  //   检索 / 导出 / 面板 / srelay decisions 仍全量可见。
+  //   ⚠️ 为什么放在 fold **之前**：近重复折叠的代表是"组内最新那条"。若碎片先当上代表，
+  //      折叠会把同组里那句**正常**决策并进碎片，随后碎片被本条拦掉 ⇒ 好的一条也跟着消失。
+  //      先滤碎片再折叠，名额给的是真事。
+  //   ⚠️ 置顶豁免：与同函数里的时间窗、未决段过滤同规（用户显式 pin 过的东西要尊重）。
+  //      要改成"pin 也照拦"，删下面那一个条件即可 —— 别在别处再写第三种说法。
+  let fragmentsHidden = 0;
+  const keptDecisions = rawDecisions.filter((d) => {
+    const dd = d as { text?: string; pinned?: boolean };
+    if (dd.pinned === true) return true;
+    if (!vagueDecisionObject(String(dd.text ?? ''))) return true;
+    fragmentsHidden++;
+    return false;
+  });
+  const { rows: decisions, folded } = foldNearDuplicates<DecisionRow>(keptDecisions, 0.8, lengthRatioGate);
   // [1021 红队 R4 修复] **三路分叉**：这里原来是「决策无时间窗 + 未决 14 天」，
   //   而 DSH（plugins/dsh/index.js:81 `FRESH_MS = 48 * 3600_000`）与
   //   ZCode（integrations/zcode/brief-shared.mjs:25 同值）**两者都是 48 小时**。
@@ -143,7 +200,7 @@ export function collectBrief(db: DB, projectId: string, opts: { limit?: number; 
   ]);
   const experiences = collectExperiences(root ?? process.cwd(), opts);
   return { auditAlert: collectAuditAlert(root), relatedSessions, experiences, decisions, unresolved, recentFiles,
-    counts: { decisions: decisions.length, decisionsRaw: rawDecisions.length, folded, unresolved: unresolved.length } };
+    counts: { decisions: decisions.length, decisionsRaw: rawDecisions.length, folded, unresolved: unresolved.length, fragmentsHidden } };
 }
 
 export async function cmdBrief(opts: { limit?: number; days?: number; top?: number; json?: boolean }): Promise<void> {
@@ -153,24 +210,36 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
   try {
     const pay = collectBrief(db, cfg.identity.project_id ?? root, opts, root);
     if (opts.json) { console.log(JSON.stringify(pay)); return; }
+    // ── [task-13] 会话卡：**先算基线，再在预算里塞卡** ──
+    // 人话输出整体在这里拼完再一次性打印（以前是逐行 console.log）。原因：
+    // 体积预算（≤ 不加卡时 ×1.2）只有在"整条都拼好"之后才量得出来，边打边算是没法回退的。
+    //
+    // 基线（head + tail）就是**不加卡时的那条简报**，逐行与旧版一致（含颜色）：
+    // 卡段插在 head 与 tail 之间 —— 卡片是决策行/未决行的"展开"，离它们越近越有用。
+    //
+    // ⚠️ 只动**人话输出**。`--json` 上面已经 return 了：payload 是客户端契约
+    // （三条老命令逐字段对拍 + 插件 selftest §12 拿真库对拍），擅自加字段就是改语义。
+    const head: string[] = [];
     // 审计 P0 永远排第一行（红字）：它是"不可逆的数据缺失"，比"最近定了什么"更急。
     // 无 P0 时 auditAlert 为 null —— 这里不打印任何"审计正常"，静默就是正常。
-    if (pay.auditAlert) console.log(pc.red(pay.auditAlert));
-    console.log(`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`);
-    for (const r of pay.recentFiles) console.log(pc.dim(`  🗂 ${r.file}（${r.sessions} 场）`));
-    for (const d of pay.decisions.slice(0, 5)) console.log(`  ${pc.dim(d.at?.slice(0, 10) ?? '')} ${d.kind === 'negative' ? pc.red('✗') : pc.green('✓')} ${d.text.slice(0, 60)}`);
-    for (const u of pay.unresolved.slice(0, UNR_SLOTS)) console.log(`  ${pc.yellow('◻')} ${u.q.slice(0, 60)}`);
+    if (pay.auditAlert) head.push(pc.red(pay.auditAlert));
+    head.push(`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`);
+    for (const r of pay.recentFiles) head.push(pc.dim(`  🗂 ${r.file}（${r.sessions} 场）`));
+    for (const d of pay.decisions.slice(0, 5)) head.push(`  ${pc.dim(d.at?.slice(0, 10) ?? '')} ${d.kind === 'negative' ? pc.red('✗') : pc.green('✓')} ${d.text.slice(0, 60)}`);
+    for (const u of pay.unresolved.slice(0, UNR_SLOTS)) head.push(`  ${pc.yellow('◻')} ${u.q.slice(0, 60)}`);
+
+    const tail: string[] = [];
     // ── [1021 P1-1] 「相关会话」段：多会话组按组显示，不再逐条平铺 ──
     // 只在真的分出组时才打印；单场会话不进这一段（决策/未决行已经点了名）。
     if (pay.relatedSessions.length > 0) {
-      console.log(pc.dim(`  相关会话 ${pay.relatedSessions.length} 组（同一主题的多条会话）：`));
+      tail.push(pc.dim(`  相关会话 ${pay.relatedSessions.length} 组（同一主题的多条会话）：`));
       for (const g of pay.relatedSessions) {
         const lead = g.members.find((m) => m.id === g.lead);
         const sig = [...(g.sharedTopics ?? []).slice(0, 2), ...(g.sharedFiles ?? []).slice(0, 1)].join(' / ');
-        console.log(pc.dim('  · ') + String(lead?.title ?? g.lead).slice(0, 40)
+        tail.push(pc.dim('  · ') + String(lead?.title ?? g.lead).slice(0, 40)
           + pc.dim('  [' + g.sessions.length + ' 场' + (sig ? ' · 共享 ' + sig : '') + ']'));
         const others = g.members.filter((m) => m.id !== g.lead).map((m) => m.title ?? m.id).filter(Boolean);
-        if (others.length > 0) console.log(pc.dim('      ↳ ' + others.join(' · ').slice(0, 80)));
+        if (others.length > 0) tail.push(pc.dim('      ↳ ' + others.join(' · ').slice(0, 80)));
       }
     }
     // ── [1021 修「面板说可注入 10 条，但 srelay brief 一条经验都不显示」] ──
@@ -179,12 +248,44 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     //   而面板同一时刻显示「可注入: 10 条」。两个面各说一套，最容易被判成「功能坏了」。
     //   这里补上：只在**真取到**时打印（空就不占行，别每天多一行「经验 0 条」的噪音）。
     if (pay.experiences.length > 0) {
-      console.log(pc.dim('  经验 ' + pay.experiences.length + ' 条（会自动注入新对话）：'));
-      for (const e of pay.experiences) console.log(pc.dim('  · ' + String(e.text).slice(0, 72)));
+      tail.push(pc.dim('  经验 ' + pay.experiences.length + ' 条（会自动注入新对话）：'));
+      for (const e of pay.experiences) tail.push(pc.dim('  · ' + String(e.text).slice(0, 72)));
+    }
+    // ── [task-14] 末尾说明行：**过滤必须说出来** ──
+    //   「已隐藏 N 条疑似碎片（旧数据）」。没有碎片时 hiddenFragmentsNote 返回 null ⇒ 不打。
+    {
+      const note = hiddenFragmentsNote(pay.counts.fragmentsHidden);
+      if (note) tail.push(pc.dim('  ' + note));
+    }
+
+    // 出卡的会话 = 简报里**被点名**的那些（决策行在前、未决行在后），去重后前 BRIEF_CARD_MAX 场。
+    // 挑选判据只有这份 list（"简报点了名"）；卡片里放什么、长什么样全在 core/cards。
+    const blocks = collectBriefCards(db, [
+      ...pay.decisions.slice(0, 5).map((d) => d.sessionId),
+      ...pay.unresolved.slice(0, UNR_SLOTS).map((u) => u.sessionId),
+    ]);
+    const out = composeBriefWithCards(head, blocks, tail);
+    for (const line of out.lines) console.log(line);
+    // 降级/省略必须**说出来**：预算连一行提示都塞不下时改走 stderr（也不许闷着）。
+    if (out.noticeTo === 'stderr' && out.notice) {
+      try { process.stderr.write('[brief] 预算已用满：' + out.notice.slice(1, -1) + '\n'); } catch { /* 连 stderr 都写不了就别管了 */ }
     }
   } finally {
     db.close();
   }
+}
+
+/** 供测试与调用方核对预算账本：跑一遍**同一个** cmdBrief 取数 → 拼装路径，返回账本 */
+export function briefComposeForTest(db: DB, pay: BriefPayload): BriefComposeResult {
+  const head: string[] = [`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`];
+  for (const r of pay.recentFiles) head.push(`  🗂 ${r.file}（${r.sessions} 场）`);
+  for (const d of pay.decisions.slice(0, 5)) head.push(`  ${d.at?.slice(0, 10) ?? ''} ${d.kind === 'negative' ? '✗' : '✓'} ${d.text.slice(0, 60)}`);
+  for (const u of pay.unresolved.slice(0, UNR_SLOTS)) head.push(`  ◻ ${u.q.slice(0, 60)}`);
+  const blocks: BriefCardBlock[] = collectBriefCards(db, [
+    ...pay.decisions.slice(0, 5).map((d) => d.sessionId),
+    ...pay.unresolved.slice(0, UNR_SLOTS).map((u) => u.sessionId),
+  ]);
+  return composeBriefWithCards(head, blocks, []);
 }
 
 /**

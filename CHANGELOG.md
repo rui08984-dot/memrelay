@@ -5,6 +5,12 @@
 
 ## [Unreleased]
 
+### 简报接线：会话卡 + 碎片过滤（10-19）
+
+- **会话卡接进 `srelay brief`**：`src/cli/brief-cards.ts` 提供卡片装配与预算控制（`BRIEF_BUDGET_RATIO`），`brief.ts` 只决定「给哪几场出卡 + 放不放得下」。超预算时降级成单行并**明说**（`预算已用满：N 张卡降级为单行`），绝不静默截断。
+- **存量决策碎片过滤**：展示层用 `vagueDecisionObject`（与抽取端、audit 同一份判据）拦掉旧碎片，末尾一行「已隐藏 N 条疑似碎片（旧数据）」；无碎片时一个字都不打。库不动、`srelay decisions` 仍全量可见。实测 agent1super：决策 4→2 条，隐藏 2 条。
+- 新增 6 条测试（`test/fork/task-14-brief-fragments.spec.ts` 3 条 + `brief-audit-alert` 3 条）。
+
 ### 会话卡与审计契约（10-19）
 
 - 新增 `src/core/cards/session-card.ts`：把一个会话压成结构化卡片（决策/未决/话题/文件/时间跨度 + 每条证据的 msgId/seq/原句）。判据全部 import 自 `core/extract`，零复制；先过 `sanitizeMsgs`，注入块不会被当成决策。10 条单测。
