@@ -1,0 +1,17 @@
+import { createRequire } from 'node:module';
+import fs from 'node:fs';
+const require2 = createRequire(import.meta.url);
+const Database = require2('better-sqlite3');
+const db = new Database('D:/agent1super/.sessionrelay/relay.sqlite', { readonly: true });
+const out=[];
+const S = db.prepare('SELECT id,title,topics,files_mentioned,user_tags FROM sessions').all();
+const j=(v)=>{try{return v?JSON.parse(v):[]}catch{return[]}};
+const df=(pick)=>{const m=new Map();for(const s of S){for(const x of new Set(pick(s))) if(x) m.set(x,(m.get(x)||0)+1);}return [...m.entries()].sort((a,b)=>b[1]-a[1]);};
+const tp=df(s=>j(s.topics));
+out.push('TOPICS distinct '+tp.length+' top30 '+JSON.stringify(tp.slice(0,30)));
+out.push('topic df>=2 count '+tp.filter(x=>x[1]>=2).length+' df==1 '+tp.filter(x=>x[1]===1).length);
+const fp=df(s=>j(s.files_mentioned).map(f=>String(f).split(/[\\/]/).pop()));
+out.push('FILES distinct '+fp.length+' top25 '+JSON.stringify(fp.slice(0,25)));
+const tg=df(s=>j(s.user_tags));
+out.push('TAGS distinct '+tg.length+' all '+JSON.stringify(tg.slice(0,40)));
+fs.writeFileSync('scripts/_probe.txt', out.join('\n'));

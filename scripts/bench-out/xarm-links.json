@@ -1,0 +1,991 @@
+{
+ "at": "2026-10-19T12:18:55.266Z",
+ "cmd": "npx tsx scripts/xarm-links.ts D:/agent1super/.sessionrelay/relay.sqlite --sweep",
+ "db": {
+  "path": "D:\\agent1super\\.sessionrelay\\relay.sqlite",
+  "bytes": 59977728,
+  "mtime": "2026-10-19T12:10:27.129Z",
+  "opened": "readonly"
+ },
+ "params": {
+  "project": "proj_d--agent1super",
+  "alpha": {
+   "topic": 3,
+   "file": 1.5,
+   "title": 1,
+   "tag": 1
+  },
+  "dfcap": 0.1,
+  "tagcap": 0.03,
+  "caps": {
+   "topic": 68,
+   "file": 68,
+   "title": 68,
+   "tag": 20
+  },
+  "tier": 0.4,
+  "topk": 5,
+  "linkweight": 0.5,
+  "limit": 50,
+  "dupjac": 0.85
+ },
+ "facts": {
+  "sessions": 680,
+  "session_links_rows": 0,
+  "x_items": 95,
+  "x_target_in_top50": 66
+ },
+ "edges": {
+  "total": 18914,
+  "dup": 538,
+  "live": 18376,
+  "multi_signal": 9031,
+  "hist": [
+   {
+    "lo": 0,
+    "hi": 0.1,
+    "n": 394
+   },
+   {
+    "lo": 0.1,
+    "hi": 0.2,
+    "n": 3161
+   },
+   {
+    "lo": 0.2,
+    "hi": 0.3,
+    "n": 1742
+   },
+   {
+    "lo": 0.3,
+    "hi": 0.4,
+    "n": 1602
+   },
+   {
+    "lo": 0.4,
+    "hi": 0.6,
+    "n": 4673
+   },
+   {
+    "lo": 0.6,
+    "hi": 0.8,
+    "n": 2562
+   },
+   {
+    "lo": 0.8,
+    "hi": 1,
+    "n": 1511
+   },
+   {
+    "lo": 1,
+    "hi": 1.5,
+    "n": 1817
+   },
+   {
+    "lo": 1.5,
+    "hi": 2,
+    "n": 518
+   },
+   {
+    "lo": 2,
+    "hi": null,
+    "n": 396
+   }
+  ],
+  "quantiles": {
+   "p50": 0.4899093068611018,
+   "p90": 1.1522708521155116,
+   "p99": 2.5628285159185764,
+   "max": 4.881116516861385
+  },
+  "above": {
+   "1": 2731,
+   "2": 396,
+   "0.2": 14821,
+   "0.3": 13079,
+   "0.4": 11477,
+   "0.6": 6804,
+   "0.8": 4242,
+   "1.5": 914
+  }
+ },
+ "eval": {
+  "n": 95,
+  "base": {
+   "hit1": 9,
+   "hit10": 31,
+   "mrr": 18.2
+  },
+  "main": {
+   "label": "main",
+   "edges": 11477,
+   "nodes": 644,
+   "degP50": 5,
+   "degMax": 5,
+   "degMean": 5,
+   "count": {
+    "hit1": 4,
+    "hit10": 26,
+    "mrr": 12.5
+   },
+   "prop": {
+    "hit1": 9,
+    "hit10": 31,
+    "mrr": 17.8
+   },
+   "expand": {
+    "hit1": 9,
+    "hit10": 27,
+    "mrr": 16.1,
+    "added": 2772
+   },
+   "up": 22,
+   "down": 28,
+   "same": 16,
+   "targetLinked": 63,
+   "bridge": 34
+  },
+  "control": {
+   "label": "control",
+   "edges": 11477,
+   "nodes": 680,
+   "degP50": 5,
+   "degMax": 5,
+   "degMean": 5,
+   "count": {
+    "hit1": 4,
+    "hit10": 24,
+    "mrr": 11.6
+   },
+   "prop": {
+    "hit1": 5,
+    "hit10": 30,
+    "mrr": 14.4
+   },
+   "expand": {
+    "hit1": 9,
+    "hit10": 26,
+    "mrr": 15.7,
+    "added": 3724
+   },
+   "up": 14,
+   "down": 37,
+   "same": 15,
+   "targetLinked": 33,
+   "bridge": 4
+  },
+  "grid": [
+   {
+    "minW": 0.2,
+    "topK": 3,
+    "kept": 14821,
+    "nodes": 644,
+    "degMean": 3,
+    "degMax": 3,
+    "count": [
+     4,
+     27
+    ],
+    "prop": [
+     9,
+     30
+    ],
+    "expand": [
+     9,
+     29
+    ]
+   },
+   {
+    "minW": 0.2,
+    "topK": 5,
+    "kept": 14821,
+    "nodes": 644,
+    "degMean": 5,
+    "degMax": 5,
+    "count": [
+     4,
+     26
+    ],
+    "prop": [
+     9,
+     31
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.2,
+    "topK": 8,
+    "kept": 14821,
+    "nodes": 644,
+    "degMean": 7.9,
+    "degMax": 8,
+    "count": [
+     7,
+     28
+    ],
+    "prop": [
+     9,
+     31
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.3,
+    "topK": 3,
+    "kept": 13079,
+    "nodes": 644,
+    "degMean": 3,
+    "degMax": 3,
+    "count": [
+     4,
+     27
+    ],
+    "prop": [
+     9,
+     30
+    ],
+    "expand": [
+     9,
+     29
+    ]
+   },
+   {
+    "minW": 0.3,
+    "topK": 5,
+    "kept": 13079,
+    "nodes": 644,
+    "degMean": 5,
+    "degMax": 5,
+    "count": [
+     4,
+     26
+    ],
+    "prop": [
+     9,
+     31
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.3,
+    "topK": 8,
+    "kept": 13079,
+    "nodes": 644,
+    "degMean": 7.9,
+    "degMax": 8,
+    "count": [
+     7,
+     28
+    ],
+    "prop": [
+     9,
+     31
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.4,
+    "topK": 3,
+    "kept": 11477,
+    "nodes": 644,
+    "degMean": 3,
+    "degMax": 3,
+    "count": [
+     4,
+     27
+    ],
+    "prop": [
+     9,
+     30
+    ],
+    "expand": [
+     9,
+     29
+    ]
+   },
+   {
+    "minW": 0.4,
+    "topK": 5,
+    "kept": 11477,
+    "nodes": 644,
+    "degMean": 5,
+    "degMax": 5,
+    "count": [
+     4,
+     26
+    ],
+    "prop": [
+     9,
+     31
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.4,
+    "topK": 8,
+    "kept": 11477,
+    "nodes": 644,
+    "degMean": 7.8,
+    "degMax": 8,
+    "count": [
+     7,
+     28
+    ],
+    "prop": [
+     9,
+     31
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.6,
+    "topK": 3,
+    "kept": 6804,
+    "nodes": 631,
+    "degMean": 3,
+    "degMax": 3,
+    "count": [
+     4,
+     27
+    ],
+    "prop": [
+     9,
+     30
+    ],
+    "expand": [
+     9,
+     29
+    ]
+   },
+   {
+    "minW": 0.6,
+    "topK": 5,
+    "kept": 6804,
+    "nodes": 631,
+    "degMean": 4.9,
+    "degMax": 5,
+    "count": [
+     4,
+     25
+    ],
+    "prop": [
+     9,
+     31
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.6,
+    "topK": 8,
+    "kept": 6804,
+    "nodes": 631,
+    "degMean": 7.7,
+    "degMax": 8,
+    "count": [
+     7,
+     27
+    ],
+    "prop": [
+     9,
+     31
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.8,
+    "topK": 3,
+    "kept": 4242,
+    "nodes": 629,
+    "degMean": 2.9,
+    "degMax": 3,
+    "count": [
+     4,
+     27
+    ],
+    "prop": [
+     9,
+     29
+    ],
+    "expand": [
+     9,
+     29
+    ]
+   },
+   {
+    "minW": 0.8,
+    "topK": 5,
+    "kept": 4242,
+    "nodes": 629,
+    "degMean": 4.6,
+    "degMax": 5,
+    "count": [
+     4,
+     25
+    ],
+    "prop": [
+     9,
+     30
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 0.8,
+    "topK": 8,
+    "kept": 4242,
+    "nodes": 629,
+    "degMean": 6.7,
+    "degMax": 8,
+    "count": [
+     6,
+     25
+    ],
+    "prop": [
+     9,
+     29
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 1,
+    "topK": 3,
+    "kept": 2731,
+    "nodes": 621,
+    "degMean": 2.7,
+    "degMax": 3,
+    "count": [
+     4,
+     26
+    ],
+    "prop": [
+     9,
+     30
+    ],
+    "expand": [
+     9,
+     29
+    ]
+   },
+   {
+    "minW": 1,
+    "topK": 5,
+    "kept": 2731,
+    "nodes": 621,
+    "degMean": 4,
+    "degMax": 5,
+    "count": [
+     4,
+     23
+    ],
+    "prop": [
+     9,
+     30
+    ],
+    "expand": [
+     9,
+     28
+    ]
+   },
+   {
+    "minW": 1,
+    "topK": 8,
+    "kept": 2731,
+    "nodes": 621,
+    "degMean": 5.3,
+    "degMax": 8,
+    "count": [
+     6,
+     27
+    ],
+    "prop": [
+     9,
+     29
+    ],
+    "expand": [
+     9,
+     27
+    ]
+   },
+   {
+    "minW": 1.5,
+    "topK": 3,
+    "kept": 914,
+    "nodes": 492,
+    "degMean": 2.1,
+    "degMax": 3,
+    "count": [
+     3,
+     23
+    ],
+    "prop": [
+     7,
+     30
+    ],
+    "expand": [
+     9,
+     30
+    ]
+   },
+   {
+    "minW": 1.5,
+    "topK": 5,
+    "kept": 914,
+    "nodes": 492,
+    "degMean": 2.7,
+    "degMax": 5,
+    "count": [
+     2,
+     22
+    ],
+    "prop": [
+     7,
+     30
+    ],
+    "expand": [
+     9,
+     29
+    ]
+   },
+   {
+    "minW": 1.5,
+    "topK": 8,
+    "kept": 914,
+    "nodes": 492,
+    "degMean": 3.1,
+    "degMax": 8,
+    "count": [
+     2,
+     22
+    ],
+    "prop": [
+     7,
+     30
+    ],
+    "expand": [
+     9,
+     29
+    ]
+   },
+   {
+    "minW": 2,
+    "topK": 3,
+    "kept": 396,
+    "nodes": 299,
+    "degMean": 1.7,
+    "degMax": 3,
+    "count": [
+     7,
+     30
+    ],
+    "prop": [
+     9,
+     34
+    ],
+    "expand": [
+     9,
+     31
+    ]
+   },
+   {
+    "minW": 2,
+    "topK": 5,
+    "kept": 396,
+    "nodes": 299,
+    "degMean": 2,
+    "degMax": 5,
+    "count": [
+     7,
+     30
+    ],
+    "prop": [
+     9,
+     34
+    ],
+    "expand": [
+     9,
+     31
+    ]
+   },
+   {
+    "minW": 2,
+    "topK": 8,
+    "kept": 396,
+    "nodes": 299,
+    "degMean": 2.3,
+    "degMax": 8,
+    "count": [
+     7,
+     30
+    ],
+    "prop": [
+     9,
+     34
+    ],
+    "expand": [
+     9,
+     31
+    ]
+   }
+  ]
+ },
+ "examples": [
+  {
+   "rank": 1,
+   "weight": 4.8811,
+   "nsig": 3,
+   "parts": {
+    "topic": 0.8651,
+    "file": 0.8939,
+    "title": 0.9449,
+    "tag": 0
+   },
+   "a": {
+    "id": "22684d6cd6257bc6",
+    "title": "对《死亡换乘》第 33-40 章做连贯性核查（六条逻辑链）。你是六队编队之一，只管 0033-0040。**时间盒..."
+   },
+   "b": {
+    "id": "d52abd530c9207b5",
+    "title": "对《死亡换乘》第 31-38 章做连贯性核查（六条逻辑链）。你是六队编队之一，只管 0031-0038。 【文件】..."
+   },
+   "shared": {
+    "topic": [
+     "基准",
+     "时间",
+     "ch37",
+     "既定",
+     "外婆"
+    ],
+    "tag": [],
+    "file": [
+     "book_rules.md",
+     "current_state.md",
+     "pending_hooks.md",
+     "style_guide.md"
+    ],
+    "title": [
+     "死亡",
+     "换乘",
+     "连贯",
+     "连贯性",
+     "核查"
+    ]
+   }
+  },
+  {
+   "rank": 2042,
+   "weight": 1.1034,
+   "nsig": 2,
+   "parts": {
+    "topic": 0.1376,
+    "file": 0.4603,
+    "title": 0,
+    "tag": 0
+   },
+   "a": {
+    "id": "63722415597e703b",
+    "title": "你是红队安全测试员第四轮，对音乐生产体系做对抗性审查。上一轮已封死的攻击面不要再重复。 **审查目标（全部只读研究..."
+   },
+   "b": {
+    "id": "68a1da2fee8106c3",
+    "title": "渲染EP01-B目录高亮版电台视频"
+   },
+   "shared": {
+    "topic": [
+     "目录"
+    ],
+    "tag": [],
+    "file": [
+     "queue_manager.py",
+     "render_queue.json",
+     "caption_audit.py"
+    ],
+    "title": []
+   }
+  },
+  {
+   "rank": 4084,
+   "weight": 0.8172,
+   "nsig": 1,
+   "parts": {
+    "topic": 0,
+    "file": 0,
+    "title": 0.8172,
+    "tag": 0
+   },
+   "a": {
+    "id": "42cf76e2a4bd819b",
+    "title": "workflow subagent actor#2@10"
+   },
+   "b": {
+    "id": "b031374c00a9548d",
+    "title": "workflow subagent actor#4@1"
+   },
+   "shared": {
+    "topic": [],
+    "tag": [],
+    "file": [],
+    "title": [
+     "workflow",
+     "subagent",
+     "actor"
+    ]
+   }
+  },
+  {
+   "rank": 6126,
+   "weight": 0.6416,
+   "nsig": 1,
+   "parts": {
+    "topic": 0.2139,
+    "file": 0,
+    "title": 0,
+    "tag": 0
+   },
+   "a": {
+    "id": "e4cfae2ab39f47e2",
+    "title": "今天是 2026-10-06。任务：查清中国大陆各\"免费 GPU 额度\"平台**实例的完整硬件规格**——特别是【..."
+   },
+   "b": {
+    "id": "ec01fc3fa5bc5a0b",
+    "title": "现在我们那个中转里面模型都是可以思考最高就最高了是吧现在模型都可以用吗检查一下"
+   },
+   "shared": {
+    "topic": [
+     "免费",
+     "官方"
+    ],
+    "tag": [],
+    "file": [],
+    "title": []
+   }
+  },
+  {
+   "rank": 8167,
+   "weight": 0.5312,
+   "nsig": 2,
+   "parts": {
+    "topic": 0.1209,
+    "file": 0,
+    "title": 0.1684,
+    "tag": 0
+   },
+   "a": {
+    "id": "6bc650f5c8ee3ee2",
+    "title": "请看安卓截图（1080×2400，念书功能点击第一章「听」后）：C:\\Users\\crx\\AppData\\Loca..."
+   },
+   "b": {
+    "id": "b0b999ed9ae582a7",
+    "title": "请看安卓截图裁剪（版权弹窗中部，y=600-1500 区域）：C:\\Users\\crx\\AppData\\Local..."
+   },
+   "shared": {
+    "topic": [
+     "坐标"
+    ],
+    "tag": [],
+    "file": [],
+    "title": [
+     "看安卓",
+     "截图"
+    ]
+   }
+  },
+  {
+   "rank": 10209,
+   "weight": 0.4514,
+   "nsig": 2,
+   "parts": {
+    "topic": 0.1226,
+    "file": 0,
+    "title": 0.0836,
+    "tag": 0
+   },
+   "a": {
+    "id": "380f21dc3ed4ce3f",
+    "title": "你是技术调研员。任务：核实**三个具体底座的训练可行性 + AMD 训练环境**，为一个人的\"人格/agent 行..."
+   },
+   "b": {
+    "id": "a0d1de743e26d206",
+    "title": "今天是 2026-10-06。专项核实：中国大陆用户能用的几个\"免费 GPU Notebook/云 IDE\"平台，..."
+   },
+   "shared": {
+    "topic": [
+     "核实"
+    ],
+    "tag": [],
+    "file": [],
+    "title": [
+     "核实"
+    ]
+   }
+  },
+  {
+   "rank": 12251,
+   "weight": 0.3585,
+   "nsig": 2,
+   "parts": {
+    "topic": 0.0963,
+    "file": 0,
+    "title": 0.0695,
+    "tag": 0
+   },
+   "a": {
+    "id": "043eb824f6d027ec",
+    "title": "环境验证：请确认你已被成功加载。报告：1) 你的角色名称；2) 你的系统提示词中关于设计流程的要点（一两句）；3)..."
+   },
+   "b": {
+    "id": "af01d7900e3c1562",
+    "title": "对 SessionRelay 做**修复验证**红队：验证上一轮 20 条缺陷修复是否真的成立，以及有没有引入新问题。 "
+   },
+   "shared": {
+    "topic": [
+     "验证"
+    ],
+    "tag": [],
+    "file": [],
+    "title": [
+     "验证"
+    ]
+   }
+  },
+  {
+   "rank": 14292,
+   "weight": 0.224,
+   "nsig": 1,
+   "parts": {
+    "topic": 0,
+    "file": 0,
+    "title": 0.224,
+    "tag": 0
+   },
+   "a": {
+    "id": "de9bd2d4872b58e6",
+    "title": "现在有啥好用热门的这个mac down阅读器有没有markdown阅读器呃尽尽量就是体积小一点嘛就是速度启动快一点..."
+   },
+   "b": {
+    "id": "eb32bf4fc514a757",
+    "title": "呃查一下那个这个厦门去厦门就是9月27号有这几天去厦门这几天我玩3天吧差不多给个功率吧嗯给个功率查清楚一下b站啊小..."
+   },
+   "shared": {
+    "topic": [],
+    "tag": [],
+    "file": [],
+    "title": [
+     "这个",
+     "就是"
+    ]
+   }
+  },
+  {
+   "rank": 16334,
+   "weight": 0.1449,
+   "nsig": 1,
+   "parts": {
+    "topic": 0,
+    "file": 0,
+    "title": 0.1449,
+    "tag": 0
+   },
+   "a": {
+    "id": "275f9521225365c3",
+    "title": "你是 QA 测试员，对一个本地网页应用做黑盒点击走查并输出缺陷报告。只测试，不改代码。应用：「奶茶小本本」——奶茶..."
+   },
+   "b": {
+    "id": "9209b54543b4e0c1",
+    "title": "调研任务（务必精炼，控制在 8 次工具调用以内，输出精简但信息密度高的中文报告）： 为本地 Live2D 桌宠（E..."
+   },
+   "shared": {
+    "topic": [],
+    "tag": [],
+    "file": [],
+    "title": [
+     "输出",
+     "报告"
+    ]
+   }
+  },
+  {
+   "rank": 18376,
+   "weight": 0.0597,
+   "nsig": 1,
+   "parts": {
+    "topic": 0,
+    "file": 0,
+    "title": 0.0597,
+    "tag": 0
+   },
+   "a": {
+    "id": "cacb49f09218dd6c",
+    "title": "你在审计一份 RP（角色扮演）大模型微调项目的实验数据，判断它能否支撑一篇可投稿的学术论文。只读，不要修改任何文件..."
+   },
+   "b": {
+    "id": "e67a0758405df7ab",
+    "title": "你是\"首席架构师\"角色（钢人论证+第一性原理重建），参与一场已经进行到第二轮的专家评审会。项目背景：非商业个人项目..."
+   },
+   "shared": {
+    "topic": [],
+    "tag": [],
+    "file": [],
+    "title": [
+     "角色",
+     "项目"
+    ]
+   }
+  }
+ ],
+ "dup_examples": [
+  {
+   "weight": 5.5,
+   "a": "Selection side chat",
+   "b": "Selection side chat"
+  },
+  {
+   "weight": 5.5,
+   "a": "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015.md看一下里面的文件这是给你",
+   "b": "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015.md看一下里面的文件这是给你"
+  },
+  {
+   "weight": 5.4106,
+   "a": "# 任务：多日局 sim 版型设计（设计文档棒 · 零代码 · 零落库） 工作区 E:\\music playe",
+   "b": "# 任务：多日局 sim 版型设计（设计文档棒 · 零代码 · 零落库） 工作区 E:\\music playe"
+  },
+  {
+   "weight": 5.324,
+   "a": "你是一名技术调研员。任务：调研\"MCP 协议 + Anthropic Agent Skills + Claud",
+   "b": "你是一名技术调研员。任务：调研\"MCP 协议 + Anthropic Agent Skills + Claud"
+  },
+  {
+   "weight": 5.3222,
+   "a": "workflow subagent actor#4@1",
+   "b": "workflow subagent actor#4@1"
+  }
+ ]
+}
