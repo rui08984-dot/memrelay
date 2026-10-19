@@ -1,0 +1,4049 @@
+{
+ "at": "2026-10-19T12:28:15.247Z",
+ "dbPath": "D:/agent1super/.sessionrelay/relay.sqlite",
+ "qfile": "scripts/bench-questions-paraphrase-v2.json",
+ "limit": 10,
+ "deep": 50,
+ "jaccard": 0.34,
+ "expand": 5,
+ "summary": {
+  "n": 95,
+  "nEvid": 88,
+  "rank1": 8,
+  "hit10": 28,
+  "deep11": 39,
+  "unreach": 29,
+  "disagree": 40,
+  "coverage": {
+   "P0": {
+    "strict": 5,
+    "full": 30,
+    "ge80": 30,
+    "mean": 0.5589
+   },
+   "P1": {
+    "strict": 7,
+    "full": 42,
+    "ge80": 42,
+    "mean": 0.6972
+   },
+   "P2": {
+    "strict": 7,
+    "full": 58,
+    "ge80": 58,
+    "mean": 0.8136
+   }
+  },
+  "mcnemar": {
+   "strict01": 0.5,
+   "span01": 0.016900539398193342,
+   "strict02": 0.5
+  },
+  "chars": {
+   "p0": 684,
+   "p1": 843,
+   "p2": 2064
+  },
+  "clusters": {
+   "avg": 8.811,
+   "multiGroups": 5,
+   "inTop10": 28,
+   "recover": {
+    "ok": 3,
+    "denom": 39
+   }
+  }
+ },
+ "rows": [
+  {
+   "query": "给编辑器的问题清单在哪些会话里处理过",
+   "target": "54e4846d58a21971",
+   "kind": "cross-session",
+   "rank10": 6,
+   "rankDeep": 6,
+   "nAnchors": 5,
+   "goldHits": 3,
+   "goldLen": 56,
+   "base": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1175,
+   "chars1": 1107,
+   "chars2": 3006,
+   "clusters": 8,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "Fork of 科研工作流整包安装清单",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "[#调研本地大模型部署可行性及免费GPU额度](#sess_0de5e2e7-a",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "现在有啥好用热门的这个mac down阅读器有没有markdown阅读器呃尽尽量",
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "所有盘现在都爆炸了没空间了看看什么情况"
+   ]
+  },
+  {
+   "query": "十七号新入口交接在哪些开局里被用过",
+   "target": "a6095702661ffbc5",
+   "kind": "cross-session",
+   "rank10": 0,
+   "rankDeep": 16,
+   "nAnchors": 4,
+   "goldHits": 2,
+   "goldLen": 81,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 591,
+   "chars1": 715,
+   "chars2": 1711,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": true,
+   "extras": 5,
+   "extrasTagged": 2,
+   "packTitles": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "按推演沙盘交接文档续作并审查会话归档",
+    "所有盘现在都爆炸了没空间了看看什么情况",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
+    "第三轮复验包出炉——而且包体自己招供了 R3 APK：flutter_app\\b",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015"
+   ]
+  },
+  {
+   "query": "盆景二调优交接过几次手",
+   "target": "f5dc58d9e667aef9",
+   "kind": "cross-session",
+   "rank10": 0,
+   "rankDeep": 31,
+   "nAnchors": 4,
+   "goldHits": 1,
+   "goldLen": 43,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 847,
+   "chars1": 923,
+   "chars2": 2222,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 1,
+   "packTitles": [
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "模型选型与节点接入方案讨论"
+   ]
+  },
+  {
+   "query": "十月十五号主交接被哪几次开局读过",
+   "target": "ee28bbcac74d7410",
+   "kind": "cross-session",
+   "rank10": 9,
+   "rankDeep": 9,
+   "nAnchors": 6,
+   "goldHits": 1,
+   "goldLen": 236,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 234,
+   "chars1": 361,
+   "chars2": 757,
+   "clusters": 9,
+   "groupSize": 2,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "按推演沙盘交接文档续作并审查会话归档",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "查看AI音乐电台与Blender交接文档",
+    "你是红队审查员，对一份即将落盘的方案做**内容真实性审查（反编造门）**。不是渗",
+    "命令和钩子的功能说明",
+    "修复mynerou项目VSR与TTS无声问题",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "读取推演沙盘交接文档了解全貌"
+   ]
+  },
+  {
+   "query": "folia 发现页交接过几次",
+   "target": "0eed0a09f936bde0",
+   "kind": "cross-session",
+   "rank10": 3,
+   "rankDeep": 3,
+   "nAnchors": 4,
+   "goldHits": 3,
+   "goldLen": 33,
+   "base": {
+    "strict": true,
+    "span": 1
+   },
+   "p1": {
+    "strict": true,
+    "span": 1
+   },
+   "p2": {
+    "strict": true,
+    "span": 1
+   },
+   "chars0": 349,
+   "chars1": 477,
+   "chars2": 990,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "调研两件事：Folia 项目（https://github.com/chthol",
+    "研究开源项目 Folia（https://github.com/chtholly",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "调研 QQ 音乐非官方 API 项目的**真实响应数据结构和调用方式**，目标是",
+    "按推演沙盘交接文档续作并审查会话归档"
+   ]
+  },
+  {
+   "query": "复古科技插画那套素材，在哪几个会话里都用上过",
+   "target": "68d0125e15aae888",
+   "kind": "cross",
+   "rank10": 1,
+   "rankDeep": 2,
+   "nAnchors": 7,
+   "goldHits": 4,
+   "goldLen": 57,
+   "base": {
+    "strict": true,
+    "span": 1
+   },
+   "p1": {
+    "strict": true,
+    "span": 1
+   },
+   "p2": {
+    "strict": true,
+    "span": 1
+   },
+   "chars0": 1127,
+   "chars1": 1114,
+   "chars2": 2934,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "奶茶上新自动同步（每2天10:33）",
+    "你好",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
+    "模型选型与节点接入方案讨论",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
+    "[@ZCode Context](plugin://zcode-context@",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "你好"
+   ]
+  },
+  {
+   "query": "桌面快捷方式指向的实例却打不开这件事，在哪几次会话里翻出来处理过",
+   "target": "a55b4d958af4d0f7",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 13,
+   "nAnchors": 10,
+   "goldHits": 0,
+   "goldLen": 0,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 118,
+   "chars1": 136,
+   "chars2": 334,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": true,
+   "extras": 5,
+   "extrasTagged": 4,
+   "packTitles": [
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "设计类AI助手系统的完整技术文档生成",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "请查看这张安卓模拟器启动器（桌面）截图：https://maas-log-pro",
+    "今天是 2026-10-06。任务：查清中国大陆各\"免费 GPU 额度\"平台**",
+    "你是一名技术调研员。任务：调研\"AI 智能体（agent）核心运行时机制\"，为一",
+    "排查本地doctor服务及本地搜索故障",
+    "你是红队审查员，对 2026-09-07 至 09-08 两天\"控万物工具链 →",
+    "你是电子音乐与 Phonk 流派研究员。任务：为文生歌模型 MiniMax Mu",
+    "哈喽"
+   ]
+  },
+  {
+   "query": "本地起服务那套启停脚本，在哪几次会话里被改过",
+   "target": "f779b3c5888047e1",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 8,
+   "goldHits": 0,
+   "goldLen": 0,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 590,
+   "chars1": 838,
+   "chars2": 1989,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "模型选型与节点接入方案讨论",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "奶茶上新自动同步（每2天10:33）",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "任务：为「夜行列车」个人站点（阿里云轻量服务器 47.103.223.52，2G",
+    "今天是 2026-10-06。任务：为\"把本地大模型（GGUF / vLLM /",
+    "红队对抗审查终轮（只读+本地命令，不要改任何文件，中文输出）： 对象=D:\\ai"
+   ]
+  },
+  {
+   "query": "三值量化那条技术路线，在几次会话里被讨论过",
+   "target": "e640a0153c0833d8",
+   "kind": "cross",
+   "rank10": 7,
+   "rankDeep": 7,
+   "nAnchors": 8,
+   "goldHits": 0,
+   "goldLen": 0,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 117,
+   "chars1": 355,
+   "chars2": 710,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "哈喽",
+    "你是一名技术调研员。任务：为一台 8GB 显存笔记本（RTX 4060 Lapt",
+    "你是技术调查员。背景：用户有一个\"AI 推演沙盘\"项目（社交推理游戏的账本+矛盾",
+    "用中文回答。你只做网络调研，不改任何本地文件。 ## 背景 我们在 RTX 40",
+    "你是本地大模型选型调研员。任务：对 **Ornith-1.5-35B-A3B 这",
+    "交接-8G推理优化-20260918.md先看看",
+    "你是本地大模型选型调研员。任务：调查 **27B 级（Qwen3.8-27B 及",
+    "设计类AI助手系统的完整技术文档生成",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编"
+   ]
+  },
+  {
+   "query": "上游不认思考强度这个字段导致连不上的毛病，在哪些会话里出现过",
+   "target": "f78ffe84eb7bceca",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 9,
+   "goldHits": 0,
+   "goldLen": 0,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 595,
+   "chars1": 756,
+   "chars2": 1857,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "command这个端点模型的deepseek v4.1flash你看看我们现在接",
+    "DSH接口400报错与思考等级调整",
+    "你是推演沙盘项目的历史回测引擎规格棒（纯文档任务，只写一份新规格文档）。工作区 ",
+    "红队对抗审查任务（只读+本地命令，不要改任何文件，中文输出）： 对刚完成的 my"
+   ]
+  },
+  {
+   "query": "本地看图档位定时自启、跟别的东西抢显存的问题，在哪几次会话里查过",
+   "target": "c3a62be16af3e8b9",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 11,
+   "goldHits": 0,
+   "goldLen": 0,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 1179,
+   "chars1": 1193,
+   "chars2": 3162,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "模型选型与节点接入方案讨论",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ]
+  },
+  {
+   "query": "盆景二那套调优交接收尾的活，在哪几次会话里被接着往下做",
+   "target": "c46b9d0c6250e858",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 9,
+   "goldHits": 0,
+   "goldLen": 0,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 0,
+   "chars1": 331,
+   "chars2": 490,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "模型引擎参数调优并接入DSH与本地API测试",
+    "按推演沙盘交接文档续作并审查会话归档",
+    "# 任务：M2 续录第 9 局 W1 收尾（锚点时间轴+PROGRESS 锚+提",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "哈喽",
+    "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A",
+    "查看AI音乐电台与Blender交接文档",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面"
+   ]
+  },
+  {
+   "query": "能力按需加载到底占不占上下文这件事，在哪几次会话里被讨论过",
+   "target": "cc9566218c29eda9",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 43,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1058,
+   "chars1": 1047,
+   "chars2": 2821,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "本地LLM部署配置与推理能力优化方案"
+   ]
+  },
+  {
+   "query": "带看图能力的那个端点接进本地客户端的事，在哪几次会话里处理过",
+   "target": "9d061832d5a139ce",
+   "kind": "cross",
+   "rank10": 1,
+   "rankDeep": 1,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 75,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 337,
+   "chars1": 761,
+   "chars2": 1588,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "模型选型与节点接入方案讨论",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "最好的 gemini + ccgo + opencode 工具，没有之一 详情：",
+    "command这个端点模型的deepseek v4.1flash你看看我们现在接",
+    "本地LLM部署配置与推理能力优化方案",
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "排查本地doctor服务及本地搜索故障",
+    "调查 GitHub 上 cleverer-dsh 插件的官方作者动态与 DSH "
+   ]
+  },
+  {
+   "query": "那套三值量化的推理框架，在哪些会话里被碰过",
+   "target": "9d9501d267abd345",
+   "kind": "cross",
+   "rank10": 1,
+   "rankDeep": 1,
+   "nAnchors": 7,
+   "goldHits": 3,
+   "goldLen": 114,
+   "base": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "chars0": 120,
+   "chars1": 120,
+   "chars2": 321,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "你是一名技术调研员。任务：为一台 8GB 显存笔记本（RTX 4060 Lapt",
+    "你好",
+    "交接-8G推理优化-20260918.md先看看",
+    "用中文回答。你只做网络调研，不改任何本地文件。 ## 背景 我们在 RTX 40",
+    "本地LLM部署配置与推理能力优化方案",
+    "盘点这台机器上已安装的学术论文类技能，目标是找出**thesis-pipelin",
+    "你是本地大模型选型调研员。任务：对 **Ornith-1.5-35B-A3B 这",
+    "你是RP 模型训练调研员。任务：查清「通用 system prompt 覆盖人格",
+    "你是调研员。任务：调研 GitHub 上是否有\"多学派并行对话\"或\"多视角辩论\""
+   ]
+  },
+  {
+   "query": "把思考档位按场景分路的那份脚本，在哪几次会话里被改过",
+   "target": "3086914cb95ac891",
+   "kind": "cross",
+   "rank10": 3,
+   "rankDeep": 22,
+   "nAnchors": 9,
+   "goldHits": 2,
+   "goldLen": 162,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 1141,
+   "chars1": 1141,
+   "chars2": 2999,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "模型选型与节点接入方案讨论",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
+    "command这个端点模型的deepseek v4.1flash你看看我们现在接",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的"
+   ]
+  },
+  {
+   "query": "系统盘被十几 G 的交换文件撑满这件事，在哪几次会话里查过",
+   "target": "cee9bf412f264861",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 7,
+   "nAnchors": 8,
+   "goldHits": 1,
+   "goldLen": 30,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 826,
+   "chars1": 832,
+   "chars2": 2221,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "所有盘现在都爆炸了没空间了看看什么情况",
+    "Selection side chat",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "Selection side chat",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "请看安卓截图裁剪（y=300-2100 区域）：C:\\Users\\crx\\App",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\"
+   ]
+  },
+  {
+   "query": "中转端点连不通的毛病，在哪几次会话里排查过",
+   "target": "4914d7b7d2f63a89",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 7,
+   "goldHits": 1,
+   "goldLen": 48,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 320,
+   "chars1": 436,
+   "chars2": 998,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "模型选型与节点接入方案讨论",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "command这个端点模型的deepseek v4.1flash你看看我们现在接",
+    "AI中转站白嫖免费模型调研",
+    "DS H模型API频繁重试问题",
+    "你是公益站/中转站雷达调研员。今天是 2026-09-14。请先完整阅读计划文件",
+    "排查开机自启command命令行进程",
+    "你在 Windows 11 (Git Bash) 环境排查 DeepSeek H",
+    "请用 Read 工具读取这张本地截图图片并做详尽描述：C:\\Users\\crx\\"
+   ]
+  },
+  {
+   "query": "定时冒头的显卡占用，在哪几次会话里被查过",
+   "target": "356958fe2c807bef",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 17,
+   "nAnchors": 7,
+   "goldHits": 1,
+   "goldLen": 25,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1191,
+   "chars1": 1188,
+   "chars2": 3179,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "奶茶上新自动同步（每2天10:33）",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ]
+  },
+  {
+   "query": "状态系统那份文档，在哪几次会话里被读过",
+   "target": "24ee14f4a9205dd1",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 15,
+   "nAnchors": 6,
+   "goldHits": 2,
+   "goldLen": 83,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 712,
+   "chars1": 996,
+   "chars2": 2248,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 3,
+   "packTitles": [
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "哈喽",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "设计类AI助手系统的完整技术文档生成"
+   ]
+  },
+  {
+   "query": "网关里接新模型的做法，在哪几次会话里用过",
+   "target": "a220277a92acdd79",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 42,
+   "nAnchors": 6,
+   "goldHits": 2,
+   "goldLen": 65,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 119,
+   "chars1": 372,
+   "chars2": 728,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 2,
+   "extrasTagged": 1,
+   "packTitles": [
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "ALB 504 网关超时错误解析",
+    "Codex与Plus Token额度换算",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "红队对抗审查（只读+本地命令，不要改任何文件，中文输出）： 对象=D:\\ailo",
+    "测试opencode接入的dsv4.1flash模型",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "红队对抗审查（只读+本地命令，不要改任何文件，中文输出）。对象=D:\\ailov",
+    "哈喽",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\"
+   ]
+  },
+  {
+   "query": "本机技能清单怎么补全这件事，在哪几次会话里提过",
+   "target": "e7a286f4167ab22e",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 48,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 98,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 468,
+   "chars1": 626,
+   "chars2": 1439,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 1,
+   "packTitles": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "你是情报调研员。任务：为一批候选大模型的本地部署决策补全技术参数。本机目标硬件：",
+    "ch42入库与skills.sh审稿技能淘货",
+    "Fork of 科研工作流整包安装清单",
+    "哈喽",
+    "comad / deepseek-v4-flash 连接失败：Model \"de",
+    "调研开源社区里热门、大众认可的 **agent 方法论类技能**（behavio"
+   ]
+  },
+  {
+   "query": "那只骑车的鹈鹕，在几次会话里被画过",
+   "target": "e86052317e440eed",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 4,
+   "goldHits": 1,
+   "goldLen": 36,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 118,
+   "chars1": 519,
+   "chars2": 953,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "生成一个单文件 HTML + SVG 动画：一只加州褐鹈鹕正在骑自行车。硬件要求",
+    "哈喽",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "你在 Windows 11 (Git Bash) 环境做**会话目录全量普查**",
+    "请看两张安卓截图（呼吸会话进行中，音景播放中）： A. C:\\Users\\crx",
+    "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 ",
+    "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ]
+  },
+  {
+   "query": "本地提示词库那套检索服务，在哪几次会话里被用过",
+   "target": "e0f4823cd52a9162",
+   "kind": "cross",
+   "rank10": 5,
+   "rankDeep": 29,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 44,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1105,
+   "chars1": 1107,
+   "chars2": 2930,
+   "clusters": 9,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "模型选型与节点接入方案讨论",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做"
+   ]
+  },
+  {
+   "query": "那个出图描述技能在哪几次会话里被加载过",
+   "target": "3f2b4f0b3b2f58d4",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 32,
+   "nAnchors": 6,
+   "goldHits": 1,
+   "goldLen": 68,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 824,
+   "chars1": 999,
+   "chars2": 2492,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 0,
+   "packTitles": [
+    "模型选型与节点接入方案讨论",
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "AI接入Blender生成日式神社3D场景",
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因"
+   ]
+  },
+  {
+   "query": "给执行代理派活之后自动续跑的机制，在哪几次会话里被提过",
+   "target": "5a6145ee1df11d65",
+   "kind": "cross",
+   "rank10": 8,
+   "rankDeep": 8,
+   "nAnchors": 9,
+   "goldHits": 2,
+   "goldLen": 99,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 477,
+   "chars1": 765,
+   "chars2": 1725,
+   "clusters": 9,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
+    "你是一名技术调研员。任务：调研\"AI 智能体（agent）核心运行时机制\"，为一",
+    "奶茶上新自动同步（每2天10:33）",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "你是一名技术调研员。任务：调研\"AI 智能体（agent）核心运行时机制\"，为一",
+    "workflow subagent actor#2@1"
+   ]
+  },
+  {
+   "query": "联网搜索那个工具在哪几次会话里被用过",
+   "target": "eb32bf4fc514a757",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 5,
+   "goldHits": 2,
+   "goldLen": 85,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1186,
+   "chars1": 1175,
+   "chars2": 3152,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "模型选型与节点接入方案讨论",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "奶茶上新自动同步（每2天10:33）"
+   ]
+  },
+  {
+   "query": "网关隔一阵就自动检测、把人叫醒的毛病，在哪几次会话里处理过",
+   "target": "a91d92bfe61da1fb",
+   "kind": "cross",
+   "rank10": 1,
+   "rankDeep": 1,
+   "nAnchors": 8,
+   "goldHits": 1,
+   "goldLen": 43,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1132,
+   "chars1": 1126,
+   "chars2": 2946,
+   "clusters": 7,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "呃我做了那些new api那边有个问题就是他每一次都是间隔还是10分钟多少一次就",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "奶茶上新自动同步（每2天10:33）",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "Selection side chat",
+    "Selection side chat",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，"
+   ]
+  },
+  {
+   "query": "那堆占地方的压缩包清理，在哪几次会话里做过",
+   "target": "cb50ec73876412ce",
+   "kind": "cross",
+   "rank10": 6,
+   "rankDeep": 5,
+   "nAnchors": 6,
+   "goldHits": 2,
+   "goldLen": 72,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1169,
+   "chars1": 1051,
+   "chars2": 2900,
+   "clusters": 9,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "所有盘现在都爆炸了没空间了看看什么情况",
+    "模型选型与节点接入方案讨论",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一"
+   ]
+  },
+  {
+   "query": "那个把 gemini 和门禁绕行拼起来的工具，在哪几次会话里被提到",
+   "target": "400836d1d9b7510b",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 1,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 36,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1184,
+   "chars1": 1120,
+   "chars2": 2973,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 0,
+   "packTitles": [
+    "调取我们本地的那个提示词的m c p你找一下有没有相关的呃呃让ai可以就是破线的",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做"
+   ]
+  },
+  {
+   "query": "开源模型融合插件这件事，在哪几次会话里被讨论过",
+   "target": "8a443ed202b2a683",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 17,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 321,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 594,
+   "chars1": 955,
+   "chars2": 2187,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "呃你查一下像素蛋糕啊这是这个这这个就是那种图片可以健脾的这种还有什么类似的这种产",
+    "模型选型与节点接入方案讨论",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "寻找Office PPT制作Skill与开源方案",
+    "研究开源项目 Folia（https://github.com/chtholly"
+   ]
+  },
+  {
+   "query": "那个开源越狱词库在哪几次会话里被检索过",
+   "target": "40068e8a2f457d40",
+   "kind": "cross",
+   "rank10": 8,
+   "rankDeep": 8,
+   "nAnchors": 6,
+   "goldHits": 2,
+   "goldLen": 23,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 238,
+   "chars1": 692,
+   "chars2": 1326,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "你在 Windows 环境（Git Bash）。分析 MiniMax Music",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "你在 Windows 环境（Git Bash）。分析 MiniMax Music",
+    "你是**论文与工程调研员**。任务：为一套本地 AI 记忆层找出\"**用算法替代",
+    "调取我们本地的那个提示词的m c p你找一下有没有相关的呃呃让ai可以就是破线的",
+    "呃你查一下像素蛋糕啊这是这个这这个就是那种图片可以健脾的这种还有什么类似的这种产",
+    "你是音乐 AI 资产深挖专员。任务：把官方和声词库全量 118 条逐条过一遍，产"
+   ]
+  },
+  {
+   "query": "给 Docker 占盘设定期清理的定时任务，在哪几次会话里动过",
+   "target": "32678c283eef26ae",
+   "kind": "cross",
+   "rank10": 7,
+   "rankDeep": 3,
+   "nAnchors": 9,
+   "goldHits": 2,
+   "goldLen": 49,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1179,
+   "chars1": 1191,
+   "chars2": 3169,
+   "clusters": 9,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+   ]
+  },
+  {
+   "query": "零接触上下文接续的框架，在哪几次会话里被核过",
+   "target": "68e7553a361907e7",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 7,
+   "goldHits": 4,
+   "goldLen": 144,
+   "base": {
+    "strict": false,
+    "span": 0.25
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.25
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.25
+   },
+   "chars0": 118,
+   "chars1": 404,
+   "chars2": 765,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "本地模型性能与上下文测试回顾",
+    "Ornith-1.5本地部署与上下文优化",
+    "你是调研员。任务：调研 GitHub 上是否有\"多学派并行对话\"或\"多视角辩论\"",
+    "你是\"奶茶新品雷达\"项目的先遣工程师。任务：为奶茶新品监控产品探测数据源并写出第",
+    "你是审查团队 R2\"first-principles 根本思考员\"。第一步：用 ",
+    "呃，这是一个测试，新开的一个上下文。目前你有收到简报吗？",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "哈喽"
+   ]
+  },
+  {
+   "query": "那几条做科研的工具链，在哪几次会话里被拼成整包方案",
+   "target": "f3657e3c176deb4c",
+   "kind": "cross",
+   "rank10": 3,
+   "rankDeep": 0,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 25,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1189,
+   "chars1": 1131,
+   "chars2": 3049,
+   "clusters": 8,
+   "groupSize": 2,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "Fork of 科研工作流整包安装清单",
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "模型选型与节点接入方案讨论",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
+    "奶茶上新自动同步（每2天10:33）"
+   ]
+  },
+  {
+   "query": "那个歌词可视化播放器的导入功能，在哪几次会话里被问过",
+   "target": "c0f6f811753ef8e6",
+   "kind": "cross",
+   "rank10": 1,
+   "rankDeep": 3,
+   "nAnchors": 8,
+   "goldHits": 3,
+   "goldLen": 63,
+   "base": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p1": {
+    "strict": true,
+    "span": 1
+   },
+   "p2": {
+    "strict": true,
+    "span": 1
+   },
+   "chars0": 1186,
+   "chars1": 1125,
+   "chars2": 3003,
+   "clusters": 9,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "奶茶上新自动同步（每2天10:33）",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "ninfer-ada-ternary 项目现状与资源发布说明"
+   ]
+  },
+  {
+   "query": "把几轮聊到的工具并成一份能照抄的清单，在哪几次会话里做过",
+   "target": "061b3409dd467317",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 15,
+   "nAnchors": 8,
+   "goldHits": 4,
+   "goldLen": 95,
+   "base": {
+    "strict": false,
+    "span": 0.25
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 236,
+   "chars1": 948,
+   "chars2": 1825,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "你在为一套本地 AI 记忆层项目（SessionRelay / SES）做**竞",
+    "请精读以下 7 份文档（都在 `D:\\dsh插件 记忆\\docs\\` 目录下），",
+    "哈喽",
+    "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 ",
+    "你是一名技术调研员。任务：调研\"AI 智能体（agent）核心运行时机制\"，为一",
+    "下载好了：D:/mellos-mapping（v0.28.0，8.1 MB，零运",
+    "你是一名技术调研员。任务：调研\"AI 智能体（agent）核心运行时机制\"，为一"
+   ]
+  },
+  {
+   "query": "越狱类词条在本地词库里到底有多少，在哪几次会话里查过",
+   "target": "0af62673368d886d",
+   "kind": "cross",
+   "rank10": 1,
+   "rankDeep": 1,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 61,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1103,
+   "chars1": 1160,
+   "chars2": 3008,
+   "clusters": 8,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "[#调研本地大模型部署可行性及免费GPU额度](#sess_0de5e2e7-a",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "调取我们本地的那个提示词的m c p你找一下有没有相关的呃呃让ai可以就是破线的",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+   ]
+  },
+  {
+   "query": "供应商配置单独拆出来这件事，在哪几次会话里动过",
+   "target": "a08110930a5d22ad",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 49,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 81,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 118,
+   "chars1": 206,
+   "chars2": 430,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "配置智能体辅助论文修改发表Nature",
+    "ALB 504 网关超时错误解析",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "哈喽",
+    "AI小说写作工具与润色工具咨询",
+    "DSH接口400报错与思考等级调整",
+    "本地模型性能与上下文测试回顾",
+    "本地LLM部署配置与推理能力优化方案",
+    "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ]
+  },
+  {
+   "query": "免费算力额度那轮调研，在哪几次会话里接着做过",
+   "target": "5b58a704925ad3ac",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 9,
+   "goldHits": 3,
+   "goldLen": 290,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "chars0": 236,
+   "chars1": 353,
+   "chars2": 829,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "今天是 2026-10-06。请调研境外（国际）平台的免费/赠送 GPU 算力政",
+    "今天是 2026-10-06。请调研中国大陆可用的\"免费或近乎免费\"的云 GPU",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "Codex与Plus Token额度换算",
+    "你是一名 API 白嫖情报调查员。今天是 2026-09-08。请用联网搜索（W",
+    "今天是 2026-10-06。任务：查清中国大陆各\"免费 GPU 额度\"平台**",
+    "你是识图/OCR 工具调研员。任务：为 Windows 11 本机（中文用户，非",
+    "你是渠道核验员。今天是 2026-09-14。任务：核验以下 9 家国内 LLM"
+   ]
+  },
+  {
+   "query": "用装包渠道核实软件体积和活跃度这件事，在哪几次会话里做过",
+   "target": "de9bd2d4872b58e6",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 50,
+   "nAnchors": 9,
+   "goldHits": 3,
+   "goldLen": 37,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 0,
+   "chars1": 116,
+   "chars2": 139,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 2,
+   "packTitles": [
+    "你是本地大模型选型调研员。任务：彻底调查 **Qwen3.6-35B-A3B（及",
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "你是白嫖渠道调研员。今天是 2026-09-14。请先完整阅读两份背景文件： 1",
+    "今天是 2026-10-06。专项核实：中国大陆用户能用的几个\"免费 GPU N",
+    "你是情报调研员。任务：为一批候选大模型的本地部署决策补全技术参数。本机目标硬件：",
+    "你是技术调研员。任务：核实**三个具体底座的训练可行性 + AMD 训练环境**",
+    "Switch Lite免破解刷安卓与超频咨询",
+    "workflow subagent actor#2@5",
+    "workflow subagent actor#2@9",
+    "背景：我们在自制一个「Agent 宏键盘」，对标 2026-07-15 Open"
+   ]
+  },
+  {
+   "query": "投机解码那条优化线，在哪几次会话里被调研过",
+   "target": "cd61ddb51cc5fd3d",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 7,
+   "goldHits": 3,
+   "goldLen": 18,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "chars0": 235,
+   "chars1": 591,
+   "chars2": 1225,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "哈喽",
+    "本地LLM部署配置与推理能力优化方案",
+    "你是调研员，任务：深挖 DSH（DeepSeek Harness）社区里\"整合做",
+    "你是本地大模型性能调研员。任务：搜集 **\"8GB 显存笔记本 + 32GB 内",
+    "你是只读调查员，深查 DSH 推演沙盘项目里\"预测万物/预测系统\"的现有结构，评",
+    "交接-8G推理优化-20260918.md先看看",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "你是并行工作流的**支B：决策置顶机制**。只做这一件事，做完报告，不要碰别人的"
+   ]
+  },
+  {
+   "query": "那个闪速档的千问模型，在哪几次会话里被提到",
+   "target": "b23082289e016ac8",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 26,
+   "nAnchors": 6,
+   "goldHits": 1,
+   "goldLen": 8,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1144,
+   "chars1": 1182,
+   "chars2": 3129,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 3,
+   "packTitles": [
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "你好",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+   ]
+  },
+  {
+   "query": "那份被称作唯一入口的交接，在哪几次会话里被当开场材料",
+   "target": "734f3cc50b8c2fe2",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 27,
+   "nAnchors": 8,
+   "goldHits": 3,
+   "goldLen": 30,
+   "base": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "chars0": 237,
+   "chars1": 429,
+   "chars2": 908,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "workflow subagent actor#5@1",
+    "寻找Office PPT制作Skill与开源方案",
+    "你是 T1「地图内核」的实现者。工作树（唯一写入目标）：D:/dsh插件 记忆/",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "你是 ppt-designer。任务：用模板做《仿生纤毛触觉传感器》创业路演 P",
+    "按推演沙盘交接文档续作并审查会话归档",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，"
+   ]
+  },
+  {
+   "query": "那份完整版微调交接，在哪几次会话里被拿来当入口",
+   "target": "41e4fdb5b9512ea4",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 7,
+   "goldHits": 4,
+   "goldLen": 50,
+   "base": {
+    "strict": false,
+    "span": 0.75
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.75
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 236,
+   "chars1": 421,
+   "chars2": 845,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "按推演沙盘交接文档续作并审查会话归档",
+    "你是技术调研员。任务：核实**三个具体底座的训练可行性 + AMD 训练环境**",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "你在审计一份 RP（角色扮演）大模型微调项目的实验数据，判断它能否支撑一篇可投稿",
+    "最好的 gemini + ccgo + opencode 工具，没有之一 详情："
+   ]
+  },
+  {
+   "query": "阿德勒式的那套哲学陪伴技能，在哪几次会话里被加载过",
+   "target": "a54eac68b51a1c03",
+   "kind": "cross",
+   "rank10": 1,
+   "rankDeep": 3,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 16,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1124,
+   "chars1": 1120,
+   "chars2": 2998,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
+    "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
+    "模型选型与节点接入方案讨论",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "奶茶上新自动同步（每2天10:33）",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实"
+   ]
+  },
+  {
+   "query": "手机通过代理共享上网调不通的问题，在哪几次会话里查过",
+   "target": "c483a0acd7cdefc5",
+   "kind": "cross",
+   "rank10": 1,
+   "rankDeep": 1,
+   "nAnchors": 10,
+   "goldHits": 3,
+   "goldLen": 116,
+   "base": {
+    "strict": true,
+    "span": 1
+   },
+   "p1": {
+    "strict": true,
+    "span": 1
+   },
+   "p2": {
+    "strict": true,
+    "span": 1
+   },
+   "chars0": 1187,
+   "chars1": 1188,
+   "chars2": 3098,
+   "clusters": 9,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "嗨我现在手机连着电脑了然后我的手机的那个c l a s h也开着但是呢而且是同一",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
+    "奶茶上新自动同步（每2天10:33）",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015"
+   ]
+  },
+  {
+   "query": "那个能生成闪光卡片的技能，在哪几次会话里被提到",
+   "target": "22d63be72905a369",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 13,
+   "nAnchors": 7,
+   "goldHits": 3,
+   "goldLen": 54,
+   "base": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "chars0": 117,
+   "chars1": 457,
+   "chars2": 816,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 1,
+   "packTitles": [
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "联网调研（只读）。目标：验证一个用户观察——\"AI 音乐生成不管描述多严密，同配",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "请依次查看两张本地图片（同一安卓界面先后两个时刻，1080x950 裁剪，含音景",
+    "请依次查看两张本地图片（安卓 App 1080 宽，正在播放「雨抱·被雨包裹」）",
+    "workflow subagent actor#5@1",
+    "设计类AI助手系统的完整技术文档生成",
+    "哈喽"
+   ]
+  },
+  {
+   "query": "发现页那套分区构建脚本在哪几次会话里改过",
+   "target": "270161f5ca553fa7",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 37,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 589,
+   "chars1": 1137,
+   "chars2": 2445,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "请精读以下 7 份文档（都在 `D:\\dsh插件 记忆\\docs\\` 目录下），",
+    "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 "
+   ]
+  },
+  {
+   "query": "把站内视频的链接连字幕一起解析出来再提炼要点，在哪几次会话里做过",
+   "target": "59bc0d7106e159ff",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 3,
+   "nAnchors": 10,
+   "goldHits": 2,
+   "goldLen": 55,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 1182,
+   "chars1": 1167,
+   "chars2": 3151,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "Selection side chat",
+    "Selection side chat",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "奶茶上新自动同步（每2天10:33）",
+    "模型选型与节点接入方案讨论",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需"
+   ]
+  },
+  {
+   "query": "带 modmind 字样的那个接线服务，在哪几次会话里被修过",
+   "target": "4ab918bd6310aaa8",
+   "kind": "cross",
+   "rank10": 2,
+   "rankDeep": 2,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 49,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 119,
+   "chars1": 513,
+   "chars2": 952,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "modmind stdio · C:\\Users\\crx\\AppData\\Loc",
+    "奶茶上新自动同步（每2天10:33）",
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "任务：为「夜行列车」个人站点（阿里云轻量服务器 47.103.223.52，2G",
+    "请看两张安卓截图裁剪（书库 tab 页，1080 宽）： 上半 C:\\Users",
+    "今天是 2026-10-06。专项核实：**阿里魔搭 ModelScope（mo",
+    "之前不是说那个你给我搞了好几个模式嘛在d s h里面然后呢呃有好几个预设嘛然后我",
+    "今天是 2026-10-06。任务：为\"把本地大模型（GGUF / vLLM /"
+   ]
+  },
+  {
+   "query": "角色扮演微调那批实验数据，在哪几次会话里被核过",
+   "target": "cacb49f09218dd6c",
+   "kind": "cross",
+   "rank10": 3,
+   "rankDeep": 3,
+   "nAnchors": 8,
+   "goldHits": 0,
+   "goldLen": 0,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 237,
+   "chars1": 589,
+   "chars2": 1230,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "你在审计一份 RP（角色扮演）大模型微调项目的实验数据，判断它能否支撑一篇可投稿",
+    "# 任务：ACR 抗投毒鲁棒性实验 · 一期（机械层 · 零 LLM · 实施单",
+    "你是调研员。任务：调研 GitHub 上「角色扮演/对话教练/哲学 psycho",
+    "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代",
+    "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代",
+    "你是 memrelay 团队的只读研究/实验员，今天 2026-10-19。 代",
+    "你是技术调研员。任务：核实**三个具体底座的训练可行性 + AMD 训练环境**",
+    "随机抽取小说内容用于AI检测"
+   ]
+  },
+  {
+   "query": "项目记忆库那个存放决策的数据库文件，在哪几次会话里被提过",
+   "target": "fd7a268a26d34847",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 18,
+   "nAnchors": 9,
+   "goldHits": 3,
+   "goldLen": 51,
+   "base": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1178,
+   "chars1": 1189,
+   "chars2": 3167,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 3,
+   "packTitles": [
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "[#调研本地大模型部署可行性及免费GPU额度](#sess_0de5e2e7-a",
+    "Selection side chat",
+    "你是一位**独立设计评论员**（critic）。你只能看到一张截图，没有代码、没",
+    "Selection side chat",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261"
+   ]
+  },
+  {
+   "query": "采集各来源的探测函数，在哪几次会话里被改过",
+   "target": "7d211565188ec63b",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 11,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 57,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 810,
+   "chars1": 1042,
+   "chars2": 2552,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "模型选型与节点接入方案讨论",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "请精读以下 7 份文档（都在 `D:\\dsh插件 记忆\\docs\\` 目录下），",
+    "对 SessionRelay 做**采集层 + 存储层**的红队审查。 ## 范",
+    "你是\"奶茶新品雷达\"项目的先遣工程师。任务：为奶茶新品监控产品探测数据源并写出第"
+   ]
+  },
+  {
+   "query": "重算会话绕过清洗导致数据没变的那个教训，在哪几次会话里提过",
+   "target": "774fb6b4793a4f15",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 10,
+   "goldHits": 5,
+   "goldLen": 90,
+   "base": {
+    "strict": false,
+    "span": 0.2
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.4
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.4
+   },
+   "chars0": 118,
+   "chars1": 563,
+   "chars2": 1022,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "你是红队安全测试员，任务：对音乐配方审计器发起对抗攻击，找出能让\"实际有缺陷的配",
+    "你是红队安全测试员第二轮，目标：音乐配方审计器 v4.6（C:/Users/cr",
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "之前不是说那个你给我搞了好几个模式嘛在d s h里面然后呢呃有好几个预设嘛然后我",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "你是推演沙盘项目的数据清理棒（本回合只做「盘点+方案+dry-run」，绝不执行",
+    "哈喽"
+   ]
+  },
+  {
+   "query": "记忆该按什么依据淘汰旧内容，在哪几次会话里被讨论过",
+   "target": "28d4df393824ea02",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 13,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 44,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 475,
+   "chars1": 951,
+   "chars2": 2066,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "<system-reminder> You are teammate \"pape",
+    "你是只读调查员，深查 DSH 推演沙盘项目里\"预测万物/预测系统\"的现有结构，评",
+    "调研两件事：Folia 项目（https://github.com/chthol",
+    "哈喽",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看"
+   ]
+  },
+  {
+   "query": "那份十三号的主交接文档，在哪几次会话里被当材料读",
+   "target": "2834f3824f9771dd",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 19,
+   "nAnchors": 6,
+   "goldHits": 2,
+   "goldLen": 14,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 238,
+   "chars1": 561,
+   "chars2": 1118,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "按推演沙盘交接文档续作并审查会话归档",
+    "寻找Office PPT制作Skill与开源方案",
+    "状态栈-交接-20260922.md 先看这个还有里面提到的所有文件全部仔细看看",
+    "你是 ppt-designer。任务：用模板做《仿生纤毛触觉传感器》创业路演 P",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "设计类AI助手系统的完整技术文档生成",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，"
+   ]
+  },
+  {
+   "query": "开场简报该不该带上机器硬件约束，在哪几次会话里讨论过",
+   "target": "98273a2560e4dc8a",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 10,
+   "goldHits": 5,
+   "goldLen": 68,
+   "base": {
+    "strict": false,
+    "span": 0.2
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.6
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.6
+   },
+   "chars0": 480,
+   "chars1": 745,
+   "chars2": 1697,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "workflow subagent actor#5@1",
+    "哈喽",
+    "你是并行工作流的**支B：决策置顶机制**。只做这一件事，做完报告，不要碰别人的",
+    "呃，这是一个测试，新开的一个上下文。目前你有收到简报吗？",
+    "盘点这台机器上已安装的学术论文类技能，目标是找出**thesis-pipelin",
+    "调查这台 Windows 机器上已安装的学术论文写作相关技能与智能体的**实际能"
+   ]
+  },
+  {
+   "query": "把检索用的文本收口成同一条路的那次重构，在哪几次会话里被审过",
+   "target": "473adf91f642a899",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 14,
+   "nAnchors": 10,
+   "goldHits": 2,
+   "goldLen": 173,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1191,
+   "chars1": 1188,
+   "chars2": 3136,
+   "clusters": 6,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "模型选型与节点接入方案讨论",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "Selection side chat",
+    "Selection side chat",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面"
+   ]
+  },
+  {
+   "query": "每开一个对话就多起一份服务又不回收的毛病，在哪几次会话里被算过账",
+   "target": "646f6bd8b9b63e88",
+   "kind": "cross",
+   "rank10": 7,
+   "rankDeep": 40,
+   "nAnchors": 10,
+   "goldHits": 5,
+   "goldLen": 44,
+   "base": {
+    "strict": false,
+    "span": 0.2
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.6
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.6
+   },
+   "chars0": 1181,
+   "chars1": 1188,
+   "chars2": 3155,
+   "clusters": 8,
+   "groupSize": 3,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "模型选型与节点接入方案讨论",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "Selection side chat",
+    "Selection side chat",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015"
+   ]
+  },
+  {
+   "query": "论文语言润色那类技能，在哪几次会话里被列过清单",
+   "target": "9b4998c18819c311",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 5,
+   "nAnchors": 9,
+   "goldHits": 3,
+   "goldLen": 46,
+   "base": {
+    "strict": true,
+    "span": 1
+   },
+   "p1": {
+    "strict": true,
+    "span": 1
+   },
+   "p2": {
+    "strict": true,
+    "span": 1
+   },
+   "chars0": 1177,
+   "chars1": 1195,
+   "chars2": 3179,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 1,
+   "packTitles": [
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "你好",
+    "所有盘现在都爆炸了没空间了看看什么情况",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95"
+   ]
+  },
+  {
+   "query": "跑审计时要求数据库只读打开这件事，在哪几次会话里被这样约束",
+   "target": "4bf01d2d8fe2d773",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 10,
+   "goldHits": 1,
+   "goldLen": 24,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 932,
+   "chars1": 928,
+   "chars2": 2467,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "你是红队审计员，审计一个刚落地的\"跨工具状态栈\"系统。只读审计，不改任何文件。审",
+    "你是「推演沙盘项目专家研讨会」的查阅 B 棒（盘上实证查阅）。任务=不联网，纯用"
+   ]
+  },
+  {
+   "query": "要求不信别人给的数字、自己重跑一遍的派活方式，在哪几次会话里出现过",
+   "target": "d12b300e4404ed24",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 11,
+   "goldHits": 2,
+   "goldLen": 31,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 1047,
+   "chars1": 1176,
+   "chars2": 3016,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "你是并行工作流的**支A：移植性修复**。只做这一件事，做完报告，不要碰别人的文"
+   ]
+  },
+  {
+   "query": "在本地 CPU 上跑向量检索这条路，在哪几次会话里被评过",
+   "target": "24f9724fc84f40f1",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 17,
+   "nAnchors": 8,
+   "goldHits": 3,
+   "goldLen": 82,
+   "base": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "chars0": 1178,
+   "chars1": 1191,
+   "chars2": 3170,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 1,
+   "packTitles": [
+    "模型选型与节点接入方案讨论",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "你是**论文与工程调研员**。任务：为一套本地 AI 记忆层找出\"**用算法替代",
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "Selection side chat"
+   ]
+  },
+  {
+   "query": "判断某个目录该不该算作不可认领的祖先，在哪几次会话里被推敲过",
+   "target": "ab4595b1814aec8d",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 1,
+   "nAnchors": 11,
+   "goldHits": 2,
+   "goldLen": 47,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 1144,
+   "chars1": 1156,
+   "chars2": 2979,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 4,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "如果你马上就要离开这个世界，你会留下一些什么？嗯特别是结合我们的工作区所有的这一",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "Selection side chat",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95"
+   ]
+  },
+  {
+   "query": "用配对检验说明检索改动是否真的有效，在哪几次会话里做过",
+   "target": "7cd6e66f654e1567",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 10,
+   "goldHits": 1,
+   "goldLen": 34,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 359,
+   "chars1": 943,
+   "chars2": 1941,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "你是**独立复审员**（红队式复核）。任务：复核两批改动，只读、不改任何文件，最",
+    "对 SessionRelay 做**修复验证**红队：验证上一轮 20 条缺陷修",
+    "你的任务是为一篇中文文献综述论文检索**中文文献**，主题是**水系锌离子电池（",
+    "你是**论文与工程调研员**。任务：为一套本地 AI 记忆层找出\"**用算法替代",
+    "你是测试员。任务：真实加载一个 skill 并与之对话，验证它的多学派协作机制是",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编"
+   ]
+  },
+  {
+   "query": "探测仓库根目录的那个函数，在哪几次会话里被改过",
+   "target": "faef416a2315a39a",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 7,
+   "goldHits": 1,
+   "goldLen": 51,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1178,
+   "chars1": 1172,
+   "chars2": 3078,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "模型选型与节点接入方案讨论",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+   ]
+  },
+  {
+   "query": "那个单独一个文件就能跑的可视化面板，在哪几次会话里被评过",
+   "target": "4edb2e852e6805f5",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 1,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 20,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1185,
+   "chars1": 1185,
+   "chars2": 3140,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 3,
+   "packTitles": [
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "奶茶上新自动同步（每2天10:33）",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "[#「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件"
+   ]
+  },
+  {
+   "query": "只看截图不看代码的设计点评，在哪几次会话里派过",
+   "target": "7dfc60598fd919eb",
+   "kind": "cross",
+   "rank10": 7,
+   "rankDeep": 2,
+   "nAnchors": 7,
+   "goldHits": 3,
+   "goldLen": 30,
+   "base": {
+    "strict": true,
+    "span": 1
+   },
+   "p1": {
+    "strict": true,
+    "span": 1
+   },
+   "p2": {
+    "strict": true,
+    "span": 1
+   },
+   "chars0": 1180,
+   "chars1": 1183,
+   "chars2": 3164,
+   "clusters": 9,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "奶茶上新自动同步（每2天10:33）",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "你是一位**独立设计评论员**（critic）。你只能看到一张截图，没有代码、没",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "你是一位**独立设计评论员**（critic）。你只能看到一张截图，没有代码、没",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实"
+   ]
+  },
+  {
+   "query": "要求每次工具调用都能被核验的那套规矩，在哪几次点评里被提到",
+   "target": "aab2ea5a08283b8c",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 10,
+   "goldHits": 1,
+   "goldLen": 87,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1164,
+   "chars1": 1188,
+   "chars2": 3072,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "你这个端点就是c o m m a n d这个这个模型我z code里面有一个配置",
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高"
+   ]
+  },
+  {
+   "query": "把记忆生命周期写进框架而不是靠外部脚本，在哪几次会话里被讨论过",
+   "target": "7f876d401c392f22",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 9,
+   "goldHits": 4,
+   "goldLen": 41,
+   "base": {
+    "strict": false,
+    "span": 0.25
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 707,
+   "chars1": 886,
+   "chars2": 2137,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "模型选型与节点接入方案讨论",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "对 SessionRelay 做**检索层 + 生命周期**的红队审查。 ## ",
+    "你是「推演沙盘项目专家研讨会」的查阅 A 棒（外部对标查阅）。任务=联网调研业界",
+    "你是「推演沙盘项目专家研讨会」的查阅 A 棒（外部对标查阅）。任务=联网调研业界",
+    "我插入的外部键盘f盘里面有一堆那个照片和文件吧找一下有没有近期日期内的新增的照片"
+   ]
+  },
+  {
+   "query": "给记忆状态和策略列一张表来管生命周期，在哪几次会话里被提过",
+   "target": "e16a61ee537b11a6",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 14,
+   "nAnchors": 9,
+   "goldHits": 3,
+   "goldLen": 87,
+   "base": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "chars0": 946,
+   "chars1": 1035,
+   "chars2": 2675,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 0,
+   "packTitles": [
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "请精读文件 `D:\\dsh插件 记忆\\docs\\现状与需求总核对表-202610",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "对 SessionRelay 做**检索层 + 生命周期**的红队审查。 ## ",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "模型选型与节点接入方案讨论",
+    "背景：我们在自制一个「Agent 宏键盘」，对标 2026-07-15 Open"
+   ]
+  },
+  {
+   "query": "跨会话近重复占到一半这个实测数字，在哪几次会话里被引用",
+   "target": "49375b477494a6c3",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 8,
+   "goldHits": 4,
+   "goldLen": 57,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1062,
+   "chars1": 1022,
+   "chars2": 2753,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "你在 Windows 11 (Git Bash) 环境做 DSH 插件**功能重"
+   ]
+  },
+  {
+   "query": "论文检索工具一个报错一个回空的分歧，在哪几次会话里被记过",
+   "target": "323c111a48c66a9c",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 18,
+   "nAnchors": 10,
+   "goldHits": 2,
+   "goldLen": 21,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1189,
+   "chars1": 1183,
+   "chars2": 3166,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 0,
+   "packTitles": [
+    "「按 交接-Bonsai2调优-20260919.md 续作仔细看每一个文件里面",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "Selection side chat",
+    "读 E:\\music player\\docs\\给ZCode的问题清单-20261",
+    "Selection side chat",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别"
+   ]
+  },
+  {
+   "query": "未决问题这一栏的准确性，在哪几次会话里被查过",
+   "target": "62df568227aa34c7",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 15,
+   "nAnchors": 7,
+   "goldHits": 3,
+   "goldLen": 79,
+   "base": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1141,
+   "chars1": 1182,
+   "chars2": 3044,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 3,
+   "packTitles": [
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "奶茶上新自动同步（每2天10:33）",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝"
+   ]
+  },
+  {
+   "query": "本地嵌入模型选型，在哪几次会话里被比较过",
+   "target": "a36e4a22e3ff3cd0",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 54,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 829,
+   "chars1": 911,
+   "chars2": 2332,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "呃查一下调研一下就是我们这边就是国内外或者说最好国内比较好一点比较方便一点的或者",
+    "你是本地大模型选型调研员。任务：彻底调查 **Qwen3.6-35B-A3B（及",
+    "你是本地大模型选型调研员。任务：对 **Ornith-1.5-35B-A3B 这"
+   ]
+  },
+  {
+   "query": "定时清理和归档定时器撞车这块，在哪几次会话里查过",
+   "target": "8dcfab7bdb856071",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 23,
+   "nAnchors": 8,
+   "goldHits": 2,
+   "goldLen": 94,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 118,
+   "chars1": 370,
+   "chars2": 721,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "你是推演沙盘项目的数据清理棒（本回合只做「盘点+方案+dry-run」，绝不执行",
+    "我他妈C盘他妈爆炸，就他妈三个G了，大哥，你帮我看他妈什么东西舅舅我宝宝",
+    "创作悲伤英文歌、人生纯音乐与摇滚三首歌曲",
+    "音乐队列巡检兵：每20分钟盯出片+验片+归档，五首落袋自动撤收",
+    "按推演沙盘交接文档续作并审查会话归档",
+    "你是红队安全测试员第四轮，对音乐生产体系做对抗性审查。上一轮已封死的攻击面不要再",
+    "哈喽",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ]
+  },
+  {
+   "query": "交接说复跑两遍数字分毫不差，这种说法在哪几次会话里被验过",
+   "target": "d550fa3108d9a88e",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 10,
+   "goldHits": 1,
+   "goldLen": 17,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1143,
+   "chars1": 1104,
+   "chars2": 2916,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "奶茶上新自动同步（每2天10:33）",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+   ]
+  },
+  {
+   "query": "未决清单的准确率，在哪几次会话里被人工判读过",
+   "target": "20da588beef538de",
+   "kind": "cross",
+   "rank10": 2,
+   "rankDeep": 2,
+   "nAnchors": 7,
+   "goldHits": 3,
+   "goldLen": 22,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.6666666666666666
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 118,
+   "chars1": 375,
+   "chars2": 731,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "你要判读一批「未决问题」样本的 precision。这是 `D:\\dsh插件 记",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "调研 \"DeepSeek Harness\"（DSH，一个 Cordis 插件化 ",
+    "哈喽",
+    "启动 inkos",
+    "# 任务：G1 反馈施工 M2 · 审计器仪表盘首屏（/audit 页） 工作区",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "你是网文追读审稿员。对《死亡换乘》（都市悬疑长篇，起点番茄风，96 章已写完前 ",
+    "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ]
+  },
+  {
+   "query": "简报查询那份脚本的输出会变、指纹却不变，在哪几次复审里被指出",
+   "target": "2ca3f435e58f5e70",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 36,
+   "nAnchors": 10,
+   "goldHits": 3,
+   "goldLen": 104,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "chars0": 301,
+   "chars1": 861,
+   "chars2": 1714,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "呃，这是一个测试，新开的一个上下文。目前你有收到简报吗？",
+    "哈喽",
+    "你是并行工作流的**支B：决策置顶机制**。只做这一件事，做完报告，不要碰别人的",
+    "你是**独立复审员**（红队式复核）。任务：复核两批改动，只读、不改任何文件，最",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "渲染歌曲队列与视频标题查询",
+    "排查本地doctor服务及本地搜索故障"
+   ]
+  },
+  {
+   "query": "只改一列导致校验看不出变化，在哪几次复审里被点出",
+   "target": "21ecac95dec872e7",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 19,
+   "nAnchors": 8,
+   "goldHits": 1,
+   "goldLen": 25,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 576,
+   "chars1": 822,
+   "chars2": 1956,
+   "clusters": 7,
+   "groupSize": 0,
+   "recovered": true,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "# 任务：M2 真实局续录 · 第 8 局（PandaKill S1E6 第二局",
+    "任务：给「夜行列车 NIGHT TRAIN」作品集网站（概念：一列只在夜里发车的",
+    "你是**独立复审员**（红队式复核）。任务：复核两批改动，只读、不改任何文件，最",
+    "你是 T1「地图内核」的实现者。工作树（唯一写入目标）：D:/dsh插件 记忆/",
+    "你是终审员，快速验证一轮修复后的终态（只读，15 分钟内完成，聚焦不展开）。 对"
+   ]
+  },
+  {
+   "query": "七项指纹恒等导致守卫假绿，在哪几次复审里被指出",
+   "target": "22ea720ad2fe7300",
+   "kind": "cross",
+   "rank10": 9,
+   "rankDeep": 9,
+   "nAnchors": 9,
+   "goldHits": 4,
+   "goldLen": 109,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 232,
+   "chars1": 828,
+   "chars2": 1619,
+   "clusters": 7,
+   "groupSize": 3,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "你是**独立复审员**（红队式复核）。任务：复核两批改动，只读、不改任何文件，最",
+    "你是**独立代码复审员**（只读，禁止修改任何文件；临时脚本放 `D:\\Temp",
+    "调查 GitHub 上 cleverer-dsh 插件的官方作者动态与 DSH ",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "x-opencode-session缺失导致连接失败",
+    "你是审计团队 A4\"Windows 编码方案加装影响审计员\"。第一步：用 Ski",
+    "你是**独立代码复审员**（只读，禁止修改任何文件；临时脚本放 `D:\\Temp",
+    "你是**独立代码复审员**（只读，禁止修改任何文件；临时脚本放 `D:\\Temp"
+   ]
+  },
+  {
+   "query": "简报过滤器那个守门脚本，在哪几次会话里被查过",
+   "target": "c573b23d361a0c43",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 32,
+   "nAnchors": 7,
+   "goldHits": 2,
+   "goldLen": 32,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.5
+   },
+   "chars0": 234,
+   "chars1": 1025,
+   "chars2": 1918,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "哈喽",
+    "呃，这是一个测试，新开的一个上下文。目前你有收到简报吗？",
+    "你是并行工作流的**支B：决策置顶机制**。只做这一件事，做完报告，不要碰别人的",
+    "呃调用一下那个m c p呃找一下就是我们的提示词库里面找一下那个那个有没有a i",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "之前不是说那个你给我搞了好几个模式嘛在d s h里面然后呢呃有好几个预设嘛然后我",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 "
+   ]
+  },
+  {
+   "query": "给自动基准补上语义那一条臂，在哪几次会话里做过",
+   "target": "5407c1efae4428dd",
+   "kind": "cross",
+   "rank10": 7,
+   "rankDeep": 7,
+   "nAnchors": 6,
+   "goldHits": 3,
+   "goldLen": 79,
+   "base": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "chars0": 1173,
+   "chars1": 1191,
+   "chars2": 3163,
+   "clusters": 7,
+   "groupSize": 4,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a"
+   ]
+  },
+  {
+   "query": "竞品那套不要模型、只靠关系表召回的做法，在哪几次会话里被提过",
+   "target": "42093ecccab2a383",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 15,
+   "nAnchors": 11,
+   "goldHits": 3,
+   "goldLen": 53,
+   "base": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.3333333333333333
+   },
+   "chars0": 238,
+   "chars1": 472,
+   "chars2": 1032,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "你在为一套本地 AI 记忆层项目（SessionRelay / SES）做**竞",
+    "你是产品调研员。为一个女性向助眠 App「Sleep Female」（Flutt",
+    "在本地 DSH 插件市场缓存中做\"同类竞品\"调研，为修理 cleverer-ds",
+    "【我。。瘫坐。。DSH-Model-Fusion 现已开源。。本视频 三句简单的",
+    "dsh未来预测软件竞品调研",
+    "你的任务：**纯网络只读调研**（不要动本地任何文件、不要安装任何东西）——调研",
+    "你的任务：**只读调研**（绝对不要修改/删除/重启任何东西，不要执行 pnpm",
+    "你在 D:\\agent1super 这个 Windows 工作区里做只读调研（不"
+   ]
+  },
+  {
+   "query": "记忆层那个总配置结构，在哪几次会话里被改过",
+   "target": "f042c487db43ab5d",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 26,
+   "nAnchors": 6,
+   "goldHits": 2,
+   "goldLen": 56,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1167,
+   "chars1": 1027,
+   "chars2": 2874,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "模型选型与节点接入方案讨论",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实",
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇"
+   ]
+  },
+  {
+   "query": "改了抽取规则但存量库不重算的问题，在哪几次会话里被提过",
+   "target": "972400837716c16e",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 20,
+   "nAnchors": 9,
+   "goldHits": 3,
+   "goldLen": 23,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 118,
+   "chars1": 708,
+   "chars2": 1300,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "你是红队审查员。任务：对 SessionRelay（一个本地 AI 记忆层项目）",
+    "## 背景 仓库根：D:/dsh插件 记忆/core/SessionRelay（",
+    "你是论文与工程调研员。任务：为一个本地 AI 记忆层项目调研\"如何优雅地抽取**",
+    "你是**论文与工程调研员**。任务：为一套本地 AI 记忆层找出\"**用算法替代",
+    "随机抽取小说内容用于AI检测",
+    "你是资深前端代码审查员。对 D:\\agent1super\\boba-diary\\",
+    "DS H模型API频繁重试问题",
+    "今天是 2026-10-06。专项核实：中国大陆用户能用的几个\"免费 GPU N",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编"
+   ]
+  },
+  {
+   "query": "那只骑车的鹈鹕在几次会话里被画过",
+   "target": "29246406e4d4af63",
+   "kind": "cross",
+   "rank10": 2,
+   "rankDeep": 2,
+   "nAnchors": 4,
+   "goldHits": 1,
+   "goldLen": 35,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": true,
+    "span": 1
+   },
+   "p2": {
+    "strict": true,
+    "span": 1
+   },
+   "chars0": 118,
+   "chars1": 519,
+   "chars2": 953,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "生成一个单文件 HTML + SVG 动画：一只加州褐鹈鹕正在骑自行车。硬件要求",
+    "哈喽",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "你在 Windows 11 (Git Bash) 环境做**会话目录全量普查**",
+    "请看两张安卓截图（呼吸会话进行中，音景播放中）： A. C:\\Users\\crx",
+    "你在 SessionRelay 仓库里扩检索评测题集。仓库根：D:/dsh插件 ",
+    "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ]
+  },
+  {
+   "query": "给测试基准算命中率和显著性，在哪几次会话里做过",
+   "target": "f53c079ce936380c",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 6,
+   "goldHits": 1,
+   "goldLen": 56,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 0
+   },
+   "chars0": 238,
+   "chars1": 358,
+   "chars2": 837,
+   "clusters": 5,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "DSH框架缓存命中率下降问题排查",
+    "Selection side chat",
+    "对《死亡换乘》第 16-23 章做连贯性核查（六条逻辑链）。你是六队编队之一，只",
+    "对《死亡换乘》第 24-30 章做连贯性核查（六条逻辑链）。你是六队编队之一，只",
+    "模型引擎参数调优并接入DSH与本地API测试",
+    "对《死亡换乘》第 1-8 章做连贯性核查（六条逻辑链）。你是六队编队之一，只管 ",
+    "对《死亡换乘》第 9-15 章做连贯性核查（六条逻辑链）。你是六队编队之一，只管",
+    "对《死亡换乘》第 31-38 章做连贯性核查（六条逻辑链）。你是六队编队之一，只"
+   ]
+  },
+  {
+   "query": "渲染进程崩溃后翻诊断记录的活，在哪几次会话里干过",
+   "target": "ef00ec195e312052",
+   "kind": "cross",
+   "rank10": 2,
+   "rankDeep": 2,
+   "nAnchors": 8,
+   "goldHits": 4,
+   "goldLen": 47,
+   "base": {
+    "strict": false,
+    "span": 0.25
+   },
+   "p1": {
+    "strict": false,
+    "span": 0.75
+   },
+   "p2": {
+    "strict": false,
+    "span": 0.75
+   },
+   "chars0": 117,
+   "chars1": 350,
+   "chars2": 706,
+   "clusters": 10,
+   "groupSize": 1,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "Untitled session",
+    "你的任务：**只读诊断**（绝对不要修改/删除/重启任何东西，不要执行 pnpm",
+    "后台什么进程老是一会占用一下cpu和gpu的查一下",
+    "你在 Windows 11 (Git Bash) 环境诊断：为什么新装的 dsh",
+    "排查开机自启command命令行进程",
+    "渲染歌曲队列与视频标题查询",
+    "请用 Read 工具读取这张图片：D:\\agent1super\\微信图片_202",
+    "请逐张查看以下 6 张 PNG（一本中文小说 Word 排版的 PDF 渲染页，",
+    "workflow subagent actor#1@3"
+   ]
+  },
+  {
+   "query": "那份状态栈交接在几次会话里被接着读下去",
+   "target": "afd5655523f19598",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 11,
+   "nAnchors": 6,
+   "goldHits": 2,
+   "goldLen": 18,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1051,
+   "chars1": 1081,
+   "chars2": 2858,
+   "clusters": 8,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 3,
+   "packTitles": [
+    "整个爱尔兰都在下雪。 它纷纷飘落，厚厚积压在歪歪斜斜的十字架上和墓石上，落在一扇",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "github有没有那种覆盖很牛逼的多种多样的提示词库开源 查一下牛逼热门认可度高",
+    "「按 folia-qq发现页-交接-20261006.md 续作」",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95"
+   ]
+  },
+  {
+   "query": "那套机器人框架的抢救备份，在哪几次会话里被翻出来过",
+   "target": "0f482250fa809f52",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 8,
+   "goldHits": 1,
+   "goldLen": 29,
+   "base": {
+    "strict": false,
+    "span": 0
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 119,
+   "chars1": 372,
+   "chars2": 728,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "你在 Windows 11 (Git Bash) 环境做**凭据与令牌卫生红队审",
+    "还有那个c盘现在忙了你查一下那个c盘那边那个有一个运维手册还有你的自己的记忆是因",
+    "你是调研员。任务：调研 GitHub 上是否有\"多学派并行对话\"或\"多视角辩论\"",
+    "你是\"奶茶新品雷达\"项目的先遣工程师。任务：为奶茶新品监控产品探测数据源并写出第",
+    "你是审查团队 R2\"first-principles 根本思考员\"。第一步：用 ",
+    "任务：把 obra/superpowers（281,594★ 方法论框架）的工作",
+    "哈喽",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "请看安卓截图裁剪（首页中部，y=300-2150）：C:\\Users\\crx\\A"
+   ]
+  },
+  {
+   "query": "要求两人各写一份、彼此不通气的复核，在哪几次会话里派过",
+   "target": "f708d4d3a7344067",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 9,
+   "goldHits": 1,
+   "goldLen": 43,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 0
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1177,
+   "chars1": 1187,
+   "chars2": 3158,
+   "clusters": 6,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "最终核查确认：方案完整，但有 2 处工具名/机制需修正 结论：你列的 12 项需",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "你在一个长期项目里干活：SessionRelay × SES —— 给 AI 编",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入"
+   ]
+  },
+  {
+   "query": "那份现状核对表在几次会话里被当材料读",
+   "target": "22119793e4f65f7c",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 1,
+   "nAnchors": 5,
+   "goldHits": 2,
+   "goldLen": 132,
+   "base": {
+    "strict": false,
+    "span": 0.5
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 1133,
+   "chars1": 1140,
+   "chars2": 2995,
+   "clusters": 9,
+   "groupSize": 0,
+   "recovered": false,
+   "extras": 5,
+   "extrasTagged": 5,
+   "packTitles": [
+    "@按 D:\\dsh插件 记忆\\docs\\HANDOFF-202 看看",
+    "Y.X.Function: 09-26 00:23:56 你自己不用做任何执行，",
+    "你是**论文与工程调研员**。任务：为一套本地 AI 记忆层找出\"**用算法替代",
+    "状态栈-交接-20260922.md 你先仔细看还有里面提到的所以文件如何不用做",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "command这个端点模型的deepseek v4.1flash你看看我们现在接",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "D:\\dsh插件 记忆\\docs\\HANDOFF-MASTER-20261015",
+    "先澄清一下你最后那句——你说的\"覆盖列车车票、车次列车\"应该是语音转文字的误识别",
+    "接下来这一段话呃我是应该是我们之前已经做过的一整套的一个体系然后我需要你帮我核实"
+   ]
+  },
+  {
+   "query": "界面上那三层能力分别是什么，在哪几次会话里被问过",
+   "target": "84d248d91f5c59b8",
+   "kind": "cross",
+   "rank10": 0,
+   "rankDeep": 0,
+   "nAnchors": 7,
+   "goldHits": 1,
+   "goldLen": 26,
+   "base": {
+    "strict": false,
+    "span": 1
+   },
+   "p1": {
+    "strict": false,
+    "span": 1
+   },
+   "p2": {
+    "strict": false,
+    "span": 1
+   },
+   "chars0": 463,
+   "chars1": 537,
+   "chars2": 1350,
+   "clusters": 10,
+   "groupSize": 0,
+   "recovered": null,
+   "extras": 0,
+   "extrasTagged": 0,
+   "packTitles": [
+    "① 交接文档（唯一入口，18:45 终版，零上下文可接手）： text D:\\a",
+    "ninfer-ada-ternary 项目现状与资源发布说明",
+    "按 D:\\dsh插件 记忆\\docs\\HANDOFF-20261017-新对话入",
+    "[#folia-qq发现页交接文档续作](#sess_08c791bc-3f95",
+    "请分别看这三张安卓截图的局部裁剪（均为 1080 宽）： A. 顶部栏区域（原 ",
+    "本地LLM部署配置与推理能力优化方案",
+    "你好",
+    "盘点这台机器上已安装的学术论文类技能，目标是找出**thesis-pipelin",
+    "调查这台 Windows 机器上已安装的学术论文写作相关技能与智能体的**实际能",
+    "请查看本地图片：C:\\Users\\crx\\AppData\\Local\\Temp\\"
+   ]
+  }
+ ]
+}

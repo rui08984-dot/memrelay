@@ -67,6 +67,33 @@ function excerpt(db: DB, rid: number, firstToken: string): string {
   return row.content.slice(start, start + 120).replace(/\s+/g, ' ').trim();
 }
 
+/**
+ * [10-19] 会话内**选片段**：在预算不变（120 字符）的前提下，选「覆盖查询锚点最多」的那条消息，
+ * 而不是「最先命中第一个词元」的那条。
+ *
+ * 证据（X 臂 95 题，scripts/xarm-aggregate.ts）：同样 120 字预算，
+ *   证据句 ≥80% 覆盖从 16/95（16.8%）提到 42/95（44.2%），McNemar p=2.6e-6；平均覆盖 36.2%→69.7%。
+ * 为什么放在这里而不是改检索：它**不改排名**，只改「返回哪段证据」——风险最小、收益直接体现在简报里。
+ */
+function bestExcerpt(db: DB, sid: string, anchors: string[], budget = 120): string {
+  const rows = db.prepare('SELECT content FROM messages WHERE session_id = ? ORDER BY seq_num').all(sid) as Array<{ content: string }>;
+  if (rows.length === 0) return '';
+  const uniq = [...new Set(anchors.filter((a) => a.length >= 2))].slice(0, 12);
+  let best = '';
+  let bestScore = -1;
+  for (const r of rows) {
+    const text = r.content;
+    const hit = uniq.filter((a) => text.includes(a)).length;
+    if (hit > bestScore) { bestScore = hit; best = text; }
+    if (bestScore === uniq.length) break; // 已覆盖全部锚点，没必要再扫
+  }
+  if (!best) return '';
+  // 窗口以「命中锚点最多」的位置为中心，保持与旧 excerpt 同预算
+  const at = uniq.map((a) => best.indexOf(a)).filter((i) => i >= 0).sort((x, y) => x - y)[0] ?? 0;
+  const start = Math.max(0, at - 40);
+  return best.slice(start, start + budget).replace(/\s+/g, ' ').trim();
+}
+
 function queryMetaUnits(db: DB, exprs: string[], project: string, extra?: ExtraWhere | null): Map<string, number> {
   const out = new Map<string, number>();
   for (const expr of exprs) {
@@ -311,7 +338,7 @@ function searchOnce(db: DB, opts: SearchOptions): SearchHit[] {
     hits.push({
       sessionId: sid,
       score: andMap.get(sid) ?? 0,
-      snippet: excerpt(db, best?.rid ?? 0, units[0].join('')),
+      snippet: BEST_EXCERPT ? bestExcerpt(db, sid, units.flat()) : excerpt(db, best?.rid ?? 0, units[0].join('')),
       viaMeta: false,
       coverage: coverageOf(sid),
       seq: seqOf(best?.rid ?? 0),
@@ -729,6 +756,12 @@ export const LEN_PENALTY_PIVOT = 300;
  *   保留代码（默认关）是因为它对**短查询 + 长整词**的场景理论上仍成立，只是本库数据验证不到。
  */
 const TOKEN_BACKOFF = process.env.SRELAY_TOKEN_BACKOFF === '1';
+
+/**
+ * [10-19] 片段选择：默认用「覆盖锚点最多」的消息（bestExcerpt）。
+ * 关掉（SRELAY_BEST_EXCERPT=0）逐字回旧行为，便于 A/B 与回归。
+ */
+const BEST_EXCERPT = process.env.SRELAY_BEST_EXCERPT !== '0';
 
 const COVERAGE_BOOST = (() => {
   const v = Number(process.env.SRELAY_COVERAGE_BOOST ?? 1.0);
