@@ -524,8 +524,13 @@ export async function runLifecycle(opts: LifecycleOptions = {}): Promise<Lifecyc
     }
     if (rep.alert) log('  ' + rep.alert);
     // "没测到"必须让本阶段 ok=false：否则面板/健康记录里一切正常，而审计其实没跑成。
-    const note = global ? rep.note : rep.note + ' · 全局库不可用（' + (globalOpenError ?? '未知') + '）：结论无法落盘/进简报';
-    return { ok: rep.p0 === 0 && rep.unreadable === 0, note };
+    // [10-19] `ok` 的语义 = **审计这一轮跑成了没有**，不是「库里有没有 P0」。
+    //   原来写成 p0===0：一旦有 P0，生命周期里 audit 永远 FAIL —— 既分不清
+    //   「查出了问题」与「审计自己跑崩了」，也会让 fails 计数无限涨。
+    //   P0 的可见性由 brief 顶部告警 + health_events(warn) 负责，不靠阶段的绿/红。
+    const note = (global ? rep.note : rep.note + ' · 全局库不可用（' + (globalOpenError ?? '未知') + '）：结论无法落盘/进简报')
+      + (rep.p0 > 0 ? ' · P0 ' + String(rep.p0) + ' 项（已进简报告警）' : '');
+    return { ok: rep.unreadable === 0, note };
   });
 
   // ── ⑨ 分发（部署物由宿主注入；内核不碰 HTML）──
