@@ -55,6 +55,8 @@ const THRESHOLD = Number(arg('threshold', '0.4'));
 const RESERVE = Number(arg('reserve', '3'));
 const TOPK = Number(arg('topk', '5'));
 const DTYPE = arg('dtype', '');
+// [10-19] 标题/话题重排实验臂：不传 = 产品默认（1）；0 = 关；0.5/1 = 权重。
+const TITLEBOOST_RAW = arg('titleboost', '');
 // [1017 夜 · 标签图谱] 查询扩展臂。和语义臂同一套做法：**同一批题面、同一个目标会话**，
 // 扩展开/关两条臂**配对**跑 —— 配对 McNemar 比独立两组比例灵敏得多（噪声小一个量级）。
 // 旋钮全部是基准自己的，不写进 config.json（扫描要求每轮只改一个变量）。
@@ -342,7 +344,8 @@ const latMs: number[] = [];
 for (const it of items) {
   let ids: string[] = [];
   const t0 = Date.now();
-  try { ids = searchSessions(db, { project: PID, query: it.query, limit: LIMIT, rewrite: REWRITE, fusion: FUSION, lengthNorm: LENGTHNORM, coreOnly: COREONLY } as never).map((h) => h.sessionId); } catch { continue; }
+  const tbOpt = TITLEBOOST_RAW === '' ? undefined : Number(TITLEBOOST_RAW);
+  try { ids = searchSessions(db, { project: PID, query: it.query, limit: LIMIT, rewrite: REWRITE, fusion: FUSION, lengthNorm: LENGTHNORM, coreOnly: COREONLY, titleBoost: tbOpt } as never).map((h) => h.sessionId); } catch { continue; }
   const msThis = Date.now() - t0;
   latMs.push(msThis);
   expStats.baseMs += msThis;

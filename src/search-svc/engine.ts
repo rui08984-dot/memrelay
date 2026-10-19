@@ -191,6 +191,13 @@ export interface SearchOptions {
    * 环境变量 SRELAY_BM25PLUS 等价（opts 优先）。
    */
   bm25plus?: boolean | number | null;
+  /**
+   * [10-19] 标题/话题重排：`score *= 1 + w * overlap(query, title+topics)`。
+   * 为什么是它：305 题后验实验（scripts/rank-experiment.ts）里，标题/话题命中是唯一
+   * 稳定抬 hit@1 的特征（+4.0pt / MRR +3.9pt），而时间锚点在本库无增益。
+   * 默认关；传数值（如 0.5）才启用 —— 先量再开，别靠直觉。
+   */
+  titleBoost?: number | null;
 }
 
 /** 一次查询扩展的溯源信息（**排查「为什么扩成这些词」的唯一入口**） */
@@ -482,8 +489,48 @@ function applyDecayToHits(db: DB, hits: SearchHit[], cfg: DecayConfig): SearchHi
     .sort((a, b) => b.score - a.score || (b.coverage ?? 0) - (a.coverage ?? 0));
 }
 
+/**
+ * [10-19] 标题/话题重排（零模型、确定性）。
+ *
+ * 为什么不在 searchOnce 里加：多路（改写/融合/标签）各自都会调 searchOnce，
+ * 放里面会乘多次；放在**出口**= 全部合并完乘一次，A/B 才是单变量。
+ * 为什么要 over-fetch：limit=10 时只重排 10 条候选，救不回「排第 12 但标题很匹配」的目标；
+ * 先取 limit×4（上限 200）再乘权重、再截断，才有机会把它抬进来。
+ */
+export function applyTitleBoost(db: DB, hits: SearchHit[], opts: SearchOptions): SearchHit[] {
+  const w = Number(opts.titleBoost);
+  if (!Number.isFinite(w) || w <= 0 || hits.length === 0) return hits;
+  const tokens = (parseQuery(opts.query) as { units: string[][] }).units.flat().filter((t) => t.length >= 2);
+  if (tokens.length === 0) return hits;
+  const bag = new Map<string, string>();
+  try {
+    const ph = hits.map(() => '?').join(',');
+    const rows = db.prepare('SELECT id, title, topics FROM sessions WHERE id IN (' + ph + ')').all(...hits.map((h) => h.sessionId)) as Array<{ id: string; title: string | null; topics: string | null }>;
+    for (const r of rows) bag.set(r.id, ((r.title ?? '') + ' ' + (r.topics ?? '')).toLowerCase());
+  } catch { return hits; }
+  const boosted = hits.map((h) => {
+    const b = bag.get(h.sessionId) ?? '';
+    if (b === '') return h;
+    const overlap = tokens.filter((t) => b.includes(t.toLowerCase())).length / tokens.length;
+    return overlap > 0 ? { ...h, score: h.score * (1 + w * overlap) } : h;
+  });
+  boosted.sort((a, b) => b.score - a.score);
+  return boosted;
+}
+
 export function searchSessions(db: DB, opts: SearchOptions): SearchHit[] {
-  let hits = searchCore(db, opts);
+  // [10-19] titleBoost 需要 over-fetch：否则候选只有 limit 条，重排救不回第 11 名。
+  // 默认值只认 DEFAULT_TITLE_BOOST 这一处（别在调用点再写一个 1 —— 那会让「默认是什么」散成 N 份）。
+  const tb = opts.titleBoost ?? DEFAULT_TITLE_BOOST;
+  const wantLimit = Math.max(0, Math.trunc(Number(opts.limit ?? 20) || 0));
+  // ⚠️ 语义档（semanticHits 注入）不走 over-fetch：语义保底槽位的语义依赖 limit
+  //   （reserve = min(N, floor(limit/3))），改 limit 会改变既有语义行为。
+  //   实测：test/fork/semantic-slot-starvation.spec.ts 三处断言因此失败；
+  //   语义路保持原语义、titleBoost 只在已返回集合内重排（标题命中时仍有效）。
+  const overfetch = tb > 0 && wantLimit > 0 && !opts.semanticHits;
+  const fetchLimit = overfetch ? Math.min(200, Math.max(wantLimit * 4, 40)) : wantLimit;
+  const coreOpts: SearchOptions = fetchLimit === wantLimit ? opts : { ...opts, limit: fetchLimit };
+  let hits = searchCore(db, coreOpts);
   // ── [1021] 时间衰减接线（模块早就有，但**一直没接进任何检索路径** —— 所以「没有时间衰减」
   //   这句话到此刻为止仍然是真的。本轮把它接上。）
   //   位置选在 searchSessions 出口而不是 searchOnce 里：
@@ -494,13 +541,19 @@ export function searchSessions(db: DB, opts: SearchOptions): SearchHit[] {
   if (opts.decay?.enabled === true && hits.length > 0) {
     hits = applyDecayToHits(db, hits, opts.decay);
   }
+  if (tb > 0) {
+    hits = applyTitleBoost(db, hits, { ...opts, titleBoost: tb });
+  }
   // [1017 夜 · 标签图谱] 追加式扩展：**在既有全部逻辑之后**再叠加一条补充路。
   // 放在这里而不是塞进 searchCore 里，是为了让「扩展」严格等于「旧行为 + 一条路」——
   // 单一变量，A/B 才干净（历史教训：融合闸门那次对照组是脏的，见 lengthNorm 注释）。
   // 默认值只认 DEFAULT_TAG_EXPAND 这一处（别在调用点再写一个 false —— 那会让「默认是什么」散成 N 份）
-  if ((opts.tagExpand ?? DEFAULT_TAG_EXPAND) !== true) return hits;
-  if (opts.tagInFusion === true) return hits;   // 融合模式已在 fusedSearch 内部并过路了
-  return tagExpandPath(db, opts, hits);
+  if ((opts.tagExpand ?? DEFAULT_TAG_EXPAND) !== true) {
+    return tb > 0 ? hits.slice(0, wantLimit) : hits;
+  }
+  if (opts.tagInFusion === true) return tb > 0 ? hits.slice(0, wantLimit) : hits;   // 融合模式已在 fusedSearch 内部并过路了
+  const expanded = tagExpandPath(db, opts, hits);
+  return tb > 0 ? expanded.slice(0, wantLimit) : expanded;
 }
 
 /** 原 searchSessions 主体，逐字未改（仅改名）—— 对外行为经 searchSessions 包装后保持不变 */
@@ -685,6 +738,19 @@ const COVERAGE_BOOST = (() => {
 const META_BOOST = (() => {
   const v = Number(process.env.SRELAY_META_BOOST ?? 0);
   return Number.isFinite(v) && v >= 0 ? v : 0;
+})();
+
+/**
+ * [10-19] 标题/话题重排的**产品默认权重 = 1**（用户 10-19 拍板：305 题 +7.5pt hit@1，McNemar p=0.0001）。
+ * 证据（scripts/bench-questions-paraphrase-v2.json，305 题，同一批题面）：
+ *   base 13.1 / 39.7 / MRR 20.0  →  titleBoost=1  20.7 / 48.2 / 28.0
+ *   配对 +28/−5（p=0.0001），簇级 95% CI：hit@1 +4.0..+11.1、hit@10 +4.9..+12.7；
+ *   第二套题（525 题 K/S/M）同向 +1.2 / +1.6 / +1.6（不显著但没反转）。
+ * 关掉：`SRELAY_TITLE_BOOST=0`（逐字回旧行为，便于 A/B 与回归）。
+ */
+export const DEFAULT_TITLE_BOOST = (() => {
+  const v = Number(process.env.SRELAY_TITLE_BOOST ?? 1);
+  return Number.isFinite(v) && v >= 0 ? v : 1;
 })();
 
 export function lenPenaltyOf(messageCount: number): number {

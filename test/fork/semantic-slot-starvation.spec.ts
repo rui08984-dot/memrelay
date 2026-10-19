@@ -34,7 +34,7 @@ describe('[1015 夜] 语义档槽位保底', () => {
   it('① FTS 命中已满 limit 时：语义命中仍保底进来（修复后）', () => {
     const { db, targetId } = seed(20);
     const hits = searchSessions(db, {
-      project: 'p', query: '记忆简报', limit: 10,
+      project: 'p', query: '记忆简报', limit: 10, titleBoost: 0,
       semanticHits: [{ sessionId: targetId, score: 1 }],
     });
     expect(hits.length).toBe(10);
@@ -43,9 +43,9 @@ describe('[1015 夜] 语义档槽位保底', () => {
 
   it('② 保底只从尾部腾：FTS 头部与前 9 条一条不被挤掉', () => {
     const { db, targetId } = seed(20);
-    const base = searchSessions(db, { project: 'p', query: '记忆简报', limit: 10 });
+    const base = searchSessions(db, { project: 'p', query: '记忆简报', limit: 10, titleBoost: 0 });
     const withSem = searchSessions(db, {
-      project: 'p', query: '记忆简报', limit: 10,
+      project: 'p', query: '记忆简报', limit: 10, titleBoost: 0,
       semanticHits: [{ sessionId: targetId, score: 1 }],
     });
     // 只让出 1 个槽位（语义只有 1 条，take=1）⇒ FTS 前 9 条逐条保留、顺序不变
@@ -56,7 +56,7 @@ describe('[1015 夜] 语义档槽位保底', () => {
   it('③ reserve=0：逐字回到旧行为（只追加，被 slice 切掉）', () => {
     const { db, targetId } = seed(20);
     const hits = searchSessions(db, {
-      project: 'p', query: '记忆简报', limit: 10, semanticReserve: 0,
+      project: 'p', query: '记忆简报', limit: 10, titleBoost: 0, semanticReserve: 0,
       semanticHits: [{ sessionId: targetId, score: 999 }],
     });
     expect(hits.length).toBe(10);
@@ -66,7 +66,7 @@ describe('[1015 夜] 语义档槽位保底', () => {
   it('④ FTS 命中不足 limit 时：语义命中照常露头', () => {
     const { db, targetId } = seed(3);
     const hits = searchSessions(db, {
-      project: 'p', query: '记忆简报', limit: 10,
+      project: 'p', query: '记忆简报', limit: 10, titleBoost: 0,
       semanticHits: [{ sessionId: targetId, score: 1 }],
     });
     expect(hits.some((h) => h.viaSemantic && h.sessionId === targetId)).toBe(true);
@@ -74,8 +74,8 @@ describe('[1015 夜] 语义档槽位保底', () => {
 
   it('⑤ 对照：不传 semanticHits 时行为与纯 FTS 完全一致（不启用零变化）', () => {
     const { db } = seed(20);
-    const a = searchSessions(db, { project: 'p', query: '记忆简报', limit: 10 });
-    const b = searchSessions(db, { project: 'p', query: '记忆简报', limit: 10, semanticHits: null });
+    const a = searchSessions(db, { project: 'p', query: '记忆简报', limit: 10, titleBoost: 0 });
+    const b = searchSessions(db, { project: 'p', query: '记忆简报', limit: 10, titleBoost: 0, semanticHits: null });
     expect(a.map((h) => h.sessionId)).toEqual(b.map((h) => h.sessionId));
   });
 });
