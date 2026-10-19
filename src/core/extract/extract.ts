@@ -336,6 +336,12 @@ function plausibleDecision(text: string): boolean {
   if (decisionShapeVeto(t) !== null) return false;
   // [10-18] 语音转录碎片 + 口吃：与经验采集共用 noise.ts 一份判据（见该文件头）。
   if (looksLikeSpeechNoise(t)) return false;
+  // [10-19 · 自包含闸门] 宾语只有指代/所属，离开上下文就不成立的碎片。
+  //   病历（agent1super 真实库抽样）：『换成我们的了』『换成你的问法』『换成另一种错』
+  //   —— 它们长度 ≥6、句式合法、括号配平，前面所有守卫都拦不住，但读的人完全不知道
+  //   『我们的什么』『另一种什么错』。判据只在**宾语短**时生效，避免误杀
+  //   『改用我们的项目结构而不是 vendor』这种带具体对象的长句。
+  if (vagueDecisionObject(t)) return false;
   // [v26 · 1018] 「选择/决定 + 状态词」= 把动词当名词用的伪决策。
   //   病历：6 条全是这种形状——「选择都还可以」「选择页出来了」「选择每次都被验证是对的」
   //   「选择仍有地雷」「选择都清楚了」「决定还是等你」。它们描述的是**状态或感受**，
@@ -344,6 +350,31 @@ function plausibleDecision(text: string): boolean {
   //   （v18 的回归夹具，被这一条误杀过），而「就」后面接「能/要/是」时表达的是能力或意愿。
   if (/^(选择|决定|改用|换成|采用)[^，。]{0,2}(都|还|仍|也)/.test(t)) return false;
   return true;
+}
+
+/**
+ * [10-19] 宾语是否只有指代/所属（自包含闸门）。
+ *
+ * 为什么需要它：抽样 366 条真实决策，约 1/4 是『换成我们的了』这种碎片——
+ * 规则能证明『句首有决策动词』，但证明不了『读的人知道换了什么』。
+ * 判据刻意收窄：只拒**宾语整个就是指代/所属**（可带个/种/了/错这类空壳后缀）的句子；
+ * 宾语一旦带具体名词（哈希/通道/vendor/PostgreSQL/方案）就放行——
+ * 「决定这个方案」虽然也依赖上下文，但它至少说清了『是个方案』，不在此列。
+ */
+const PRONOUN_ONLY_OBJECT = /^(?:这|那|它|它们|他们|她们|我们|你们|我的|你的|他的|她的|我们的|你们的|他们的|咱的|另一种|别的|其他的|上面|前面|刚才|之前)(?:个|种|些|里|边|样|的|了|错|事|东西)*$/u;
+export function vagueDecisionObject(text: string): boolean {
+  const obj = String(text ?? '')
+    .replace(/^(?:决定|改用|换成|采用|选择|调整为|修改为|放弃|定下|确定)\s*/, '')
+    .replace(/[了了吧啊呀哦呢]+$/u, '')
+    .trim();
+  if (obj === '') return true;
+  const clean = obj.replace(/[，。；;,.!?！？\s]/g, '');
+  if (PRONOUN_ONLY_OBJECT.test(clean)) return true;
+  // 所属 + 2 字以内的通用名词（『你的问法』『我们的方案』）同样不承载具体对象；
+  // 阈值取 2 是为了不误杀『我们的项目结构』这类带清晰对象的长句。
+  const rest = clean.replace(/^(?:我的|你的|他的|她的|我们的|你们的|他们的|咱的)/, '').replace(/^(?:个|种|些|的|了|事|东西)+/, '');
+  if (rest !== clean && rest.length <= 2) return true;
+  return false;
 }
 
 // ── [v24 · 1021] 决策的「形状」判据：v23 之后仍在库里的垃圾，一半是同一种病 ──
