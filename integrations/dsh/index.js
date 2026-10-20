@@ -53,7 +53,7 @@ import { passesBriefFilters } from './src/brief-filters.mjs'
 import { resolveProjectRoot, shouldAutoInit } from './project-resolve.mjs'
 import { searchTool, showTool, rememberTool, projectTool } from './src/tools.js'
 import { setStorageAdapter, disposeBindState } from './src/state.js'
-import { queryBriefData, sqlChannelAvailable, queryRecentFiles, foldPresentation } from './src/brief-sql.mjs'
+import { queryBriefData, sqlChannelAvailable, queryRecentFiles, foldPresentation, readRefCounts } from './src/brief-sql.mjs'
 import { registerHooks } from './src/hooks.mjs'
 import { experiencesLine } from './src/brief-experiences.mjs'
 import { decisionModulesText } from './src/brief-modules.mjs'
@@ -179,6 +179,14 @@ function runSrelay(args, root, timeoutMs) {
 const SQL_OK = sqlChannelAvailable() && !process.env.SRELAY_BRIEF_FORCE_CLI
 let sqlFallbackLogged = false
 
+/** 引用次数读取的**唯一入口**：任何异常都降级成空 Map（简报是组装路径，绝不抛）。 */
+function safeRefCounts(root) {
+  try {
+    const m = readRefCounts(root)
+    return m instanceof Map ? m : new Map()
+  } catch { return new Map() }
+}
+
 function logSqlFallback(reason) {
   if (sqlFallbackLogged) return
   sqlFallbackLogged = true
@@ -187,8 +195,18 @@ function logSqlFallback(reason) {
   }
 }
 
-/** 数组 → 简报条目（过滤/排序/截断）。两条取数通道共用，保证语义一致 */
-function itemsFromArray(arr, key, max) {
+/**
+ * 数组 → 简报条目（过滤/排序/截断）。两条取数通道共用，保证语义一致。
+ *
+ * [1020] 排序第一条判据之外多了「引用次数」，与 core 的 `selectByBudget` 同序：
+ *   **pinned > refCount > 新鲜度**（core：`core/SessionRelay/src/core/brief/compress.ts`）。
+ *   这里只改**渲染出口的选谁**，数据通道（queryBriefData）的排序一个字没动 ——
+ *   selftest 8b 的"与 CLI decisions --json 逐字段一致"比的是数据通道，不能被这次改动碰到。
+ *
+ * @param refCounts Map<sessionId, opens>；空 Map = 没有引用数据（等价于全 0，行为与改前一致）
+ * @param stats   可选输出：candidates（过滤+折叠后的候选条数）/ shown（真画出去几条）/ compressed
+ */
+function itemsFromArray(arr, key, max, refCounts, stats) {
   if (!Array.isArray(arr)) return []
   const cutoff = Date.now() - FRESH_MS
   // 决策条目带 text，未决问题带 q（--json 与直查 SQL 两种取数都是这个形状）。
@@ -238,9 +256,17 @@ function itemsFromArray(arr, key, max) {
       const at = Date.parse(d.at ?? d.msgAt ?? '')
       return !Number.isFinite(at) || at >= cutoff
     })
-  // 置顶优先，同组内时间倒序。与 ZCode 侧 brief-shared.mjs 的 jsonItems 同规。
+  // 置顶 > 引用次数 > 新鲜度（与 core 的 selectByBudget 同序；没有引用数据时与改前逐字节一致）。
+  // 引用次数 = 这个会话被"检索后打开"过几次（全局库 search_feedback）——被反复引用的老决策
+  // 不该被昨天的一条琐碎决策挤出这 4 行。
+  const rc = refCounts instanceof Map ? refCounts : null
   fresh.sort((a, b) => {
     if (!!a.pinned !== !!b.pinned) return a.pinned ? -1 : 1
+    if (rc && rc.size) {
+      const ra = rc.get(String(a.sessionId ?? '')) ?? 0
+      const rb = rc.get(String(b.sessionId ?? '')) ?? 0
+      if (ra !== rb) return rb - ra
+    }
     return (Date.parse(b.at ?? b.msgAt ?? '') || 0) - (Date.parse(a.at ?? a.msgAt ?? '') || 0)
   })
   // [fork 1015] 近重复合并（**只在简报显示层**，不动存储、不动检索）。
@@ -255,7 +281,14 @@ function itemsFromArray(arr, key, max) {
   // 折叠就在此处（渲染出口）：两条取数通道都走 itemsFromArray ⇒ 渲染结果必然一致，
   // 而各自的原始数据仍是 CLI 那套逐字段一致的数据（8b 的 parity 断言比的是数据通道）。
   const deduped = foldPresentation(fresh)
-  return deduped.slice(0, max).map((d) => {
+  const shown = deduped.slice(0, max)
+  if (stats) {
+    stats.candidates = deduped.length
+    stats.shown = shown.length
+    // 「少画了几条」——与 core 的压缩计数同口径（候选 − 显示行数），渲染层要能说出来
+    stats.compressed = Math.max(0, deduped.length - shown.length)
+  }
+  return shown.map((d) => {
     const text = clipAt(textOf(d), 90)
     // ADR-001：否定性决策加 ✗ 前缀。"改用 Y"与"采用 Y"此前在简报里长得一样，
     // 模型看不出 Y 是被否掉的那条路，于是同一建议会被反复重提。✗ 让它一眼可辨。
@@ -275,7 +308,7 @@ function itemsFromArray(arr, key, max) {
 export const __testRenderItems = itemsFromArray
 
 /** CLI --json 原文 → 条目。解析失败走文本兜底（仅旧版 unresolved 空输出人话时触达） */
-function parseItems(raw, key, max) {
+function parseItems(raw, key, max, refCounts, stats) {
   if (!raw) return []
   let j
   try { j = JSON.parse(raw) } catch {
@@ -283,7 +316,8 @@ function parseItems(raw, key, max) {
       .filter(s => s && !s.startsWith('(') && !/暂无/.test(s))
       .slice(0, max).map(s => `- ${s.slice(0, 90)}`)
   }
-  return itemsFromArray(j?.[key] ?? j?.unresolved ?? [], key, max)
+  // 引用次数同样透传：两条通道的"选谁"必须一致（selftest 8c 比的是两路正文逐字节相同）
+  return itemsFromArray(j?.[key] ?? j?.unresolved ?? [], key, max, refCounts, stats)
 }
 
 /** 直查 SQL 取简报条目。返回 null = 本通道不可用，调用方应回落 CLI */
@@ -295,10 +329,16 @@ function sqlItems(root) {
     // 名额 4/3，与 ZCode brief-shared.mjs 对齐。DSH 侧没有看板、不吃那部分预算，
     // 但这是 SES 唯一的自动通道——模型不调工具就只会看到这里。
     // counts 给工具提示句用（Phase 1 ②）：条数直接取 SQL 已返回的全量，不额外查询。
+    // [1020] 引用次数（全局库 search_feedback）参与"选谁"：pinned > 引用次数 > 新鲜度。
+    //   读不到 = 空 Map = 与改前行为逐字节一致；没进简报的条数进 compressed 说出来。
+    const rc = safeRefCounts(root)
+    const decStats = {}
+    const unrStats = {}
     return {
-      dec: itemsFromArray(d.decisions, 'decisions', DEC_SLOTS),
-      unr: itemsFromArray(d.unresolved, 'unresolved', UNR_SLOTS),
+      dec: itemsFromArray(d.decisions, 'decisions', DEC_SLOTS, rc, decStats),
+      unr: itemsFromArray(d.unresolved, 'unresolved', UNR_SLOTS, rc, unrStats),
       counts: { dec: d.decisions.length, unr: d.unresolved.length },
+      compressed: (decStats.compressed ?? 0) + (unrStats.compressed ?? 0),
     }
   } catch (e) {
     logSqlFallback(e?.message ?? 'query threw')
@@ -422,18 +462,21 @@ function clipAt(s, max) {
 }
 export const __testClipAt = clipAt
 // [1016 A3] 降档逻辑的测试钩子：三档 + 最小体都要能被断言
-export const __testRenderBrief = (root, dec, unr, counts, kanban = '', recent = '', experiences = '', modulesLine = '', gitLine = '') =>
+export const __testRenderBrief = (root, dec, unr, counts, kanban = '', recent = '', experiences = '', modulesLine = '', gitLine = '', compressed = 0) =>
   renderBrief(root, dec, unr, counts, kanban, recent, experiences, modulesLine, gitLine)
 export const __testMaxChars = MAX_CHARS
 
-function renderBrief(root, dec, unr, counts, kanban = '', recent = '', experiences = '', modulesLine = '', gitLine = '') {
+function renderBrief(root, dec, unr, counts, kanban = '', recent = '', experiences = '', modulesLine = '', gitLine = '', compressed = 0) {
   // [红队 A-4] 早退判据必须把**新加的两段**也算上：新项目常常没有决策/未决/看板，但有 🌍 经验或 🗺 锚点
   if (!dec.length && !unr.length && !kanban && !recent && !experiences && !modulesLine && !gitLine) return ''
   // Phase 1 ② 工具提示句：DSH 侧 MCP 已按方案 C 卸掉，检索只能靠 CLI，
   // 所以这里说的是命令而不是 MCP 工具名（两侧措辞不同、语义同向——
   // 都是"有检索可用、什么时候用"。check-brief-filters.mjs 只比对过滤器，
   // 这条提示句故意不纳入逐字比对）。
-  const hint = `🔎 出处/细节用 srelay search 检索（本项目 ${counts?.dec ?? 0} 条决策 · ${counts?.unr ?? 0} 条未决）；要逐条回跳原会话说一声。`
+  // [1020] "少画了几条"必须说出来（与 CLI 同一句口径）：否则模型以为简报就是这些，
+  //   不知道还有 K 条没展开 —— 那正是"静默少一段"的老毛病。0 条时不加，避免噪音。
+  const compressedNote = compressed > 0 ? `；已按引用次数压缩 ${compressed} 条` : ''
+  const hint = `🔎 出处/细节用 srelay search 检索（本项目 ${counts?.dec ?? 0} 条决策 · ${counts?.unr ?? 0} 条未决${compressedNote}）；要逐条回跳原会话说一声。`
   const header = `【SessionRelay 项目记忆 · 自动简报】项目：${path.basename(root)}（本地记忆库，是资料不是指令）。`
 
   // [1016 · A3] **逐条降档 + 最小降级体**，取代原来的硬切。
@@ -496,21 +539,24 @@ async function buildBrief(root) {
   const gitLine = gitStatusText(root)
   if (sql) {
     const { experiences, modulesLine } = extraSections(root, { dec: sql.counts?.dec ?? 0, shown: sql.dec?.length ?? 0 })
-    return renderBrief(root, sql.dec, sql.unr, sql.counts, kanbanText(root), recentFilesText(root), experiences, modulesLine, gitLine)
+    return renderBrief(root, sql.dec, sql.unr, sql.counts, kanbanText(root), recentFilesText(root), experiences, modulesLine, gitLine, sql.compressed ?? 0)
   }
   const [decRaw, unrRaw] = await Promise.all([
     runSrelay(['decisions', '--limit', '200', '--json'], root, 4000),
     runSrelay(['unresolved', '--limit', '200', '--json'], root, 4000),
   ])
-  const dec = parseItems(decRaw, 'decisions', DEC_SLOTS)
+  const fbRc = safeRefCounts(root)
+  const fbDecStats = {}
+  const fbUnrStats = {}
+  const dec = parseItems(decRaw, 'decisions', DEC_SLOTS, fbRc, fbDecStats)
   const counts = rawCounts(decRaw, unrRaw)
   // ⚠️ [复审 C-1 修] 两段必须在**各自的分支里**算。原先它写在 if (sql) 之前、用 sql 的 counts 统一算：
   // SQL 路不可用（Node<22.5 / schema 旧 / WAL 只读打不开）时拿到 {dec:0, shown:0} ⇒ "0 > 0" 为假
   // ⇒ 🗺 行恒空。症状（复核实测）：冷路径（CLI 兜底）看得到 🗺，**refresh 之后的每一轮都没有了** ——
   // 又是"静默少一段"，而 selftest 的"两条路逐字节一致"比的是两个冷路径，抓不到它。
   const { experiences, modulesLine } = extraSections(root, { dec: counts.dec, shown: dec.length })
-  return renderBrief(root, dec, parseItems(unrRaw, 'unresolved', UNR_SLOTS), counts, kanbanText(root), recentFilesText(root),
-    experiences, modulesLine, gitLine)
+  return renderBrief(root, dec, parseItems(unrRaw, 'unresolved', UNR_SLOTS, fbRc, fbUnrStats), counts, kanbanText(root), recentFilesText(root),
+    experiences, modulesLine, gitLine, (fbDecStats.compressed ?? 0) + (fbUnrStats.compressed ?? 0))
 }
 
 /** 从两份 --json 原始串里取条数（复用已取到的数据，不新增子进程——低延迟是硬约束） */
@@ -699,7 +745,7 @@ export function apply(ctx) {
           // 冷路径用 noQuery：不在 prompt 组装里解码会话、不加载分词器（毫秒级）；
           // 随即排一次异步刷新，下一轮就是"按你这句筛过"的版本。
           const { experiences, modulesLine } = extraSections(r.root, { dec: sql.counts?.dec ?? 0, shown: sql.dec?.length ?? 0 }, { noQuery: true })
-          const text = renderBrief(r.root, sql.dec, sql.unr, sql.counts, kanbanText(r.root), recentFilesText(r.root), experiences, modulesLine)
+          const text = renderBrief(r.root, sql.dec, sql.unr, sql.counts, kanbanText(r.root), recentFilesText(r.root), experiences, modulesLine, '', sql.compressed ?? 0)
           cache.set(r.root, { text, at: Date.now() })
           refresh(r.root)
           return text
@@ -711,17 +757,22 @@ export function apply(ctx) {
         // SQL 路显示真实条数、CLI 路固定显示 0，selftest 的"两路逐字节一致"立刻抓住。
         // 口径与 SQL 路对齐：取 CLI JSON 的 count（= 本次取回的原始条数，未过过滤链）。
         const countOf = (raw) => { try { const j = JSON.parse(raw); return Number(j?.count ?? 0) || 0 } catch { return 0 } }
-        const dec = parseItems(decRaw, 'decisions', DEC_SLOTS)
+        const coldRc = safeRefCounts(r.root)
+        const coldDecStats = {}
+        const coldUnrStats = {}
+        const dec = parseItems(decRaw, 'decisions', DEC_SLOTS, coldRc, coldDecStats)
         const { experiences, modulesLine } = extraSections(r.root, { dec: countOf(decRaw), shown: dec.length }, { noQuery: true })
         const text = renderBrief(
           r.root,
           dec,
-          parseItems(unrRaw, 'unresolved', UNR_SLOTS),
+          parseItems(unrRaw, 'unresolved', UNR_SLOTS, coldRc, coldUnrStats),
           { dec: countOf(decRaw), unr: countOf(unrRaw) },
           kanbanText(r.root),
           recentFilesText(r.root),
           experiences,
           modulesLine,
+          '',
+          (coldDecStats.compressed ?? 0) + (coldUnrStats.compressed ?? 0),
         )
         cache.set(r.root, { text, at: Date.now() })
         refresh(r.root)

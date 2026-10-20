@@ -28,6 +28,7 @@
 
 import { createRequire } from 'node:module'
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 
 const require = createRequire(import.meta.url)
@@ -54,6 +55,45 @@ function readProjectId(root) {
   } catch {
     return projectIdOf(root)
   }
+}
+
+/** 全局库路径：与 core 的 shared/paths.ts:globalDbFile 同规（SRELAY_GLOBAL_HOME 优先，测试靠它隔离）。 */
+function globalDbFile() {
+  return path.join(process.env.SRELAY_GLOBAL_HOME || path.join(os.homedir(), '.sessionrelay'), 'global.sqlite')
+}
+
+/**
+ * 「被打开过几次」：全局库 `search_feedback` 里**本项目**的 open 计数（session_id → 次数）。
+ *
+ * 为什么在这里读：core 的简报判据是 pinned > 引用次数 > 新鲜度（`core/brief/compress.ts`），
+ * 而插件走自己的 SQL 通道，此前**完全不知道引用次数** —— 于是同一个项目，CLI 简报按判据选，
+ * 注入给模型的这份却按"置顶 + 时间"选，两边内容会不一样。
+ *
+ * 与 core 的口径必须一致：同一张表、同一个 project（readProjectId）、同一列 session_id。
+ * 任何失败（无 node:sqlite / 库不在 / 表不存在 / 被锁）⇒ **返回空 Map**（等价于全 0，
+ * 行为与加这条之前逐字节一致）—— 简报是 prompt 组装路径，绝不许因为统计读不到而抛。
+ */
+export function readRefCounts(root) {
+  const out = new Map()
+  if (!DatabaseSync) return out
+  let db = null
+  try {
+    const f = globalDbFile()
+    if (!fs.existsSync(f)) return out
+    db = new DatabaseSync(f, { readOnly: true })
+    const has = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='search_feedback'").get()
+    if (!has) return out
+    const pid = readProjectId(root)
+    const rows = db.prepare(
+      'SELECT session_id AS sid, COUNT(*) AS n FROM search_feedback WHERE project = ? GROUP BY session_id',
+    ).all(pid)
+    for (const r of rows) out.set(String(r.sid), Number(r.n) || 0)
+  } catch {
+    /* 全局库读不到 = 没有引用数据（不是错误路径，降级即契约） */
+  } finally {
+    try { db?.close() } catch { /* 关不掉不影响结论 */ }
+  }
+  return out
 }
 
 function jsonArray(raw) {

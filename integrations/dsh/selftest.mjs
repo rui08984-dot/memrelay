@@ -817,6 +817,61 @@ console.log('=== 9c. 否定性决策渲染 ✗（ADR-001）===');
   }
 }
 
+// ═══ 9e. 引用次数参与「选谁」（1020 新增）═══
+// 痛点：简报只画 4 行决策，此前按 pinned + 新鲜度选 —— 被反复检索/打开过的关键决策
+// 会被昨天一条琐碎决策挤掉。现在判据是 pinned > 引用次数 > 新鲜度（与 core 同序）。
+// 这里用合成条目钉三条不变量：①无数据时行为与改前一致 ②引用次数优先于新鲜度
+// ③置顶仍压过引用次数；另加降级契约：全局库不存在时 readRefCounts 必须返回空 Map 而不是抛。
+console.log('=== 9e. 引用次数参与选谁（pinned > refCount > 新鲜度）===');
+{
+  const fresh = await import(HERE + 'index.js?rc=1');
+  const now = Date.now();
+  // 正文必须**互不相似**：foldNearDuplicates 会把近似重复折叠成一条（那不是本节的考点）
+  const TOPICS = {
+    s1: '采用 PostgreSQL 作为主数据库',
+    s2: '前端构建工具改用 Vite',
+    s3: '认证方案定为 JWT，过期 30 分钟',
+    s4: '日志统一走 pino，输出到文件',
+    s5: '缓存层选 Redis，禁用本地内存缓存',
+    s6: '部署改为 Docker Compose 管理',
+    s7: '检索排序加标题权重，默认取 1',
+    s8: '接口错误码统一成 ErrCode 枚举',
+  };
+  const mk = (sid, hoursAgo) => ({
+    text: TOPICS[sid],
+    at: new Date(now - hoursAgo * 3600_000).toISOString(),
+    seq: hoursAgo,
+    sessionId: sid,
+  });
+  const items = ['s1', 's2', 's3', 's4', 's5', 's6', 's7', 's8'].map((sid, i) => mk(sid, i + 1));
+  const base = fresh.__testRenderItems(items, 'decisions', 4, new Map(), {});
+  check('无引用数据时选最新 4 条（与改前一致）', base.length === 4 && base[0].includes('PostgreSQL') && base[3].includes('日志统一'));
+  const withRc = fresh.__testRenderItems(items, 'decisions', 4, new Map([['s7', 9]]), {});
+  check('引用次数 9 次的 s7 排第一（压过新鲜度）', withRc[0].includes('标题权重'));
+  check('其余名额仍按新鲜度（s1..s3）', withRc[1].includes('PostgreSQL') && withRc[2].includes('Vite') && withRc[3].includes('JWT'));
+  const pinnedItems = items.map((x) => (x.sessionId === 's8' ? { ...x, pinned: true } : x));
+  const pinnedRes = fresh.__testRenderItems(pinnedItems, 'decisions', 4, new Map([['s7', 9]]), {});
+  check('置顶压过引用次数（pinned > refCount）', pinnedRes[0].includes('ErrCode') && pinnedRes[1].includes('标题权重'));
+  const st = {};
+  fresh.__testRenderItems(items, 'decisions', 4, new Map(), st);
+  check('淘汰条数可上报（candidates − shown = compressed）', st.compressed === 4 && st.candidates === 8 && st.shown === 4);
+
+  // 降级契约：全局库不存在 ⇒ 空 Map（绝不抛）；存在则按项目过滤
+  const bs = await import('./src/brief-sql.mjs?rc=1');
+  const prevHome = process.env.SRELAY_GLOBAL_HOME;
+  const tmpdir = (await import('node:os')).tmpdir();
+  process.env.SRELAY_GLOBAL_HOME = join(tmpdir, 'no-such-global-' + Date.now());
+  try {
+    const m = bs.readRefCounts('E:\\\\music player');
+    check('全局库不存在 ⇒ readRefCounts 返回空 Map（降级不抛）', m instanceof Map && m.size === 0);
+  } finally {
+    if (prevHome === undefined) delete process.env.SRELAY_GLOBAL_HOME; else process.env.SRELAY_GLOBAL_HOME = prevHome;
+  }
+  const real = bs.readRefCounts('E:\\\\music player');
+  check('真实全局库可读（Map，允许为空）', real instanceof Map);
+  console.log('     真实引用数据: 音乐库 ' + real.size + ' 个会话有 open 记录');
+}
+
 // ═══ 9d. 未决通道的过滤器必须看得见正文（1015 回归）═══
 // 病历：七条规范过滤器收敛成单一权威源那天，itemsFromArray 的过滤链统一读 d.text，
 // 而未决条目的键是 q（--json 与直查 SQL 两种取数都是这个形状）。于是
