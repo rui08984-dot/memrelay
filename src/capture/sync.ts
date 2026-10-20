@@ -86,6 +86,8 @@ let sweepSlice = 0;
  *   比"省下来的核对"还贵。改成脏标记：签名没变就不写。
  */
 let wmDirty = false;
+/** [1021 内存/文件卫生] 本轮**见过的** key：落盘只写它们（否则删过的会话会永远留在文件里）。 */
+const wmSeenThisRun = new Set<string>();
 /** 清扫切片数：每 10 分钟作废 1/N 的签名，覆盖一整轮仍是 10 分钟量级。 */
 function sweepSlices(): number {
   const n = Number(process.env.SRELAY_SWEEP_SLICES);
@@ -121,7 +123,12 @@ function saveWatermark(root: string): void {
   try {
     const wm: Record<string, string> = {};
     let n = 0;
-    for (const [k, v] of syncWatermark) { if (n++ >= 20000) break; wm[k] = v; }
+    // [1021] 只写本轮见过的：实测某项目 1010 场却攒了 2212 条（删过/改名的会话一直留着）。
+    for (const [k, v] of syncWatermark) {
+      if (wmSeenThisRun.size > 0 && !wmSeenThisRun.has(k)) continue;
+      if (n++ >= 20000) break;
+      wm[k] = v;
+    }
     const dir = path.join(root, '.sessionrelay');
     fs.mkdirSync(dir, { recursive: true });
     const f = wmFileOf(root);
@@ -275,6 +282,7 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
 
         // [fork 0922] 水位线：内容签名未变 且 会话仍在库里 → 跳过（rebuild/forget/删行后自动失效）
         const wmKey = `${ds.source}:${ds.sourceSessionId}`;
+        wmSeenThisRun.add(wmKey);   // [1021] 本轮见过 ⇒ 允许落盘（删过/改名的会被清出去）
         const sig = probe
           ? probe.get(ds.sourceSessionId)
           : (ds.mtimeMs !== undefined ? `${ds.mtimeMs}:${ds.sizeBytes}` : undefined);
