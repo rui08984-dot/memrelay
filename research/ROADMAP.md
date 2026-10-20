@@ -57,6 +57,13 @@
 - 每条修复支持 `--dry-run`，失败可回滚；
 - 落点：`src/cli/doctor.ts` + `tools/` 现有脚本。
 
+### B'. 简报自压缩：**真机上终于会触发**（10-20 修）
+
+- 病根（实测）：选择预算用的是 `--limit`（默认 200），而简报只画 5 行；48h 窗内候选实测只有 1~19 条 ⇒ `pinned > 引用次数 > 新鲜度` 的判据**永远轮不到**，那 5 行由裸 `slice(0,5)` 决定，少显示几条也不说。
+- 修法：新增名额层 `BRIEF_DECISION_SLOTS=5` / `UNR_SLOTS`，跑**同一个** `selectByBudget`；结果作为纯新增字段 `decisionsShown` / `unresolvedShown`（唯一取值口 `shownDecisions`/`shownUnresolved`），压缩数改为「候选 − 显示行数」。
+- 实测（`D:/dsh插件  记忆` 真库）：`决策 19 条` → 显示 5 行 → **「已按引用次数压缩 14 条」**（改前该库搜不到「压缩」二字）。
+- 未做：DSH 注入路径（`plugins/dsh`）的 render 层还没消费 `decisionsShown` —— 注意**不能**改它的数据通道排序（必须与 `srelay decisions --json` 逐字段一致，selftest 8b 有断言），只能改 render 层。
+
 ### D. 进化力（第一步 ✅ 已上线；第二步待数据）
 
 > 已落地（10-20 修正）：`search_feedback` 表 + `rememberSearch`/`recordSearchOpen`，候选**落盘快照**（原来是进程内存，CLI 两进程时**一次都记不上**，实测表都不存在）、TTL 5 分钟、查询只存 sha256 前 16 位、无正文无路径；去重靠 `(search_id, session_id)` 唯一索引，跨进程成立。**不改检索结果**。
