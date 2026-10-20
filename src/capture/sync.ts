@@ -1,4 +1,6 @@
 // 捕获同步引擎（技术方案 §5.1 / 改进方案 改动1 注册表化 + 改动3 compaction 警告）
+import fs from 'node:fs';
+import path from 'node:path';
 import { createDb, upsertCapturedSession, insertMessage, upsertMessage, rollbackSession,
          bumpMessageCount, getCursor, recordCursor, loadTombstones } from '../store/db.js';
 import type { DB } from '../store/db.js';
@@ -76,6 +78,58 @@ function titleFromMessages(msgs: Array<{ role: string; content: string }>): stri
 // 没有它重建后的库永远收不到重摄。已知会话集=每周期一条本地聚合查询，代价毫秒级。
 // 内存态即够：守护重启后首轮全量（本就是补账需求）；10 分钟一次全量清扫兜底一切"以为没变其实变了"。
 const syncWatermark = new Map<string, string>();
+/** 轮转清扫的当前切片（进程内游标；重启从 0 开始，最多提前覆盖一次，无害）。 */
+let sweepSlice = 0;
+/**
+ * 水位线是否有变化（[1021 性能] 只有变了才写盘）。
+ * 病历：落盘后每次 sync 都重写 45KB JSON —— 实测 writeFileUtf8 430ms + rename 411ms，
+ *   比"省下来的核对"还贵。改成脏标记：签名没变就不写。
+ */
+let wmDirty = false;
+/** 清扫切片数：每 10 分钟作废 1/N 的签名，覆盖一整轮仍是 10 分钟量级。 */
+function sweepSlices(): number {
+  const n = Number(process.env.SRELAY_SWEEP_SLICES);
+  return Number.isFinite(n) && n >= 1 && n <= 200 ? Math.floor(n) : 40;
+}
+
+/**
+ * [1021 性能] 水位线**落盘**：冷进程不必把没变的会话重读一遍。
+ *
+ * 病历（CPU profile 实测）：冷 `srelay sync` 里 readNew 3.0s + mapLine 2.9s + detectCompaction 2.2s ——
+ * 全花在「库里有、但源文件没变」的会话上；同进程第二轮只要 61ms（水位线在内存里）。
+ * 关键是**新鲜度不打折**：跳过条件仍是「签名相同 **且** 会话仍在库里」，
+ * 而签名来自 adapter.changeProbe（ZCode 里是 dbSig + MAX(time_updated)/COUNT），文件一变必然不同。
+ * 文件键/值只有签名，不含正文；写失败只影响速度，不影响正确性。
+ */
+const WM_VERSION = 1;
+const wmLoaded = new Set<string>();
+function wmFileOf(root: string): string {
+  return path.join(root, '.sessionrelay', 'sync-watermark.json');
+}
+function loadWatermark(root: string): void {
+  if (wmLoaded.has(root)) return;
+  wmLoaded.add(root);
+  try {
+    const j = JSON.parse(fs.readFileSync(wmFileOf(root), 'utf8')) as { v?: number; wm?: Record<string, string> };
+    if (j?.v !== WM_VERSION || !j.wm) return;
+    for (const [k, v] of Object.entries(j.wm)) if (typeof v === 'string' && !syncWatermark.has(k)) syncWatermark.set(k, v);
+  } catch { /* 没有/坏了：退化为纯内存（与改动前一致） */ }
+}
+function saveWatermark(root: string): void {
+  if (!wmDirty) return;   // [1021 性能] 没变化就不写（写 45KB+rename 比省下的核对还贵）
+  wmDirty = false;
+  try {
+    const wm: Record<string, string> = {};
+    let n = 0;
+    for (const [k, v] of syncWatermark) { if (n++ >= 20000) break; wm[k] = v; }
+    const dir = path.join(root, '.sessionrelay');
+    fs.mkdirSync(dir, { recursive: true });
+    const f = wmFileOf(root);
+    const tmp = f + '.' + process.pid + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify({ v: WM_VERSION, wm }), 'utf8');
+    fs.renameSync(tmp, f);
+  } catch { /* 写不进去只是慢一点 */ }
+}
 /** 兜底全量扫描间隔：10 分钟。 */
 export const FULL_SWEEP_INTERVAL_MS = 600_000;
 // [1021 审查 #15 修复] 记录「上一次**真正完成**一轮完整发现」的时刻。
@@ -102,12 +156,28 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
   const result: SyncStats = { mode, discovered: 0, newSessions: 0, newMessages: 0, updatedMessages: 0, resumed: 0, badLines: 0, blocked: 0, skipped: 0, warnings: [] };
 
   if (mode === 'off') return result;
+  loadWatermark(root);   // [1021 性能] 冷进程先装回签名表（跳过靠它，不靠猜）
 
   // [fork 0922] 10 分钟全量清扫：清水位线跑一轮完整 ingest，堵一切"以为没变其实变了"的边角
   // [修 #15] 判定用可注入时钟；**只有本轮真的完整跑完**才推进 lastFullSweepMs（见文件顶部注释）
+  //
+  // [1021 既不牺牲新鲜度、也不让守护卡 11 秒] 原来到期就 `clear()` —— 一次性把全部会话
+  //   重新 ingest。实测代价：约 500 场 ≈ 11 秒（readNew + mapLine + detectCompaction），
+  //   守护每 10 分钟就要卡这么一下，CLI 冷启动也总是撞在"刚到期"那一轮。
+  //   改成**轮转式清扫**：每次到期只作废 1/N（默认 40）的条目，于是
+  //     · 每个会话仍然在 ~10 分钟内被完整复核一次（新鲜度与原来等价）；
+  //     · 单轮只多核实 ~12 场（≈300ms），不再有 11 秒的长停顿。
+  //   N 可用 SRELAY_SWEEP_SLICES 调（10 = 更快覆盖但每轮更重）。
   const nowMs = (opts.now ?? new Date()).getTime();
   const sweepDue = fullSweepDue(nowMs);
-  if (sweepDue) syncWatermark.clear();
+  sweepSlice = sweepDue ? (sweepSlice + 1) % sweepSlices() : sweepSlice;
+  if (sweepDue) {
+    const slices = sweepSlices();
+    let i = 0;
+    for (const k of [...syncWatermark.keys()]) {
+      if (i++ % slices === sweepSlice) { syncWatermark.delete(k); wmDirty = true; }
+    }
+  }
   let sweepCompleted = true;   // 源缺适配器 / 中途抛错都会把它置 false
 
   // 改动 1：注册表初始化（含 custom adapter 加载）——[fork] 原 here 连调两次，
@@ -208,6 +278,12 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
         const sig = probe
           ? probe.get(ds.sourceSessionId)
           : (ds.mtimeMs !== undefined ? `${ds.mtimeMs}:${ds.sizeBytes}` : undefined);
+        if (process.env.SRELAY_SYNC_DEBUG) {
+          const w = syncWatermark.get(wmKey);
+          if (w !== undefined || knownSessions.has(wmKey)) {
+            process.stderr.write('[dbg] ' + wmKey.slice(0, 28) + ' sig=' + String(sig).slice(0, 24) + ' wm=' + String(w).slice(0, 24) + ' known=' + knownSessions.has(wmKey) + '\n');
+          }
+        }
         if (sig !== undefined && syncWatermark.get(wmKey) === sig && knownSessions.has(wmKey)) {
           result.skipped++   // [1021 好用] 让「发现 N 场却没有新增」有解释
           continue;
@@ -217,7 +293,7 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
         //   同源后续的健康会话也全不采。单场坏就单场坏，别连坐。
         try {
           await ingestOne(db, ds, { mode, projectId, projectRoot: root, cfg, result, stats: opts.stats, ignoreRules, tombstones, source, aConfig });
-          if (sig !== undefined) syncWatermark.set(wmKey, sig);
+          if (sig !== undefined && syncWatermark.get(wmKey) !== sig) { syncWatermark.set(wmKey, sig); wmDirty = true; }
         } catch (e) {
           result.warnings.push('会话 ' + ds.source + ':' + ds.sourceSessionId + ' 采集失败（其余会话继续）：' + String((e as Error).message).slice(0, 60));
         }
@@ -231,6 +307,7 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
     if (own) db.close();
     // [修 #15] 只有**真正完整**的一轮才推进兜底时间戳；中途抛错/缺源时保持旧时间戳，下一轮重试。
     if (sweepDue && sweepCompleted) noteFullSweepDone(nowMs);
+    saveWatermark(root);   // [1021 性能] 写回，供下一个进程用（源文件没变就不重读）
   }
   // ── 采集告警必须**有人说出来**（2026-10-18 红队 P1#2）──
   //   病历：result.warnings 与 source_files.suspect/bad_lines 全仓**没有任何读取方**。

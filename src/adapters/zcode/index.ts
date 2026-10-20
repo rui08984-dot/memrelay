@@ -1,6 +1,7 @@
 // ZCode Adapter（统一接口版，改进方案 改动1 + 改动2 compaction 摘要）
 // 存储：~/.zcode/cli/db/db.sqlite（WAL 活动库，只读连接）
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import Database from 'better-sqlite3';
@@ -85,6 +86,42 @@ export function dbSig(dbPath: string): string {
 /** 消息正文指纹：判「重读到的内容是否真的变了」（#04） */
 /** changeProbe 的粗闸缓存：gateKey 未变时直接复用上次的逐会话签名（零 SQL）。 */
 let probeGate: { key: string; result: Map<string, string> } | null = null;
+
+/**
+ * [1021 性能] changeProbe 结果的**跨进程**缓存。
+ *
+ * 病历（本机 CPU profile 实测）：一次冷 srelay sync 的 22.5s 采样里，changeProbe 独占 3.7s ——
+ * 因为进程级粗闸（PRAGMA data_version）在新进程里必然是空的，于是每次冷启动都要跑
+ * message GROUP BY session_id + part GROUP BY session_id 两张大表全扫（16.5 万 / 61.5 万行）。
+ *
+ * 修法：把「这份签名表对应哪个 dbSig」落盘。dbSig = 主库+WAL 的 (mtime,size)，**新鲜度不打折**：
+ *   ZCode 一写入，主库或 -wal 的 mtime/size 必变 ⇒ dbSig 变 ⇒ 缓存失效、重算。
+ * 缓存放 ~/.sessionrelay/cache/（不进任何项目目录，不碰 ZCode 自己的文件）。
+ */
+const PROBE_CACHE_VERSION = 2;
+function probeCacheFile(dbPath: string): string {
+  const key = createHash('sha1').update(path.resolve(dbPath).toLowerCase()).digest('hex').slice(0, 16);
+  const home = process.env.SRELAY_GLOBAL_HOME || path.join(os.homedir(), '.sessionrelay');
+  return path.join(home, 'cache', 'zcode-probe-' + key + '.json');
+}
+function loadProbeCache(dbPath: string, sig: string): Map<string, string> | null {
+  try {
+    const j = JSON.parse(fs.readFileSync(probeCacheFile(dbPath), 'utf8')) as {
+      v?: number; sig?: string; entries?: Array<[string, string]>;
+    };
+    if (j?.v !== PROBE_CACHE_VERSION || j.sig !== sig || !Array.isArray(j.entries)) return null;
+    return new Map(j.entries);
+  } catch { return null; }
+}
+function saveProbeCache(dbPath: string, sig: string, m: Map<string, string>): void {
+  try {
+    const f = probeCacheFile(dbPath);
+    fs.mkdirSync(path.dirname(f), { recursive: true });
+    const tmp = f + '.' + process.pid + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify({ v: PROBE_CACHE_VERSION, sig, entries: [...m.entries()] }), 'utf8');
+    fs.renameSync(tmp, f);
+  } catch { /* 写不进去只是慢一点，不影响正确性 */ }
+}
 
 function contentHash(s: string): string {
   return createHash('sha1').update(s).digest('hex').slice(0, 16);
@@ -419,12 +456,22 @@ export const adapter: SessionSourceAdapter = {
       const pTouch = touchCol(cols.part);
       const gateKey = dbPath + '#' + dv;
       if (probeGate && probeGate.key === gateKey) return new Map(probeGate.result);
+      // [1021 性能] 跨进程缓存：data_version 是**连接级**的，新进程里必然为空 ⇒ 每次冷启动都要
+      //   两张大表全扫（实测 3.7s）。dbSig（主库+WAL 的 mtime:size）是稳定信号：
+      //   源库一写入它就变，所以命中缓存 ≠ 数据陈旧。未命中才付全扫的钱。
+      const sigNow = dbSig(dbPath);
+      const cached = loadProbeCache(dbPath, sigNow);
+      if (cached) {
+        probeGate = { key: gateKey, result: new Map(cached) };
+        return new Map(cached);
+      }
       type Sig = { session_id: string; t: number | null; n: number };
       const msg = z.prepare('SELECT session_id, MAX(' + mTouch + ') AS t, COUNT(*) AS n FROM message GROUP BY session_id').all() as Sig[];
       const part = z.prepare('SELECT session_id, MAX(' + pTouch + ') AS t, COUNT(*) AS n FROM part GROUP BY session_id').all() as Sig[];
       for (const r of msg) out.set(r.session_id, 'm' + (r.t ?? 0) + '/' + r.n);
       for (const r of part) out.set(r.session_id, (out.get(r.session_id) ?? 'm0/0') + ';p' + (r.t ?? 0) + '/' + r.n);
       probeGate = { key: gateKey, result: new Map(out) };
+      saveProbeCache(dbPath, sigNow, out);   // [1021 性能] 落盘供下一个进程用（源库没变就不重算）
       return out;
     } catch (e) {
       // 探针失败 → 空签名 → 全部不命中水位线 → 全量 ingest（安全侧）。
