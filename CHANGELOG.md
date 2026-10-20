@@ -5,6 +5,13 @@
 
 ## [Unreleased]
 
+### 权重自校准脚本 scripts/calibrate-weights.ts（10-20）
+
+- **D 第二步**：`npx tsx scripts/calibrate-weights.ts` 跑**固定题面**的旋钮网格（titleBoost / coverageBoost / metaBoost / bestExcerpt，各组合独立子进程，因为 engine 在模块加载时读 env），产出 hit@1 / hit@10 / MRR + 反馈佐证 + 裁决。
+- 判据**只一份**在 `pickWinner`：hit@10 下降一票否决（召回上限不能拿 hit@1 换）→ hit@1/MRR 至少一项严格提升且另一项不退化 → 并列取**离默认最近**（反过拟合）→ 反馈样本 `MIN_OPENS_FOR_CALIBRATION`(30) 不足则判决固定「保持默认」。
+- `--dry` 只跑默认组合验证管线（不出建议）；`--json` 给结构化结果；**绝不写 config.json**（写配置是人的动作）。失败逐条非 0 退出（用法 2 / 运行期 3）。
+- 实测 `--dry`：默认组合 hit@1 43.1% / hit@10 66.7% / MRR 50.6%（198 题固定题面）；当前真实反馈仅 2 次 open ⇒ 只报「样本不足」。23 条单测只测裁决与网格（不 spawn 基准）。
+
 ### 反馈采集真正生效：候选改「落盘快照」（10-20）
 
 - **修一个"代码在、功能没生效"的洞**：`search_feedback` 表在真机上**从未存在过**。根因不是进程旧，而是候选只留**进程内存**，而真实调用链是两个进程（DSH 插件 `srelay_search` → 子进程 `srelay search`；`srelay_show` → 另一个子进程 `srelay show`）⇒ 永远借不到候选，一次都没记上。实测：重启 DSH + 真跑 search/show 后，全局库里连表都没有。
