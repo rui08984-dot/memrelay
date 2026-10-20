@@ -153,8 +153,9 @@ try {
 check('apply 不抛异常', registerErr === null);
 if (registerErr) console.log('     异常:', registerErr.message);
 // defineTool 解析成功时，收集器必须收到全部工具；解析不到时必须是 0 而不是半注册。
-const expectedToolCount = 7; // 3 查询 + bind/confirm/cancel 三件套 + init
-check('工具数只能是 0 或 7（不存在部分注册的中间态）',
+// [1020] 工具面：search / show / remember / project + handoff / doctor / market / calibrate = 8
+const expectedToolCount = 8;
+check('工具数只能是 0 或 8（不存在部分注册的中间态）',
   tools2.length === 0 || tools2.length === expectedToolCount);
 console.log('     收集到', tools2.length, '个工具:', tools2.map(t => t.name ?? t.spec?.name ?? '?').join(', ') || '(裸 node 未解析 dsh-tools，属预期)');
 if (tools2.length) {
@@ -165,6 +166,10 @@ if (tools2.length) {
   check('包含 srelay_show', toolNames.includes('srelay_show'));
   check('包含 srelay_record', toolNames.includes('srelay_record'));
   check('包含 srelay_cancel_bind_project', toolNames.includes('srelay_cancel_bind_project'));
+  // [1020] 四个"以前只能敲命令"的能力必须真的注册成工具（否则语音/自然语言只能靠模型拼 shell）
+  for (const n of ['srelay_handoff', 'srelay_doctor', 'srelay_market', 'srelay_calibrate']) {
+    check('包含 ' + n + '（工具化，可被一句话触发）', toolNames.includes(n));
+  }
 
   // [10-18 实测修复的判据] remember 的写通道必须与 MCP 的 save_note 同源（createNoteSession）。
   // 病历：原来调 `save --recent 1d --summary` —— 摘要落进会话的 summary 字段，不进 decisions，
@@ -398,8 +403,32 @@ console.log('=== 7a. shouldAutoInit：黑名单规则 ===')
   check('music player（已建库）不重复接入', mp === null)
 
   // 有 .git 未建库 → 向上找到仓库根（monorepo 子目录也建在根上）
-  const core = pr.shouldAutoInit('D:\\dsh插件  记忆\\core\\SessionRelay')
-  check('git 仓且未建库 → 返回该仓根', core === 'D:\\dsh插件  记忆\\core\\SessionRelay')
+  // [1020 修假红] 原来拿**本仓 core 目录**当夹具：只要有人在里面跑过一次 CLI（会建
+  // `.sessionrelay/`），"未建库"前提就不成立，这条立刻假红——实测今天真踩到。
+  // 改成现场造一个临时 git 仓夹具，前提永远成立（与 7a 下面「无 .git 夹具」同思路）。
+  {
+    const fsxA = await import('node:fs')
+    const osA = await import('node:os')
+    const pathA = await import('node:path')
+    const { execFileSync } = await import('node:child_process')
+    // ⚠️ 夹具**不能**放 os.tmpdir()：临时目录属于"不可认领祖先"（shouldAutoInit 会返回 null，
+    //   那是设计而非 bug）；也**不能**放本仓里：向上会先撞到本仓的 .git。
+    //   所以放在盘符根下一个独立目录，用完即删。
+    void osA
+    const repo = fsxA.mkdtempSync('D:\\srelay-gitrepo-')
+    try {
+      execFileSync('git', ['-C', repo, 'init', '-q'], { windowsHide: true })
+      const sub = pathA.join(repo, 'packages', 'app')
+      fsxA.mkdirSync(sub, { recursive: true })
+      const got = pr.shouldAutoInit(sub)
+      check('git 仓且未建库 → 返回该仓根（临时夹具，不依赖本仓状态）',
+        String(got ?? '').toLowerCase() === repo.toLowerCase())
+    } catch (e) {
+      check('git 仓且未建库 → 返回该仓根（临时夹具）', false, e?.message ?? String(e))
+    } finally {
+      try { fsxA.rmSync(repo, { recursive: true, force: true }) } catch { /* 清不掉不阻塞 */ }
+    }
+  }
 
   // ★ 放开后的新行为：没有 .git 的真实文件夹也自动接入
   // （用户拍板"都做"：ZCode 侧新建工作区即可捕捉，DSH 侧不该还要人说接入）
@@ -422,7 +451,7 @@ console.log('=== 7a. shouldAutoInit：黑名单规则 ===')
   const home = await import('node:os')
   check('DSH 配置目录 → 不接入', pr.shouldAutoInit(home.homedir() + '\\.dsh') === null)
   check('不存在的目录 → 不接入', pr.shouldAutoInit('D:\\definitely-not-a-real-dir-xyz') === null)
-  console.log('     music player →', mp, '| core →', core)
+  console.log('     music player →', mp, '（夹具已改为临时 git 仓，不再打印本仓 core 的值）')
 }
 
 console.log('=== 7a2. ADR-002：生命周期真挂在宿主钩子上 ===')

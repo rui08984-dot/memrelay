@@ -55,13 +55,17 @@ const ctx = {
 }
 
 registerTools(ctx)
-check('注册工具数量恰好为 4', registered.length === 4, `实际: ${registered.length}`)
+check('注册工具数量恰好为 8', registered.length === 8, `实际: ${registered.length}`)
 
 const toolMap = new Map(registered.map((t) => [t.name, t]))
 check('包含 srelay_search', toolMap.has('srelay_search'))
 check('包含 srelay_show', toolMap.has('srelay_show'))
 check('包含 srelay_remember', toolMap.has('srelay_remember'))
 check('包含 srelay_project', toolMap.has('srelay_project'))
+// [1020] 四个「以前只能敲命令」的能力必须真的注册成工具
+for (const n of ['srelay_handoff', 'srelay_doctor', 'srelay_market', 'srelay_calibrate']) {
+  check('包含 ' + n, toolMap.has(n))
+}
 // [1026 工具面精简] 下面这几个名字**必须不在**：它们已经被合并进上面 4 个，
 //   还注册着就说明精简没真做（模型上下文一点没省）。
 for (const gone of ['srelay_decisions', 'srelay_unresolved', 'srelay_lessons', 'srelay_history',
@@ -173,10 +177,13 @@ try {
   //   原来测的是「硬编码 id c93caed78751eb65 能查到」—— 那个 id 只存在于历史上某个库，
   //   换台机器/换个库就红，属于「测试在测数据」。
   const showExec = await showTool.execute({ sessionIdPrefix: 'zzzzno-such-session', projectPath: REPO_ROOT })
-  // 实测行为：ok:true + payload "✗ 未找到会话：<id>"（CLI 把「查无此会话」当正常输出，不是异常）。
-  //   所以判据是：**必须明说没找到**，不许静默成功（空 payload）或崩掉。
+  // [1020 修正断言] 实测（本机真跑）：CLI `show` 查无此会话时 **退出码 1**、消息打在 stdout，
+  //   于是 execSrelay 判 ok:false、工具把那条消息放进 **error**。旧断言写的是「ok:true + payload
+  //   含未找到」——那是 CLI 早期退出码 0 时的行为，早已不成立（这条断言当时是假绿/未被执行）。
+  //   真正要钉的不变量是：**必须明确说没找到**，不许静默成功（空 payload 且空 error）或崩掉。
+  const saidMissing = /未找到|not found/i.test(String(showExec.error) + ' ' + String(showExec.payload))
   check('srelay_show 对不存在的会话明说「未找到」（不静默成功）',
-    showExec.ok === true && /未找到|not found/i.test(String(showExec.payload)))
+    showExec.ok === false && saidMissing)
 } catch (e) {
   check('srelay_show 真实执行不抛异常', false, e.message)
 }

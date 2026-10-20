@@ -51,7 +51,7 @@ import { fileURLToPath } from 'node:url'
 // 历史上两侧手抄导致过滤器漂移（DSH 多一条而 ZCode 没有，用户日常在 ZCode 侧干活）。
 import { passesBriefFilters } from './src/brief-filters.mjs'
 import { resolveProjectRoot, shouldAutoInit } from './project-resolve.mjs'
-import { searchTool, showTool, rememberTool, projectTool } from './src/tools.js'
+import { searchTool, showTool, rememberTool, projectTool, handoffTool, doctorTool, marketTool, calibrateTool } from './src/tools.js'
 import { setStorageAdapter, disposeBindState } from './src/state.js'
 import { queryBriefData, sqlChannelAvailable, queryRecentFiles, foldPresentation, readRefCounts } from './src/brief-sql.mjs'
 import { registerHooks } from './src/hooks.mjs'
@@ -843,7 +843,11 @@ export function apply(ctx) {
   // [1026 工具面精简] 14 → 4。合并判断依据见 src/tools.js 末尾那段注释。
   //   旧工具的实现仍在 tools.js 里（被 legacySpec 扣下来供路由），只是不再注册给模型 ——
   //   模型看到的工具面小了，能力一条没少。
-  const allTools = [searchTool, showTool, rememberTool, projectTool]
+  // [1020] 四个「以前只能敲命令」的能力做成工具：这样一句话（语音也行）就能触发，
+  //   不用模型自己拼 shell。全部**只读语义**（doctor 的 fix 默认 false），
+  //   与 MCP 侧同名工具口径一致（判据都在内核 CLI，插件只包一层参数）。
+  const allTools = [searchTool, showTool, rememberTool, projectTool,
+    handoffTool, doctorTool, marketTool, calibrateTool]
   for (const t of allTools) {
     try { ctx.tools.register(t) } catch { /* 单个失败不拖垮其他 */ }
   }

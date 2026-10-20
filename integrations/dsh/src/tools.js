@@ -621,6 +621,73 @@ export const pinTool = describeTextTool({
 // 实现一律路由到 legacySpec（旧工具的原始 spec），**不复制任何一段逻辑**：
 //   合并改的是「怎么找到能力」，不是「能力本身」。旧工具的实现留着，只是不再注册给模型。
 
+/** 交接包：五段固定格式的交接文档（程序拼、每条带出处）。 */
+export const handoffTool = describeTextTool({
+  name: 'srelay_handoff',
+  description: '生成「交接包」——固定五段（①现在到哪了 ②定过什么 ③还欠什么 ④下一步 ⑤坑），'
+    + '每条决策/未决都带 sessionId + msgId 出处，可直接转发给新会话或新同事。'
+    + '何时用：用户说「交接一下 / 换会话继续 / 写个接手文档」，或一个阶段收尾要交棒时。只读，不写文件。',
+  parameters: {},
+  buildArgs: () => ['handoff'],
+  emptyHint: '交接包生成失败（项目尚未初始化或库里没有可交接的内容）。',
+})
+
+/** 自愈：只修已知安全项，默认只体检不改。 */
+export const doctorTool = describeTextTool({
+  name: 'srelay_doctor',
+  description: '环境自检（23 项：源目录/守护/库完整性/副本一致性/抽取版本…），每条带建议。'
+    + 'fix=true 时执行**安全自愈**（只修「插件副本缺文件」「面板 vendor 落后」这类已知项，绝不改数据库内容），'
+    + '默认 false = 只体检。何时用：用户说「体检一下 / 怎么没生效 / 修一下环境」。',
+  parameters: {
+    fix: { type: 'boolean', description: 'true = 真的修（默认 false 只体检）' },
+  },
+  buildArgs: (a) => (a.fix ? ['doctor', '--fix'] : ['doctor']),
+  emptyHint: '体检没有输出（可能不是 srelay 项目目录）。',
+})
+
+/** 经验市场：跨项目推荐验证过的经验。 */
+export const marketTool = describeTextTool({
+  name: 'srelay_market',
+  description: '跨项目经验市场：按工作区/领域 + 话题词元重叠，从**别的项目**里挑验证过的经验给你，'
+    + '每条带「为什么推荐」（命中哪些词、复用几次）。只读。'
+    + '何时用：开新项目、换技术栈、或用户问「别的项目有没有踩过类似的坑」。',
+  parameters: {
+    topics: { type: 'string', description: '话题词，空格分隔（如「插件 部署」）；不填则按当前项目自动推断' },
+  },
+  buildArgs: (a) => {
+    const t = String(a.topics || '').trim()
+    return t ? ['market', ...t.split(/\s+/).filter(Boolean)] : ['market']
+  },
+  emptyHint: '没有可推荐的经验（全局经验库为空，或话题词都不匹配）。',
+})
+
+/** 权重自校准：只报「现在够不够格跑」，不跑基准、不改配置。 */
+export const calibrateTool = describeTextTool({
+  name: 'srelay_calibrate',
+  description: '检索权重自校准的**就绪度检查**：真实反馈样本数 / 门槛（30）/ 够不够，以及该怎么跑。'
+    + '不会自动跑基准、绝不改配置 —— 出建议是人跑脚本的事。'
+    + '何时用：用户问「能不能调权重 / 检索还能不能更好」。',
+  parameters: {},
+  buildArgs: () => ['feedback', '--json'],
+  // CLI 的 --json 是给程序读的；这里转成人话（模型与用户都要能直接看懂）
+  format: (stdout) => {
+    try {
+      const j = JSON.parse(stdout)
+      const n = Number(j?.stats?.total ?? 0)
+      const need = Number(j?.minOpens ?? 30)
+      const head = n >= need
+        ? '✅ 样本已够（' + n + ' / ' + need + '）：可以跑了'
+        : '⏳ 样本不足（' + n + ' / ' + need + '）：现在跑只会得到「保持默认」'
+      return [
+        head,
+        '口径：真实反馈 = 「检索后 5 分钟内打开候选里的会话」记一条；平均名次 ' + (j?.stats?.avgPosition ?? '—'),
+        '跑法：npx tsx scripts/calibrate-weights.ts --n 60（只出建议，绝不改 config.json）',
+      ].join('\n')
+    } catch { return stdout }
+  },
+  emptyHint: '读不到反馈数据（全局库不可用）。',
+})
+
 /** 记一条结论，或把某条顶上去 —— 两件事的共同点是「让以后看得见」。 */
 export const rememberTool = defineTool({
   name: 'srelay_remember',
