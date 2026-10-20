@@ -374,6 +374,20 @@ function mapBriefText(root) {
     return s
   } catch { return '' }
 }
+// ── 体检分一行（[1020 全自动]）──
+// 内核的 kanban 同步每轮会（按 30 分钟 TTL）落 .sessionrelay/health.txt，内容是**稳定文本**
+// （分数/等级/证据覆盖/新鲜度，不含会跳动的条数）。这里只读文件、不做判断——
+// 判据在 core/health/score.ts，本端不重算，避免"两处打分"。
+const HEALTH_BRIEF_CAP = 160
+function healthBriefText(root) {
+  try {
+    const p = path.join(root, '.sessionrelay', 'health.txt')
+    if (!fs.existsSync(p)) return ''
+    const s = fs.readFileSync(p, 'utf8').trim().split(/\r?\n/)[0]
+    if (!s || s.length > HEALTH_BRIEF_CAP) return ''
+    return s
+  } catch { return '' }
+}
 /**
  * [1020 缓存] 把看板/地图行里的**相对时间**压成稳定文本。
  *
@@ -390,10 +404,11 @@ function kanbanText(root) {
     // [红队 🟡] 地图行必须在读 progress.md **之前**算好。
     //   原来放在下面（progress.md 存在才走到），于是同一个项目 ZCode 有 🗺 行、DSH 没有。
     //   地图和看板是两件独立的附属信息：一个缺席不该连坐另一个。
+    const healthLine = healthBriefText(root)
     const mapLine = stabilizeRelTime(mapBriefText(root))
     const p = path.join(root, 'progress.md')
-    if (!fs.existsSync(p)) return mapLine   // 没有看板但有地图：只渲染地图那一行
-    if (fs.statSync(p).size > 1024 * 1024) return mapLine   // >1MB 跳过看板解析，但地图行照旧
+    if (!fs.existsSync(p)) return [healthLine, mapLine].filter(Boolean).join('\n')   // 没有看板但有体检分/地图：只渲染那几行
+    if (fs.statSync(p).size > 1024 * 1024) return [healthLine, mapLine].filter(Boolean).join('\n')   // >1MB 跳过看板解析，其余照旧
     const lines = fs.readFileSync(p, 'utf8').split(/\r?\n/)
     const rows = lines
       .map((l) => l.split('|').map((s) => s.trim()))
@@ -406,9 +421,10 @@ function kanbanText(root) {
         const detail = clean(c[4])
         return stabilizeRelTime(detail ? `${head} — ${clipAt(detail, KANBAN_ROW_CAP)}` : head)
       })
-    if (!rows.length) return mapLine   // 没有看板行但有地图行：只渲染地图那一行
+    if (!rows.length) return [healthLine, mapLine].filter(Boolean).join('\n')   // 没有看板行但有体检分/地图行：只渲染那几行
     const board = '📋 看板（progress.md，进行中/阻塞）：\n' + rows.map((x) => '- ' + x).join('\n')
-    return mapLine ? mapLine + '\n' + board : board
+    // 顺序：体检分 → 地图 next → 看板。三段都是"事实"，谁缺席谁不渲染（不占位）。
+    return [healthLine, mapLine, board].filter(Boolean).join('\n')
   } catch { return '' }   // 绝不因为看板读失败而让整条简报消失
 }
 
@@ -487,6 +503,7 @@ export const __testMaxChars = MAX_CHARS
 function renderBrief(root, dec, unr, counts, kanban = '', recent = '', experiences = '', modulesLine = '', gitLine = '', compressed = 0) {
   // [红队 A-4] 早退判据必须把**新加的两段**也算上：新项目常常没有决策/未决/看板，但有 🌍 经验或 🗺 锚点
   if (!dec.length && !unr.length && !kanban && !recent && !experiences && !modulesLine && !gitLine) return ''
+  // （kanban 里已含体检分/地图/看板三段，任一存在即非空，故这里不必单列）
   // Phase 1 ② 工具提示句：DSH 侧 MCP 已按方案 C 卸掉，检索只能靠 CLI，
   // 所以这里说的是命令而不是 MCP 工具名（两侧措辞不同、语义同向——
   // 都是"有检索可用、什么时候用"。check-brief-filters.mjs 只比对过滤器，

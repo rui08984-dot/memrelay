@@ -18,6 +18,7 @@ import type { DB } from '../store/db.js';
 import { listUnresolved, UBIQUITOUS_FILES } from '../store/db.js';
 import { zcodeDbPath, type RelayConfig } from '../shared/config.js';
 import { mapKanbanRows, renderMapMermaid, mapBriefLine } from '../map/bridge.js';
+import { writeHealthBrief } from '../core/health/brief.js';
 import { MAP_MODULE } from '../map/index.js';
 
 export interface KanbanInitResult {
@@ -201,6 +202,9 @@ export function syncKanbanAuto(root: string, cfg: RelayConfig): { ok: boolean; r
     // 简报那一行：**每轮都刷新**（哪怕看板无变化），因为简报读的是文件不是看板。
     //   失败绝不影响看板 —— 它是附属信息，不是主链路。
     writeMapBrief(root)
+    // [1020 全自动] 体检分也落一行文件（带 30 分钟 TTL，不每轮重算）：三端简报直接读，
+    // 这样"记忆健康度"不需要人记得敲 srelay score 才看得见。失败只影响这一行。
+    writeHealthBrief(root)
     const todos = todoRowsOf(root, cfg)
     const seen = new Set(proj.rows.map((r) => normTask(r[0])))
     const fresh = [...proj.rows, ...renderTodoRows(todos).filter((r) => !seen.has(normTask(r[0])))]
