@@ -230,7 +230,14 @@ export function contentFingerprint(db: DB): string {
       'SELECT COUNT(*) AS n, COALESCE(SUM(COALESCE(extracted_version, 0)), 0) AS v,'
       + ' MAX(COALESCE(created_at, \'\')) AS t FROM sessions',
     ).get() as { n?: number; v?: number; t?: string | null } | undefined;
-    return String(r?.n ?? 0) + ':' + String(r?.v ?? 0) + ':' + String(r?.t ?? '');
+    // [1021 修「标签一直不更新」] 原指纹只看 sessions 三列：**已有会话追加的新消息一个都不变**，
+    //   判据于是认为"没变化"→ 复用旧图 ⇒ 新聊的内容永远进不了图谱。
+    //   病历：agent1super 图 693 场 / 库 707 场，图落后一天多，而阶段日志一直显示"已刷新"。
+    const m = db.prepare(
+      'SELECT COUNT(*) AS c, MAX(COALESCE(created_at, \'\')) AS t FROM messages',
+    ).get() as { c?: number; t?: string | null } | undefined;
+    return String(r?.n ?? 0) + ':' + String(r?.v ?? 0) + ':' + String(r?.t ?? '')
+      + ':' + String(m?.c ?? 0) + ':' + String(m?.t ?? '');
   } catch { return 'unknown'; }   // 算不出就给固定值 ⇒ 下次必不匹配 ⇒ 重建一次（宁多建，不复用错的）
 }
 export function ensureGraphSchema(db: DB): void {
