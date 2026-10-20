@@ -23,6 +23,16 @@ export interface RelayConfig {
     /** 故意不采集的源 id（隐私/不需要）。doctor 的"采集源覆盖"检查会跳过它们，
      *  不会把用户的有意选择报成故障。 */
     ignore_sources?: string[];
+    /** ═══ 子代理任务书：采集层内置拦截，**默认开**（缺省 undefined = 生效）═══
+     *  判据唯一一份在 capture/ignore.ts 的 isSubagentTaskTitle（标题以「你是 / 你作为 /
+     *  任务[:：] / 你的任务 / act as / you are」开头）。命中则在**入库前**丢弃，
+     *  并计入 stats 的 blocked_by_ignore。
+     *  为什么默认开：subagent 的任务书标题就是任务书原文，这类会话重复、无结论、报告写得
+     *  比主会话更晚 —— 实测 agent1super 库 702 场里 245 场是它（202 场 ≤3 条消息），
+     *  污染检索排序、简报计数与审计。
+     *  **设 false 可保住子代理会话**（例如你想留作业留痕，或这条判据误杀了你的真会话）。
+     *  ⚠️ 存量不追溯：库里已有的任务书会话不会被删（删除权只在人手里），本开关只管将来新增。 */
+    ignore_subagent_tasks?: boolean;
     /** 覆盖各源的默认存储路径（自定义安装位置时设置）。支持环境变量：CLAUDE_PROJECTS_DIR / ZCODE_DB_PATH / CODEX_DIR / TRAE_DIR / DSH_SESSIONS_DIR */
     claude_projects_dir?: string;
     zcode_db_path?: string;

@@ -125,7 +125,7 @@ function auditOne(root: string, opts: AuditStageOptions, global: DB | null): Aud
 /**
  * 跑一轮审计（**零写入**）。roots 由 runner 的 registry 给；测试直接传临时项目根。
  *
- * 全局库整轮只开一次（不是每项目一次）：六项里只有"经验草稿超期"读全局库，
+ * 全局库整轮只开一次（不是每项目一次）：七项里只有"经验草稿超期"读全局库，
  * 而 N 个项目各开一个只读句柄再忘关，是典型的句柄泄漏 —— 守护每天跑一轮，
  * 几天后就是几十个悬挂句柄。
  */

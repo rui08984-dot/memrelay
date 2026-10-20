@@ -81,6 +81,12 @@ export { metaTextOf, searchTextOf, recomputeSessionMetaText, openExisting, creat
 // 契约在这里显式化：配置加载与增量采集都只有核心库这一份实现，钩子不自抄（铁律 1/2）。
 export { loadConfig } from './shared/config.js';
 export { runSync } from './capture/sync.js';
+// ═══ 「子代理任务书」标题判据（1021 夜）═══
+// 采集层（sync.ts 入库前拦截）与简报显示层（plugins/dsh/index.js 的 SUBAGENT_TASK_TITLE）
+// 必须同源：两份各写一遍正则，改一处就会漂 —— 1015 已经因为两份副本漂移踩过一次
+// （DSH 有「报告碎片」过滤、ZCode 没有）。判据只有一份，就在 capture/ignore.ts；
+// 这里从入口交给宿主：插件/其他运行时 import 本文件即可拿到权威值，别再抄正则。
+export { SUBAGENT_TASK_TITLE_RE, isSubagentTaskTitle } from './capture/ignore.js';
 
 import fs from 'node:fs';
 import os from 'node:os';

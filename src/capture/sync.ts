@@ -4,10 +4,24 @@ import { createDb, upsertCapturedSession, insertMessage, upsertMessage, rollback
 import type { DB } from '../store/db.js';
 import type { RelayConfig } from '../shared/config.js';
 import { projectIdOf, dbFile } from '../shared/paths.js';
-import { loadIgnoreRules, isSessionBlocked } from './ignore.js';
+import { loadIgnoreRules, isSessionBlocked, isSubagentTaskTitle } from './ignore.js';
 import { ensureRegistered, get, adapterConfig, list } from '../adapters/registry.js';
 import type { DiscoveredSession } from '../adapters/types.js';
 import type { StatsCounter } from '../core/stats/counter.js';
+
+/** 记一次拦截（同一进程内同一场只计一次；见 blockedSeen 的注释）。 */
+function countBlockedOnce(source: string, sourceSessionId: string, stats?: StatsCounter): void {
+  const key = source + ':' + sourceSessionId;
+  if (blockedSeen.has(key)) return;
+  blockedSeen.add(key);
+  stats?.increment('blocked_by_ignore');
+}
+
+/** [1020] 同一进程里"已经计过一次拦截"的会话（key = source:sourceSessionId）。
+ *  为什么需要：拦截闸在**水位线之前**，于是每一轮同步都会把全部被拦会话重新判一次 ——
+ *  统计里用 increment 就会每轮加一遍（agent1super 实测累计到 6600 万，看着像拦了六千万场）。
+ *  进程内去重让"一次进程生命周期内每场只计一次"；重启后最多再各计一次。 */
+const blockedSeen = new Set<string>();
 
 export interface SyncStats {
   mode: string;
@@ -168,7 +182,22 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
         // 两层 ignore
         if (isSessionBlocked(ignoreRules, { source: ds.source, sourceSessionId: ds.sourceSessionId, title: ds.title ?? null, sourceFile: ds.sourceFile })) {
           result.blocked++;
-          opts.stats?.increment('blocked_by_ignore');
+          countBlockedOnce(ds.source, ds.sourceSessionId, opts.stats);
+          continue;
+        }
+
+        // ═══ 子代理任务书：采集层内置判据（1021 夜，默认开）═══
+        // 位置与上面两层 ignore **同一个**，理由也同一个：必须发生在 ingest / 落库**之前**。
+        // 判据唯一一份在 capture/ignore.ts（简报显示层也指向它，见那里的注释）——
+        // 这里不许再手写一遍标题正则（本仓头号故障就是同一判据存在第二份）。
+        // 开关：config.json 的 capture.ignore_subagent_tasks。
+        //   · 缺省（undefined）= 生效 —— 存量项目不迁移配置就吃到修复；
+        //   · 显式 false = 放行（明确要把子代理会话存进来的人自己关）。
+        // 计数复用 blocked_by_ignore：对用户而言这就是"被规则挡下的会话"，多一列反而没人看。
+        // 注意这里和 ignore 一样在**水位线之前** continue ⇒ 每轮同步都会重新判一次并计一次。
+        if (cfg.capture?.ignore_subagent_tasks !== false && isSubagentTaskTitle(ds.title)) {
+          result.blocked++;
+          countBlockedOnce(ds.source, ds.sourceSessionId, opts.stats);
           continue;
         }
 
@@ -287,7 +316,7 @@ export async function captureSessions(opts: {
     }
     if (isSessionBlocked(ignoreRules, { source: ds.source, sourceSessionId: ds.sourceSessionId, title: ds.title ?? null, sourceFile: ds.sourceFile })) {
       result.blocked++;
-      opts.stats?.increment('blocked_by_ignore');
+      countBlockedOnce(ds.source, ds.sourceSessionId, opts.stats);
       result.warnings.push(`会话「${ds.title ?? ds.sourceSessionId}」被忽略规则拦截（.sessionrelayignore），未存储`);
       continue;
     }
@@ -344,7 +373,28 @@ async function ingestOne(
   // 两层 ignore：入库前 title 复查（用已导入的 isSessionBlocked，不用动态 import）
   if (isSessionBlocked(ctx.ignoreRules, { source: ds.source, sourceSessionId: ds.sourceSessionId, title: ds.title ?? firstUserTitle, sourceFile: ds.sourceFile })) {
     ctx.result.blocked++;
-    ctx.stats?.increment('blocked_by_ignore');
+    countBlockedOnce(ds.source, ds.sourceSessionId, ctx.stats);
+    db.transaction(() => recordCursor(db, ds.source, ds.sourceFile, read.cursor, { badLines: read.badLines }))();
+    return;
+  }
+
+  // 子代理任务书：**入库前**用同一个标题口径复查一次（与上面 ignore 复查逐字同构）。
+  // 入口（runSync）已经拦了，为什么还要这一道：多数源的 discover 拿不到标题 ——
+  //   DSH 适配器恒给 title: null（见 adapters/dsh/index.ts），入口判据对它们等于不存在；
+  //   而 firstUserTitle（第一条用户消息）恰恰就是任务书原文。不补这道闸，
+  //   DSH 这条主路径上的任务书会照旧入库（本仓最爱犯的"修了一半"）。
+  // 光标照常推进（同 ignore）：拦下的是"别再存"，不是"每次重读"。
+  if (ctx.cfg.capture?.ignore_subagent_tasks !== false && isSubagentTaskTitle(ds.title ?? firstUserTitle)) {
+    ctx.result.blocked++;
+    countBlockedOnce(ds.source, ds.sourceSessionId, ctx.stats);
+    // 手动 save 是用户在场、显式动作 ⇒ **不许静默**（否则又是一次"以为存了其实没存"）。
+    // 自动守护路径只计数不刷屏（同 C7 对墓碑的处置）。
+    if (ctx.origin === 'manual') {
+      ctx.result.warnings.push(
+        '会话「' + (ds.title ?? ds.sourceSessionId) + '」的标题是子代理任务书，被采集层判据拦截，未存储'
+        + '（如确需保留：config.json 里设 capture.ignore_subagent_tasks=false 后重试）',
+      );
+    }
     db.transaction(() => recordCursor(db, ds.source, ds.sourceFile, read.cursor, { badLines: read.badLines }))();
     return;
   }

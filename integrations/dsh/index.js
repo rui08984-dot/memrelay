@@ -96,7 +96,13 @@ const DEC_SLOTS = 4
 //   brief-filters.mjs 拿不到 recall 时会退回内置 1（只影响「无内核」的自包含场景）。
 //   （值本身由 brief-filters.mjs 从内核 recall 转发，见那里的 __unresolvedFromRecall）
 const COLD_SYNC_TIMEOUT_MS = 1500 // 冷缓存同步预热上界：最坏慢一轮，不挂住组装
-const WARM_REFRESH_MS = 60_000   // 热缓存定时刷新
+// [1020 缓存] 热缓存刷新间隔。原 60s：注入文本每分钟可能变一次 ⇒ 长会话里前缀缓存反复作废。
+// 5 分钟是“内容够新”与“缓存够稳”的折中；需要更快可设 SRELAY_BRIEF_REFRESH_MS（毫秒）。
+// 缓存本身仍是 5s（每轮 O(1) 读，不重算）。
+const WARM_REFRESH_MS = (() => {
+  const n = Number(process.env.SRELAY_BRIEF_REFRESH_MS)
+  return Number.isFinite(n) && n >= 5_000 ? n : 300_000
+})()
 const CACHE_TTL_MS = 5_000
 
 // ── 过滤规则：与 ZCode 的 brief-shared.mjs 逐条对应（同一套简报语义）──
@@ -368,12 +374,23 @@ function mapBriefText(root) {
     return s
   } catch { return '' }
 }
+/**
+ * [1020 缓存] 把看板/地图行里的**相对时间**压成稳定文本。
+ *
+ * 病历：progress.md 的 auto:map 行写着「· 门禁 14 分钟前 ✅」，守护每轮重写一次 ——
+ * 这段文本进 system prompt 后**每次刷新都变**，前缀缓存整段作废。
+ * 状态（✅/⏳）是稳定信息，只有“N 分钟前”这个相对量是噪音 ⇒ 统一替换成「最近」。
+ */
+function stabilizeRelTime(s) {
+  return String(s ?? '').replace(/\d+\s*(?:秒|分钟|小时|天)前/g, '最近')
+}
+
 function kanbanText(root) {
   try {
     // [红队 🟡] 地图行必须在读 progress.md **之前**算好。
     //   原来放在下面（progress.md 存在才走到），于是同一个项目 ZCode 有 🗺 行、DSH 没有。
     //   地图和看板是两件独立的附属信息：一个缺席不该连坐另一个。
-    const mapLine = mapBriefText(root)
+    const mapLine = stabilizeRelTime(mapBriefText(root))
     const p = path.join(root, 'progress.md')
     if (!fs.existsSync(p)) return mapLine   // 没有看板但有地图：只渲染地图那一行
     if (fs.statSync(p).size > 1024 * 1024) return mapLine   // >1MB 跳过看板解析，但地图行照旧
@@ -387,7 +404,7 @@ function kanbanText(root) {
         const clean = (s) => String(s ?? '').replace(/\*\*/g, '')
         const head = `${c[2]} ${clipAt(clean(c[1]), 34)}`
         const detail = clean(c[4])
-        return detail ? `${head} — ${clipAt(detail, KANBAN_ROW_CAP)}` : head
+        return stabilizeRelTime(detail ? `${head} — ${clipAt(detail, KANBAN_ROW_CAP)}` : head)
       })
     if (!rows.length) return mapLine   // 没有看板行但有地图行：只渲染地图那一行
     const board = '📋 看板（progress.md，进行中/阻塞）：\n' + rows.map((x) => '- ' + x).join('\n')
@@ -415,9 +432,10 @@ function gitStatusText(root) {
     const gap = /\[([^\]]+)\]/.exec(head)?.[1] ?? ''
     const files = lines.slice(1)
     if (!br && files.length === 0) return ''
-    const names = files.slice(0, 3).map((l) => l.slice(3).trim().replace(/^"|"$/g, '')).map((n) => (n.length > 28 ? '…' + n.slice(-26) : n))
-    const more = files.length > names.length ? ` 等 ${files.length} 个` : ''
-    const body = files.length === 0 ? '工作区干净' : `${files.length} 个未提交：${names.join('、')}${more}`
+    // [1020 缓存] 这里**故意不列文件名**：文件名每次编辑都在变，而这段文本在 system prompt 里，
+    //   一变就把整段前缀缓存作废（长会话里几乎每轮都变）。分支 + 有无未提交是稳定信息；
+    //   “到底在改哪些文件”由 🗂 近 7 天反复在动 那行回答（按会话统计，变化慢）。
+    const body = files.length === 0 ? '工作区干净' : `${files.length} 个未提交改动`
     return `🌿 Git：${br}${gap ? ' ' + gap : ''} · ${body}`
   } catch { return '' }
 }

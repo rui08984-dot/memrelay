@@ -5,6 +5,14 @@
 
 ## [Unreleased]
 
+### 采集层过滤子代理任务书（10-20）
+
+- **问题**：`D:/agent1super` 库 702 场会话里 **245 场是子代理任务书**（标题「你是…」「任务：…」，202 场 ≤3 条消息），污染检索、简报计数与审计；简报层早有显示过滤，但库里一直是噪声。
+- **改法**：`src/capture/ignore.ts` 新增唯一判据 `SUBAGENT_TASK_TITLE_RE` / `isSubagentTaskTitle()`；`runSync` 入口闸（在两层 ignore 之后、ingest 之前）+ `ingestOne` 入库前同口径复查（**DSH 适配器 title 恒为 null，只拦入口等于没修**，用第一条用户消息兜底）；命中计入 `blocked_by_ignore`。
+- **可关**：`capture.ignore_subagent_tasks=false` 放行；手动 `save` 被拦时**不静默**，打印原因与开关。
+- **顺手修**：`srelay sync` 的 CLI 路径原来**不传 stats** ⇒ 所有 ignore 拦截只在守护路径计数。现在两条路同口径。
+- **验收**：临时项目真实适配器 `discovered=3 · new=1 · blocked=2`，只入库普通会话；全量 **1140 passed / 1 skipped**；存量 245 场未动（删除权只在人手里）。
+
 ### 「为什么没找到」从"几乎不触发"改成真能用（10-20）
 
 - **两个洞**：① 诊断只在 **0 命中**时跑，而检索是"任一词元命中就返回" ⇒ 多词查询几乎总能捞到一条，真机上几乎从不出现；② 计数 SQL 拿 `messages.project_id` 过滤，可**这一列根本不存在**（永远落进 catch 的未过滤分支）⇒ 把别的项目库的词也算进来，"词不存在/词太泛"会判错。

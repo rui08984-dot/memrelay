@@ -6,6 +6,40 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { readConfigFile, mergeConfig } from '../shared/config-merge.js';
 
+/**
+ * 「子代理任务书」标题判据 —— **采集层**（1021 夜新增，默认开、可关、可计数）。
+ *
+ * 病历：subagent 拿到的任务书，标题就是任务书原文（「你是红队审查员。任务：…」）。
+ * 这类会话重复、无结论，而且报告写得比主会话更晚，实测（agent1super）702 场会话里
+ * **245 场**是任务书，其中 202 场 ≤3 条消息 —— 它们污染检索排序、简报计数与审计。
+ *
+ * ⚠️ 本判据只有两份**同源**副本，改一处**必须**同步另一处：
+ *   ① 采集层 = 本文件：sync.ts 在入库前用它拦下来，命中计 blocked_by_ignore；
+ *   ② 简报显示层 = plugins/dsh/index.js 的 SUBAGENT_TASK_TITLE（只挡显示、不挡存储）。
+ *   两份同源（同一个正则、同一个语义）。终态是插件改为 import 内核 dist/recall.js 的
+ *   导出值（recall-entry.ts 已导出），物理消灭第二份；在那之前改正则时两处一起改。
+ *
+ * 判据故意收得很窄（与插件侧逐字一致）：实测扩到「请精读 / 帮我」会连主会话的真决策
+ * 一起挡掉 —— 那类标题的会话里有「改用 fileURLToPath()」这种真拍板（1015 实测）。
+ *
+ * 存量不追溯：本判据只作用于**将来**的采集。库里已有的那批任务书会话不删
+ * （删除权只在人手里；要清理用 srelay forget）。
+ */
+export const SUBAGENT_TASK_TITLE_RE = /^(你是|你作为|任务[:：]|你的任务|act as|you are)/i;
+
+/**
+ * 标题是不是子代理任务书（null / 空 ⇒ false，不抛）。
+ *
+ * 与插件同口径：先 String(title ?? '').trim() 再判 —— 前面带空格的「 你是…」也要拦得住。
+ * 正则没有 /g 标志，test() 不留 lastIndex 状态，可以放心在循环里反复调用。
+ */
+export function isSubagentTaskTitle(title?: string | null): boolean {
+  if (title == null) return false;
+  const t = String(title).trim();
+  if (t === '') return false;
+  return SUBAGENT_TASK_TITLE_RE.test(t);
+}
+
 export function parseIgnore(text: string): string[] {
   return text
     .split(/\r?\n/)

@@ -4,6 +4,7 @@ import { requireRoot, pc } from './ui.js';
 import { runSync } from '../capture/sync.js';
 import { runJudge } from '../capture/judge.js';
 import { openRelayDb } from './ui.js';
+import { openStats } from '../core/stats/counter.js';
 
 export async function cmdSync(opts: { backfill?: string; json?: boolean }): Promise<void> {
   const root = requireRoot();
@@ -15,7 +16,9 @@ export async function cmdSync(opts: { backfill?: string; json?: boolean }): Prom
       return;
     }
     const backfillDays = opts.backfill ? parseDays(opts.backfill) : undefined;
-    const s = await runSync({ projectRoot: root, config: cfg, db, backfillDays });
+    // [1020] stats 必须传：否则 `srelay sync` 这条路上的 ignore/子代理拦截**永远不计入**
+    //   blocked_by_ignore（守护路径传了，CLI 路径没传 —— 同一件事两个口径，status 里看着像没拦过）。
+    const s = await runSync({ projectRoot: root, config: cfg, db, backfillDays, stats: openStats(root) });
     const j = runJudge(db, {
       projectId: cfg.identity.project_id ?? root,
       now: new Date(),
