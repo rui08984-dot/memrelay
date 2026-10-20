@@ -5,6 +5,7 @@
 //   ② runWatch 拆出 startWatchWorker（可停的 worker），为 --global 复用
 //   ③ --global 全局守护：一个进程看管项目注册表里的全部项目，sweep 动态收编/移除
 import path from 'node:path';
+import os from 'node:os';
 import fs from 'node:fs';
 import net from 'node:net';
 import crypto from 'node:crypto';
@@ -45,6 +46,40 @@ function pipeLockName(root: string): string {
   return BS + BS + '.' + BS + 'pipe' + BS + 'srelay-watch-' + h;
 }
 
+/**
+ * [1021 状态不说谎] 全局守护的**心跳文件**（~/.sessionrelay/global-heartbeat.json）。
+ *
+ * 病历：只靠管道探活有个盲区 —— 守护正在重启（重建先杀后起）的那几秒，
+ *   管道刚消失、新进程还没 listen，`watch --status` 就报「未运行」。
+ *   实测踩到：进程明明活着（生命周期已跑 567 轮），状态页却说没跑，运维会因此重复拉起。
+ * 修法：管道连不上时**再看心跳**——15 秒写一次（含 pid 与时间戳），
+ *   60 秒内算「在跑（可能正在重启）」，超过则如实说「上次心跳 N 分钟前」。
+ *   ！心跳只是**佐证**，不能替代管道锁：抢锁仍以管道为准（互斥 ≠ 探活）。
+ */
+function globalHeartbeatFile(): string {
+  const home = process.env.SRELAY_GLOBAL_HOME || path.join(os.homedir(), '.sessionrelay');
+  return path.join(home, 'global-heartbeat.json');
+}
+
+function writeGlobalHeartbeat(): void {
+  try {
+    const f = globalHeartbeatFile();
+    fs.mkdirSync(path.dirname(f), { recursive: true });
+    const tmp = f + '.' + process.pid + '.tmp';
+    fs.writeFileSync(tmp, JSON.stringify({ pid: process.pid, at: Date.now() }), 'utf8');
+    fs.renameSync(tmp, f);
+  } catch { /* 写不进去只影响探活精度，不影响守护本身 */ }
+}
+
+/** 读心跳：返回 {pid, ageMs}；没有/坏了返回 null。 */
+export function readGlobalHeartbeat(): { pid: number; ageMs: number } | null {
+  try {
+    const j = JSON.parse(fs.readFileSync(globalHeartbeatFile(), 'utf8')) as { pid?: number; at?: number };
+    if (typeof j?.at !== 'number') return null;
+    return { pid: Number(j.pid ?? 0), ageMs: Date.now() - j.at };
+  } catch { return null }
+}
+
 function globalPipeName(): string {
   const BS = String.fromCharCode(92);
   // SRELAY_GLOBAL_PIPE 仅供测试/调试隔离用，默认走固定名
@@ -56,12 +91,36 @@ function globalPipeName(): string {
 // project 模式启动前先问这个——有全局守护在跑还起 project 实例，只会抢走项目锁、
 // 让全局守护永远收编不了该项目（live: mc整合包 连续 30 次撞锁 + 孤儿实例无限期存活）。
 export function globalDaemonAlive(timeoutMs = 1000): Promise<boolean> {
+  return globalDaemonStatus(timeoutMs).then((s) => s.alive);
+}
+
+/**
+ * [1021 状态不说谎] 全局守护状态：管道优先，管道连不上再看心跳文件。
+ * 为什么要两路：守护重启的那几秒管道是断的，但进程并没有「没在跑」；
+ *   只看管道会误报「未运行」，让运维重复拉起（本项目实测踩过）。
+ * via=pipe（确定在跑）/ heartbeat（一两拍内还在，可能重启中）/ none（真的没跑）。
+ */
+export function globalDaemonStatus(timeoutMs = 1000): Promise<{ alive: boolean; via: 'pipe' | 'heartbeat' | 'none'; pid?: number; ageMs?: number }> {
   return new Promise((resolve) => {
     const sock = net.connect(globalPipeName());
-    const done = (ok: boolean) => { try { sock.destroy(); } catch { /* 已关 */ } resolve(ok); };
-    sock.once('connect', () => done(true));
-    sock.once('error', () => resolve(false));
-    setTimeout(() => done(false), timeoutMs).unref?.();
+    let settled = false;
+    const finish = (v: { alive: boolean; via: 'pipe' | 'heartbeat' | 'none'; pid?: number; ageMs?: number }) => {
+      if (settled) return;
+      settled = true;
+      try { sock.destroy(); } catch { /* 已关 */ }
+      resolve(v);
+    };
+    sock.once('connect', () => finish({ alive: true, via: 'pipe' }));
+    sock.once('error', () => {
+      const hb = readGlobalHeartbeat();
+      if (hb && hb.ageMs < 60_000) finish({ alive: true, via: 'heartbeat', pid: hb.pid, ageMs: hb.ageMs });
+      else finish({ alive: false, via: 'none', pid: hb?.pid, ageMs: hb?.ageMs });
+    });
+    setTimeout(() => {
+      const hb = readGlobalHeartbeat();
+      if (hb && hb.ageMs < 60_000) finish({ alive: true, via: 'heartbeat', pid: hb.pid, ageMs: hb.ageMs });
+      else finish({ alive: false, via: 'none', pid: hb?.pid, ageMs: hb?.ageMs });
+    }, timeoutMs).unref?.();
   });
 }
 
@@ -433,6 +492,10 @@ export async function runWatchGlobal(opts: { log?: (msg: string) => void } = {})
   if (!(await acquirePipeLockByName(globalPipeName(), log, '全局'))) return;
 
   const workers = new Map<string, WatchWorker>();
+  // [1021 状态不说谎] 每 15 秒落一次心跳：管道探活失败时它是「还活着」的唯一证据
+  writeGlobalHeartbeat();
+  const heartbeatTimer = setInterval(writeGlobalHeartbeat, 15_000);
+  heartbeatTimer.unref?.();
 
   const adopt = async (why: string) => {
     for (const c of registryCandidates()) {
