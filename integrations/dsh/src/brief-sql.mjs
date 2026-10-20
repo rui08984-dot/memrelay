@@ -80,14 +80,21 @@ export function readRefCounts(root) {
   try {
     const f = globalDbFile()
     if (!fs.existsSync(f)) return out
-    db = new DatabaseSync(f, { readOnly: true })
+    // timeout：node:sqlite 默认**不等锁**（与 better-sqlite3 不同）。守护/CLI 正在写全局库时，
+    // 无 timeout 会立刻抛 busy，然后被 catch 成"空 Map"——排序悄悄退回新鲜度，且看不出来。
+    // 2000ms 与项目库口径接近；真等不到才降级（红队 P1）。
+    db = new DatabaseSync(f, { readOnly: true, timeout: 2000 })
     const has = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='search_feedback'").get()
     if (!has) return out
     const pid = readProjectId(root)
     const rows = db.prepare(
       'SELECT session_id AS sid, COUNT(*) AS n FROM search_feedback WHERE project = ? GROUP BY session_id',
     ).all(pid)
-    for (const r of rows) out.set(String(r.sid), Number(r.n) || 0)
+    for (const r of rows) {
+      const sid = String(r.sid ?? '').trim()
+      const n = Number(r.n) || 0
+      if (sid && n > 0) out.set(sid, n)  // 空 session_id 不入表：否则会给所有无 sessionId 的条目加分
+    }
   } catch {
     /* 全局库读不到 = 没有引用数据（不是错误路径，降级即契约） */
   } finally {

@@ -76,3 +76,19 @@ describe('诊断的项目作用域与弱命中（1020 修）', () => {
     expect(strong.note).toBeNull();
   });
 });
+// [1020 红队] 命中可能只来自**标题/话题**（检索的 viaMeta 路）：诊断若只看正文，
+// 会出现「结果标题就有这个词，诊断却说它一次都没出现」的自相矛盾。
+describe('meta 命中不被误判为「没出现」', () => {
+  it('词只出现在标题/话题里 ⇒ presence > 0（不报「全库一次都没出现」）', () => {
+    // 造一场：正文不含 ClickHouse，但标题含（meta_text 由 insertSession 从标题/话题生成）
+    // metaText 是检索 viaMeta 路的真实数据源（标题+话题拼出来的那一段），
+    // insertSession 不会自己拼，测试要显式给 —— 否则 meta_text 是 NULL，测的就不是这条路。
+    insertSession(db, { id: 'm1', source: 'dsh', sourceSessionId: 'm1', projectId: 'p', title: 'ClickHouse 迁移记录', metaText: 'ClickHouse 迁移记录 数据库 运维', createdAt: '2026-10-01T00:00:00Z' });
+    insertMessage(db, { sessionId: 'm1', role: 'user', content: '今天把导出的表导进新库了', seqNum: 1 });
+
+    const presence = tokenPresence(db, 'p', 'ClickHouse');
+    expect(presence[0].sessions).toBeGreaterThan(0);
+    const weak = diagnoseWeak({ db, projectId: 'p', query: '数据库 ClickHouse' });
+    expect(weak.missing.map((m) => m.token)).not.toContain('clickhouse');
+  });
+});

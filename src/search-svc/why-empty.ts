@@ -50,11 +50,24 @@ export interface TokenPresence { token: string; sessions: number }
  */
 export function tokenPresence(db: DB, projectId: string, query: string): TokenPresence[] {
   const tokens = (parseQuery(query).units.flat()).filter((t) => t.length >= 2);
-  const sql = 'SELECT COUNT(DISTINCT m.session_id) AS c FROM messages m JOIN sessions s ON s.id = m.session_id'
+  // 正文命中：messages.search_text 子串（与旧实现同口径，保留 LIKE：分词后的中文词可能出现在
+  // 更长词内部，FTS 短语匹配会漏）。
+  const msgSql = 'SELECT COUNT(DISTINCT m.session_id) AS c FROM messages m JOIN sessions s ON s.id = m.session_id'
     + ' WHERE s.project_id = ? AND m.search_text LIKE ?';
+  // meta 命中：sessions_fts（标题/话题/meta_text）。**必须算上** —— 命中可能只来自标题/话题
+  // （检索的 viaMeta 路），只看正文会让诊断说出「这个词在本库一次都没出现」而结果标题里就有它
+  // （红队实测：搜「数据库 kubernetes」第 2 条标题是「Kubernetes 部署记录」，诊断却说没出现过）。
+  const metaSql = "SELECT COUNT(*) AS c FROM sessions_fts f JOIN sessions s ON s.rowid = f.rowid"
+    + ' WHERE f.meta_text MATCH ? AND s.project_id = ?';
   return tokens.map((t) => {
-    const row = db.prepare(sql).get(projectId, '%' + t + '%') as { c?: number } | undefined;
-    return { token: t, sessions: Number(row?.c ?? 0) };
+    const msg = Number((db.prepare(msgSql).get(projectId, '%' + t + '%') as { c?: number } | undefined)?.c ?? 0);
+    let meta = 0;
+    try {
+      // FTS5 短语查询：token 里可能有引号/连字符，包成短语最稳；实在查不了就退回 0
+      meta = Number((db.prepare(metaSql).get('"' + t.replace(/"/g, '""') + '"', projectId) as { c?: number } | undefined)?.c ?? 0);
+    } catch { meta = 0; }
+    // 两路可能命中同一会话；取较大者（不重复计数、也不虚报"太泛"）。
+    return { token: t, sessions: Math.max(msg, meta) };
   });
 }
 

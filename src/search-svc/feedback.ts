@@ -50,8 +50,13 @@ export const FEEDBACK_TTL_MS = 5 * 60 * 1000;
  */
 export const MIN_OPENS_FOR_CALIBRATION = 30;
 
-/** 候选快照的文件格式版本。读到别的版本号就当成"没有快照"（不许猜字段）。 */
-export const SNAPSHOT_VERSION = 1;
+/**
+ * 候选快照的文件格式版本。读到别的版本号就当成"没有快照"（不许猜字段）。
+ * v2（1020 红队）：删掉明文 `project` 字段，改存 `projectHash`（sha256 前 16 位）。
+ * 病历：没有 config.json 的项目，project id 就是**项目根绝对路径**，于是快照文件里躺着
+ * `{"project":"D:/…/Some Project"}` —— 与"不含路径"的承诺不符。v1 快照一律视为不存在（TTL 才 5 分钟）。
+ */
+export const SNAPSHOT_VERSION = 2;
 
 /** 查询长度分桶（按归一化后的**字符**数）。给未来校准用：长查询与短查询的最优排序本就不该同一套。 */
 export const QUERY_LEN_BUCKETS = ['1-4', '5-9', '10-19', '20+'] as const;
@@ -115,8 +120,8 @@ export interface SearchSnapshot {
   v: number;
   /** 检索发生的时刻（epoch ms） */
   at: number;
-  /** 项目 id（与记录侧同口径；文件里再存一份，读回时自校验，防止哈希碰撞张冠李戴） */
-  project: string;
+  /** 项目 id 的哈希（sha256 前 16 位）——**不存明文**：项目 id 可能本身就是绝对路径 */
+  projectHash: string;
   /** 这次检索的身份（去重键之一） */
   searchId: string;
   queryHash: string;
@@ -132,10 +137,14 @@ export function snapshotDir(): string {
   return path.join(path.dirname(globalDbFile()), 'last-search');
 }
 
+/** 项目 id 的哈希（sha256 前 16 位）：既是文件名，也是快照里的自校验字段（**不存明文**）。 */
+export function projectHashOf(project: string): string {
+  return createHash('sha256').update(String(project ?? '')).digest('hex').slice(0, 16);
+}
+
 /** 快照文件路径：项目 id 取 sha256 前 16 位做文件名（项目 id 里可能带空格/斜杠，不能直接当文件名）。 */
 export function snapshotFileOf(project: string): string {
-  const key = createHash('sha256').update(String(project ?? '')).digest('hex').slice(0, 16);
-  return path.join(snapshotDir(), key + '.json');
+  return path.join(snapshotDir(), projectHashOf(project) + '.json');
 }
 
 export interface RememberResult {
@@ -174,7 +183,7 @@ export function rememberSearch(
   const snap: SearchSnapshot = {
     v: SNAPSHOT_VERSION,
     at: now,
-    project: key,
+    projectHash: projectHashOf(key),
     searchId: randomUUID(),
     queryHash: queryHash(query),
     bucket: queryLenBucket(query),
@@ -191,12 +200,27 @@ export function rememberSearch(
   if (!key) return { ...base, error: '项目 id 为空（没有可归属的项目，不写快照）' };
 
   const file = base.file;
-  const tmp = file + '.' + process.pid + '.tmp';
+  const tmp = file + '.' + process.pid + '.' + Math.random().toString(36).slice(2, 8) + '.tmp';
   try {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(tmp, JSON.stringify(snap), 'utf8');
-    fs.renameSync(tmp, file);
-    return { ...base, persisted: true };
+    // [1020 红队] Windows 上**读者正打开目标文件**时 rename 会 EPERM（实测并发读 400 次里 89 次失败）。
+    // 失败不重试等于"这次检索的候选被静默丢掉、旧快照还在" ⇒ 后续 show 会按**上一次**检索记名次。
+    // 重试三次（间隔 10ms）：读者通常几毫秒就关句柄；仍失败才如实返回 persisted:false。
+    let lastErr: unknown = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        fs.renameSync(tmp, file);
+        return { ...base, persisted: true };
+      } catch (e) {
+        lastErr = e;
+        const code = (e as NodeJS.ErrnoException).code;
+        if (code !== 'EPERM' && code !== 'EACCES' && code !== 'EBUSY') break;
+        const until = Date.now() + 10;
+        while (Date.now() < until) { /* 忙等 10ms：这是失败路径，不在热路径上 */ }
+      }
+    }
+    throw lastErr;
   } catch (e) {
     try { fs.rmSync(tmp, { force: true }); } catch { /* 清不掉临时文件不影响结论 */ }
     return { ...base, error: (e as Error).message };
@@ -228,12 +252,13 @@ export function loadSnapshot(
   }
   const o = parsed as Partial<SearchSnapshot> | null;
   if (!o || typeof o !== 'object' || o.v !== SNAPSHOT_VERSION || typeof o.at !== 'number'
-    || typeof o.project !== 'string' || typeof o.searchId !== 'string'
+    || typeof o.projectHash !== 'string' || typeof o.searchId !== 'string'
     || !o.positions || typeof o.positions !== 'object') {
     return { miss: 'corrupt', error: '快照字段不完整或版本不认识', file };
   }
   // 哈希碰撞/项目 id 换过：文件在同一槽位但不是这个项目的 ⇒ 不许借用别人的候选
-  if (o.project !== key) return { miss: 'other_project', file };
+  // 比的是**哈希**而不是明文项目 id：两者同源（projectHashOf），自校验作用一样，但不落明文路径
+  if (o.projectHash !== projectHashOf(key)) return { miss: 'other_project', file };
   const now = opts.now ?? Date.now();
   if (now - o.at >= FEEDBACK_TTL_MS) return { miss: 'expired', file };
   return { snap: o as SearchSnapshot, file };

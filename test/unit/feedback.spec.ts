@@ -171,7 +171,12 @@ it('跨进程：候选快照真的落盘，第二个进程读得回来（原实�
     // 快照里**不许**有正文/明文查询：只有 id、名次、指纹、长度桶
     const raw = fs.readFileSync(r.file, 'utf8');
     expect(raw).not.toContain('交接');
-    expect(JSON.parse(raw)).toMatchObject({ v: 1, project: 'proj-a', candidates: 2 });
+    const snapJson = JSON.parse(raw) as Record<string, unknown>;
+    expect(snapJson).toMatchObject({ v: 2, candidates: 2 });
+    // [1020 红队] 快照**不许**含明文项目 id/路径：项目 id 可能就是绝对路径（无 config.json 时）
+    expect(typeof snapJson.projectHash).toBe('string');
+    expect(snapJson.project).toBeUndefined();
+    expect(raw).not.toContain('proj-a');
 
     const st = lastSearchStatus('proj-a', { now: T0 + 1_000 });
     expect(st).toMatchObject({ exists: true, expired: false, candidates: 2, note: null });
@@ -197,7 +202,7 @@ it('跨进程：候选快照真的落盘，第二个进程读得回来（原实�
     const f = snapshotFileOf('proj-a');
     fs.mkdirSync(path.dirname(f), { recursive: true });
     fs.writeFileSync(f, JSON.stringify({
-      v: 1, at: T0, project: 'proj-b', searchId: 'x', queryHash: 'deadbeefdeadbeef',
+      v: 2, at: T0, projectHash: 'ffffffffffffffff', searchId: 'x', queryHash: 'deadbeefdeadbeef',
       bucket: '5-9', positions: { a: 1 }, candidates: 1,
     }), 'utf8');
 
@@ -214,4 +219,3 @@ it('跨进程：候选快照真的落盘，第二个进程读得回来（原实�
     expect(MIN_OPENS_FOR_CALIBRATION).toBeGreaterThan(0);
   });
 });
-

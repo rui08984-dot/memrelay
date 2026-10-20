@@ -855,6 +855,11 @@ console.log('=== 9e. 引用次数参与选谁（pinned > refCount > 新鲜度）
   const st = {};
   fresh.__testRenderItems(items, 'decisions', 4, new Map(), st);
   check('淘汰条数可上报（candidates − shown = compressed）', st.compressed === 4 && st.candidates === 8 && st.shown === 4);
+  // [1020 红队 P2] 测试钩子必须真把 compressed 传下去（原先收了参数却没传 ⇒ 提示句零覆盖）
+  const rcLines = ['- [10-20] 采用 PostgreSQL', '- [10-20] 构建改用 Vite'];
+  const withNote = fresh.__testRenderBrief('D:/x', rcLines, [], { dec: 42, unr: 0 }, '', '', '', '', '', 15);
+  const withoutNote = fresh.__testRenderBrief('D:/x', rcLines, [], { dec: 42, unr: 0 }, '', '', '', '', '', 0);
+  check('压缩条数写进提示句（__testRenderBrief 真的透传 compressed）', /压缩 15 条/.test(withNote) && !/压缩/.test(withoutNote));
 
   // 降级契约：全局库不存在 ⇒ 空 Map（绝不抛）；存在则按项目过滤
   const bs = await import('./src/brief-sql.mjs?rc=1');
