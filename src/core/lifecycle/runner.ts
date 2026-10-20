@@ -389,9 +389,29 @@ export async function runLifecycle(opts: LifecycleOptions = {}): Promise<Lifecyc
       } catch { err1++; }
       finally { try { db.close(); } catch { /* 已关 */ } }
     }
+    // [1021 库卫生] 去重之后是最合适的「收尾整理」时机：让 SQLite 更新统计、把 WAL 截断。
+    //   纯收益、不动数据、不影响新鲜度：
+    //     · PRAGMA optimize —— 让查询规划器拿到最新统计（analyst 只在需要时才 ANALYZE，代价极小）
+    //     · wal_checkpoint(TRUNCATE) —— 实测 agent1super 的 WAL 长期停在 4MB；截断后磁盘更省、启动更快
+    //   逐项目 try/catch：任何一个库被占用都不能让 compact 阶段变红。
+    let dbTuned = 0, dbFailed = 0, walTruncated = 0;
+    for (const root of roots) {
+      const f = dbFileOf(root);
+      if (!fs.existsSync(f)) continue;
+      let d: ReturnType<typeof createDb> | null = null;
+      try {
+        d = createDb(f);
+        d.pragma('optimize');
+        const w = d.pragma('wal_checkpoint(TRUNCATE)') as Array<{ busy?: number; checkpointed?: number }> | undefined;
+        if (!w || w.every((x) => !x?.busy)) walTruncated++;
+        dbTuned++;
+      } catch { dbFailed++; }
+      finally { try { d?.close(); } catch { /* 已关 */ } }
+    }
     const parts: string[] = [];
     parts.push('L0 ' + m0 + ' 条（' + c0 + ' 场会话）');
     parts.push('L1b ' + m1 + ' 条（' + s1 + ' 场会话）' + (off ? ' · ' + off + ' 个项目已关' : '') + (err1 ? ' · ' + err1 + ' 个项目出错' : ''));
+    parts.push('库整理 ' + dbTuned + ' 个（WAL 已截断 ' + walTruncated + '）' + (dbFailed ? ' · ' + dbFailed + ' 个被占用跳过' : ''));
     return parts.join(' · ');
   });
 

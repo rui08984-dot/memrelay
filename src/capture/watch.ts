@@ -250,8 +250,12 @@ export async function startWatchWorker(opts: WatchOptions): Promise<WatchWorker 
   let lastCfgWarn = '';
   let warnedFixedSig = '';
   let warnedMode = String(opts.config.capture.mode);
+  // [1021 省重复] safety 是兜底：tick 在 20s 内刚跑过就跳过，别把同一份活儿干两遍
+  let lastCycleAt = 0
   const cycle = (why: string) => {
     chain = chain.then(async () => {
+      if (why === 'safety' && Date.now() - lastCycleAt < 20_000) return
+      lastCycleAt = Date.now()
       try {
         // ── [修 #02] 每轮热读配置：runSync / runJudge / digestSemantic 一律用它 ──
         const tick = resolveTickConfig(root, lastCfg);
@@ -293,8 +297,14 @@ export async function startWatchWorker(opts: WatchOptions): Promise<WatchWorker 
     return chain;
   };
 
-  // [1021 R9] watchers 复用外层账本里的数组：启动失败时由 cleanup 统一 close
-  const judgeTimer = setInterval(() => cycle('tick'), 30_000);
+  // [1021 新鲜度优先] 节拍从 30s 收紧到 **15s**：用户明确选「更新鲜」而不是「更省」。
+  //   稳态成本实测极低（同进程 sync = 61ms；scan 缓存过期那一拍 ~0.5s），
+  //   15s 一拍折算 CPU 仍 <2%，换来「刚写完的会话最快 15 秒内进库」。
+  //   想回退/再收紧：SRELAY_TICK_MS=30000（毫秒，下限 5s）。
+  const tickEnv = Number(process.env.SRELAY_TICK_MS)
+  const TICK_MS = Number.isFinite(tickEnv) && tickEnv >= 5_000 ? tickEnv : 15_000
+  const judgeTimer = setInterval(() => cycle('tick'), TICK_MS);
+  // safety 只是「tick 万一卡住」的兜底：tick 刚跑过就跳过（见 cycle 内的 lastCycleAt 判据）
   const safetyTimer = setInterval(() => cycle('safety'), 60_000);
   timers.push(judgeTimer, safetyTimer);
 
