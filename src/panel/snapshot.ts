@@ -270,6 +270,34 @@ function stageHealthOf(stages: PanelLifecycle['stages'], nowMs = Date.now()): Pa
   });
 }
 
+/** [1021 UI] 体检分趋势：当前分（读 health.txt）+ 历史点（health-history.jsonl）。只读、不重算判据。 */
+export interface PanelHealth {
+  ok: boolean;
+  error: string | null;
+  current: string | null;
+  history: Array<{ day: string; at: string; line: string }>;
+}
+
+export function panelHealth(root: string): PanelHealth {
+  const out: PanelHealth = { ok: false, error: null, current: null, history: [] };
+  try {
+    const dir = path.join(root, '.sessionrelay');
+    try { out.current = fs.readFileSync(path.join(dir, 'health.txt'), 'utf8').trim().split(/\r?\n/)[0] || null; } catch { /* 还没体检过 */ }
+    try {
+      for (const ln of fs.readFileSync(path.join(dir, 'health-history.jsonl'), 'utf8').split(/\r?\n/)) {
+        const t = ln.trim();
+        if (!t) continue;
+        const j = JSON.parse(t) as { day?: string; at?: string; line?: string };
+        if (j.day && j.line) out.history.push({ day: j.day, at: String(j.at ?? ''), line: j.line });
+      }
+    } catch { /* 没有历史 = 空数组（不是错误：新项目就是没有） */ }
+    out.ok = true;
+    return out;
+  } catch (e) {
+    out.error = (e as Error).message;
+    return out;
+  }
+}
 export function panelLifecycle(): PanelLifecycle {
   const f = globalDbFile();
   const empty: PanelLifecycle = { ok: false, error: null, version: null, rounds: null, lastAt: null, stages: [], stageHealth: [], dueNow: [], heartbeat: [], recent: [] };

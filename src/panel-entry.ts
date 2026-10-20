@@ -10,7 +10,7 @@
 
 export {
   panelOverview, panelProjectCard, panelLessons, panelLifecycle, watchdogOnline,
-  panelCompression, panelConfigView, panelApplyConfig,
+  panelCompression, panelConfigView, panelApplyConfig, panelHealth,
   panelGraph,
   // [1021 安全轴] 面板 API 的 root 白名单校验（lib/index.js 的 METHODS 里调用）
   assertRegisteredRoot,
@@ -19,7 +19,7 @@ export {
 export type {
   PanelOverview, PanelProject, PanelLessons, PanelLessonItem, PanelLifecycle,
   PanelCompression, CompressionLayer, PanelConfigView, ApplyResult,
-  PanelGraph, PanelGraphTag,
+  PanelGraph, PanelGraphTag, PanelHealth,
 } from './panel/snapshot.js';
 export { openReadonly, withDb } from './panel/db.js';
 export type { ReadonlyDb, ReadonlyStmt, OpenReport } from './panel/db.js';
