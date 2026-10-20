@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import { loadConfig } from '../shared/config.js';
 import { requireRoot, openRelayDb } from './ui.js';
 import { collectBrief, type BriefPayload } from './brief.js';
+import type { DB } from '../store/db.js';
 
 export interface HandoffInput {
   project: string;
@@ -71,15 +72,32 @@ export function renderHandoff(inp: HandoffInput): string {
   return L.join('\n');
 }
 
+export interface HandoffBuilt {
+  project: string;
+  payload: BriefPayload;
+  /** 五段交接包 markdown（渲染只走 renderHandoff，别处不许另写格式） */
+  markdown: string;
+}
+
+/**
+ * 交接包的**唯一取数 + 渲染路径**（CLI 与 MCP 共用）。
+ * 只读：collectBrief 只查库；不写库、不写文件（落盘是 cmdHandoff --out 的事）。
+ */
+export function buildHandoff(opts: { db: DB; project: string; root: string; now?: Date }): HandoffBuilt {
+  const payload = collectBrief(opts.db, opts.project, {}, opts.root);
+  const markdown = renderHandoff({ project: opts.project, pay: payload, now: opts.now });
+  return { project: opts.project, payload, markdown };
+}
+
 export async function cmdHandoff(opts: { out?: string; json?: boolean }): Promise<void> {
   const root = requireRoot();
   const cfg = loadConfig(root);
   const db = openRelayDb(root);
   try {
     const project = cfg.identity.project_id ?? root;
-    const pay = collectBrief(db, project, {}, root);
-    if (opts.json) { console.log(JSON.stringify({ project, payload: pay }, null, 2)); return; }
-    const md = renderHandoff({ project, pay });
+    const built = buildHandoff({ db, project, root });
+    if (opts.json) { console.log(JSON.stringify({ project, payload: built.payload }, null, 2)); return; }
+    const md = built.markdown;
     if (opts.out) {
       fs.writeFileSync(String(opts.out), md + '\n', 'utf8');
       console.log('✅ 交接包已写入 ' + String(opts.out) + '（五段 · 带出处 · ' + md.length + ' 字节）');

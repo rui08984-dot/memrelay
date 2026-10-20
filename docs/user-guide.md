@@ -24,7 +24,7 @@ graph TB
 
     subgraph Consumers["👥 谁来查询记忆"]
         YOU["你（CLI）<br/>search · decisions · history"]
-        AGENT["AI Agent（MCP）<br/>14 个工具"]
+        AGENT["AI Agent（MCP）<br/>18 个工具"]
         TEAM["同事（HOP 交接包）<br/>export → import"]
     end
 
@@ -370,13 +370,13 @@ AI 依据**工具描述**和**响应提示**决策。推荐把下面这段加进
 6. **省 token**：先 search 定位 → 再按需深入。响应里有 estimated_tokens 和 hint 跟随引导。
 ```
 
-### 14 个工具速览
+### 18 个工具速览
 
 > 工具名以 `src/mcp/server.ts` 的 `register(...)` 为准；`npm run check:artifacts` 会断言本文与 README
-> 对 14 个工具名全覆盖，并从 `dist/recall.js` 真跑一次采集验证发布产物契约。
+> 对 18 个工具名全覆盖，并从 `dist/recall.js` 真跑一次采集验证发布产物契约。
 
 <details>
-<summary><b>读工具（8 个）</b></summary>
+<summary><b>读工具（12 个）</b></summary>
 
 | 工具 | 何时用 |
 |------|--------|
@@ -388,6 +388,10 @@ AI 依据**工具描述**和**响应提示**决策。推荐把下面这段加进
 | `get_linked_sessions` | 查询已建立的会话关联 |
 | `suggest_related_sessions` | 以会话为锚找相关讨论（导航线索；内容仍以 `srelay_show` 为准） |
 | `srelay_lessons` | **查跨项目经验库**（全局）。给 `q` 按关键词检索、不给按重要度列出。这是「开场自动注入那 3 条」之外的深挖入口 —— 库变大后想找特定主题的既往教训时用它 |
+| `srelay_handoff` | 生成**五段交接包 markdown**（①现在到哪了 ②定过什么 ③还欠什么 ④下一步 ⑤坑），与 `srelay handoff` 同一实现；只读、不写文件 |
+| `srelay_doctor` | 体检结论（检查项数 / 通过 / 提示 / 失败 + 待修清单）；默认只读，`fix:true` 才执行安全自愈（只补已安装副本，不碰库与配置） |
+| `srelay_market` | 跨项目经验推荐：按工作区/领域/最近话题从全局库挑经验，**每条带「为什么」**；只读 |
+| `srelay_calibrate` | 检索权重**校准就绪度**：真实反馈样本数 / 门槛 30 / 够不够 / 该跑哪条命令；不跑基准、不改权重 |
 
 </details>
 

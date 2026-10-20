@@ -224,20 +224,21 @@ srelay semantic --disable  # 关回去（向量保留，检索立刻回退纯字
 | 面 | 是什么 | 个数 |
 |---|---|---|
 | **CLI** | `srelay` 的子命令：采集、检索、看板、地图、生命周期、维护 | `srelay --help` |
-| **MCP Server** | 给 Claude Code / ZCode 等客户端用；支持白名单裁剪 | 14 个工具 |
+| **MCP Server** | 给 Claude Code / ZCode 等客户端用；支持白名单裁剪 | 18 个工具 |
 | **DSH 插件** | 向 DeepSeek Harness 注册原生工具 + 开场简报 | 4 个工具 |
 | **面板** | 本地 Web：会话、决策、图谱、看板；数据直读 SQLite | — |
 | **ZCode / Codex 集成** | 简报注入与自动收尾 | — |
 
 <details>
-<summary><b>MCP 14 个工具</b>（点开）</summary>
+<summary><b>MCP 18 个工具</b>（点开）</summary>
 
 | 用途 | 工具 |
 |---|---|
 | 检索与阅读 | `srelay_search`（`kind` 选视角：sessions / decisions / unresolved / lessons / files / related）、`srelay_show`、`list_sessions`、`get_stats` |
 | 经验 | `srelay_lessons` |
 | 写入 | `save_note`、`annotate_session`、`set_scope` |
-| 交接 | `export_handoff`、`import_handoff` |
+| 交接 | `export_handoff`、`import_handoff`、`srelay_handoff`（五段交接包 markdown，只读） |
+| 体检与运维（只读） | `srelay_doctor`（体检结论；`fix:true` 才安全自愈）、`srelay_market`（跨项目经验推荐，每条带「为什么」）、`srelay_calibrate`（权重校准就绪度：样本数 / 门槛 30 / 够不够） |
 | 会话关联 | `link_sessions`、`get_linked_sessions`、`suggest_related_sessions`、`release_quarantine` |
 
 </details>

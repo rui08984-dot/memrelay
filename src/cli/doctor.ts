@@ -21,8 +21,10 @@ import { checkSources } from '../map/stale.js';
 // 自愈判据只有一份：检查与 --fix 都走 core/selfheal.ts（两份判据必然漂移成「体检说健康、修复按另一套改」）
 import { runSelfHeal, resolveSelfHealMode, type SelfHealReport, type SelfHealMode } from '../core/selfheal.js';
 
-type Level = 'ok' | 'warn' | 'err';
-interface Check { name: string; level: Level; detail: string; fix?: string }
+export type DoctorLevel = 'ok' | 'warn' | 'err';
+
+/** 单项体检结论（结构化：MCP 侧直接返回，不抓屏） */
+export interface DoctorCheck { name: string; level: DoctorLevel; detail: string; fix?: string }
 
 /** 收集本机技能/规则文档的正文行（去空白），供"决策是否为文档原文残片"比对用。
  *  只扫常见位置，找不到就返回空数组——比对是增强项，不是必需项。 */
@@ -104,8 +106,19 @@ function printSelfHeal(report: SelfHealReport, mode: SelfHealMode): void {
   }
 }
 
-export async function cmdDoctor(opts: DoctorOptions = {}): Promise<void> {
-  const checks: Check[] = [];
+export interface DoctorReport {
+  checks: DoctorCheck[];
+  heal: SelfHealReport;
+  mode: SelfHealMode;
+  counts: { total: number; ok: number; warn: number; err: number };
+}
+
+/**
+ * 体检的**唯一判据路径**：检查项与自愈都只在这里跑，调用方（CLI 打屏 / MCP 结构化返回）
+ * 只负责呈现，不许复制任何一条检查（两份判据必然漂移成「体检说健康、修复按另一套改」）。
+ */
+export async function runDoctorChecks(opts: DoctorOptions = {}): Promise<DoctorReport> {
+  const checks: DoctorCheck[] = [];
 
   // 1 Node 版本（engines 要求 >=22；better-sqlite3/jieba 预编译按新 ABI 分发）
   const [maj] = process.versions.node.split('.').map(Number);
@@ -438,23 +451,35 @@ export async function cmdDoctor(opts: DoctorOptions = {}): Promise<void> {
     } catch (e) { checks.push(c('记忆质量', 'warn', (e as Error).message)); }
   }
 
-  for (const k of checks) {
-    const icon = k.level === 'ok' ? pc.green('✅') : k.level === 'warn' ? pc.yellow('⚠️ ') : pc.red('❌');
-    console.log(`${icon} ${k.name.padEnd(18)} ${k.detail}${k.fix ? pc.dim(`  → ${k.fix}`) : ''}`);
-  }
-
   // ── 自愈：已知且安全的两类（默认 dry-run；--fix 才动手）──
   // 放在检查之后：先看见哪里坏了，再看见「已经修了什么 / 为什么没修」。
   // 失败只计数不抛出：一项修不动不该让整份体检崩掉，也不该掩盖其它项的结果。
   const mode = resolveSelfHealMode(opts);
   const heal = runSelfHeal({ apply: mode.apply });
+
+  const counts = {
+    total: checks.length,
+    ok: checks.filter((k) => k.level === 'ok').length,
+    warn: checks.filter((k) => k.level === 'warn').length,
+    err: checks.filter((k) => k.level === 'err').length,
+  };
+  return { checks, heal, mode, counts };
+
+  function c(name: string, level: DoctorLevel, detail: string, fix?: string): DoctorCheck { return { name, level, detail, fix }; }
+}
+
+/** CLI 呈现层：只打屏，不产生判据（判据与自愈都在 runDoctorChecks 里，MCP 共用同一条路）。 */
+export async function cmdDoctor(opts: DoctorOptions = {}): Promise<void> {
+  const { checks, heal, mode, counts } = await runDoctorChecks(opts);
+
+  for (const k of checks) {
+    const icon = k.level === 'ok' ? pc.green('✅') : k.level === 'warn' ? pc.yellow('⚠️ ') : pc.red('❌');
+    console.log(`${icon} ${k.name.padEnd(18)} ${k.detail}${k.fix ? pc.dim(`  → ${k.fix}`) : ''}`);
+  }
+
   printSelfHeal(heal, mode);
 
-  const errs = checks.filter((k) => k.level === 'err').length;
-  const warns = checks.filter((k) => k.level === 'warn').length;
-  console.log(pc.dim(`\n${checks.length} 项检查：${checks.length - errs - warns} 通过 · ${warns} 提示 · ${errs} 失败`));
+  console.log(pc.dim(`\n${counts.total} 项检查：${counts.ok} 通过 · ${counts.warn} 提示 · ${counts.err} 失败`));
   // 修复失败也算失败退出：静默成功比没有更坏（它会让人以为已经修好了）
-  if (errs > 0 || heal.counts.failed > 0) process.exit(1);
-
-  function c(name: string, level: Level, detail: string, fix?: string): Check { return { name, level, detail, fix }; }
+  if (counts.err > 0 || heal.counts.failed > 0) process.exit(1);
 }

@@ -1,0 +1,5 @@
+# 会话接力隐私排除（语法：gitignore 子集）
+# source:zcode            ← 排除某个 agent 来源的所有会话
+# title:绩效               ← 标题含关键词的会话不入库
+# *.tmp.jsonl             ← 匹配源文件路径的 glob
+# secrets/                ← 目录前缀匹配

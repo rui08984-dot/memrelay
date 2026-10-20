@@ -168,7 +168,7 @@
 | 面 | 入口 | 写什么 |
 |---|---|---|
 | CLI | `src/bin/srelay.ts` | 全部能力；子命令表见 `srelay --help` |
-| MCP Server | `src/mcp/server.ts` | 14 个工具，可通过 `SRELAY_MCP_TOOLS` 白名单裁剪 |
+| MCP Server | `src/mcp/server.ts` | 18 个工具，可通过 `SRELAY_MCP_TOOLS` 白名单裁剪 |
 | DSH 插件 | `integrations/dsh/` | 4 个原生工具 + 开场简报 |
 | 面板 | `src/panel/` | 只读；快照直接从 SQLite 读 |
 | ZCode / Codex | `integrations/`（工作区仓） | 简报注入 + 会话收尾 |

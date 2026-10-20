@@ -18,7 +18,7 @@ import { openExisting, listSessions, listDecisions, listUnresolved,
 import { searchSessions } from '../search-svc/engine.js';
 import { groupSessions } from '../search-svc/session-groups.js';
 // [10-19 任务 D] 零模型检索自校准第一步：只采集 open 事件，不改检索结果/排序。
-import { rememberSearch, recordSearchOpen } from '../search-svc/feedback.js';
+import { rememberSearch, recordSearchOpen, feedbackStats, MIN_OPENS_FOR_CALIBRATION } from '../search-svc/feedback.js';
 import { runExport, runExportMarkdown } from '../relay/export.js';
 import { runImport, runRelease } from '../relay/import.js';
 import { ZipSlipError, IntegrityError } from '../relay/hop.js';
@@ -36,6 +36,12 @@ import { loadScopeFile, saveScopeFile, makeScopeFile } from '../core/scope/scope
 //   任何手段去深挖。这个工具就是那条缺失的路：自动注入保底，需要时主动查。
 import { openGlobal, listLessons, searchLessons, liveImportance, isInjectable, INJECT_THRESHOLD } from '../store/global.js';
 import { resolveWorkspaceId, resolveDomain } from '../shared/workspace.js';
+// [1020] 四工具：handoff / doctor / market / calibrate 以前只能跑 CLI，AI 想用只能让用户敲命令。
+// 判据与渲染一律复用 CLI 唯一实现（buildHandoff→renderHandoff / runDoctorChecks / runMarket /
+// feedbackStats），这里只做「取上下文 + 结构化呈现」——不许复制格式、检查项或排序。
+import { buildHandoff } from '../cli/handoff.js';
+import { runDoctorChecks } from '../cli/doctor.js';
+import { runMarket } from '../cli/market.js';
 
 /** 一次工具调用时的服务上下文（连接内可随项目选中而切换） */
 export interface ServeCtx { root: string; db: DB; cfg: RelayConfig; project: string }
@@ -61,7 +67,7 @@ const zPred = {
   until: z.string().optional().describe('ISO 日期上界'),
 };
 
-// 多项目参数（design-serve-resolve §6）：全部 16 工具可选；选中后本连接记住
+// 多项目参数（design-serve-resolve §6）：全部 18 工具可选；选中后本连接记住
 const zProject = {
   project: z.string().optional().describe('项目根绝对路径。仅当服务端提示 unresolved_project（多项目/未自动识别）时选择传此参；传一次后本连接记住'),
 };
@@ -111,15 +117,17 @@ function toolAllowlist(): Set<string> | null {
 /** 全部工具名（用于白名单完整性校验与 selftest 断言） */
 // ⚠️ 这张表必须**逐字覆盖**下面每一个注册调用的名字（2026-10-18 实测漏过 srelay_lessons）：
 //   漏一个的后果不是崩，而是「全写白名单 = 走全注册」那条优化对它静默失效 ——
-//   用户把 14 个全列上、以为走了白名单，实际走的是全注册分支，行为一样但判据已经错了。
+//   用户把 18 个全列上、以为走了白名单，实际走的是全注册分支，行为一样但判据已经错了。
 //   新增工具时**必须同时改这里**；判据在 test/unit/mcp-tool-names.spec.ts（静态对拍，不靠手工数）。
 //   （措辞注意：这里不要写出注册调用的字面写法 —— scripts/check-artifacts.mjs 是按它计数的，
-//     注释长得像代码就会被数成第 15 个调用。）
+//     注释长得像代码就会被数成第 19 个调用。）
 const TOOL_NAMES = {
   srelay_search: 1, srelay_show: 1, list_sessions: 1, get_stats: 1, set_scope: 1,
   annotate_session: 1, save_note: 1, export_handoff: 1, import_handoff: 1,
   release_quarantine: 1, link_sessions: 1, get_linked_sessions: 1, suggest_related_sessions: 1,
   srelay_lessons: 1,
+  // [1020] 四工具：CLI 的交接包 / 体检 / 经验市场 / 校准就绪度有了 MCP 入口（与 DSH 插件同名同口径）
+  srelay_handoff: 1, srelay_doctor: 1, srelay_market: 1, srelay_calibrate: 1,
 } as const;
 
 export function buildServer(get: () => ServeCtx, select?: (p: string) => Promise<unknown>): McpServer {
@@ -150,6 +158,11 @@ export function buildServer(get: () => ServeCtx, select?: (p: string) => Promise
         throw e;
       }
     };
+
+  /** 结构化失败：与 guard 的 UnresolvedProject 分支同形（isError + JSON 载荷）。
+   *  纪律：工具失败必须让调用方看见原因 —— 不许静默返回空数组/空对象。 */
+  const failed = (error: string, extra: Record<string, unknown> = {}) =>
+    ({ isError: true, ...toolOut({ ok: false, error, ...extra }) });
 
   /** 命中不足提示（方针 §6.4）：返回 scope 外还有多少可用 */
   const buildHint = (db: DB, cfg: RelayConfig, project: string, callPred: ScopePredicate, hitCount: number): string | null => {
@@ -581,6 +594,173 @@ const hits = searchSessions(cur.db, { project: cur.project, query: args.query, l
     } finally { try { gdb?.close(); } catch { /* 已关 */ } }
   }));
 
+  // ══════════ 四工具（与 DSH 插件侧同名同口径；只读语义） ══════════
+  // 为什么放进 MCP：handoff / doctor / market / calibrate 此前只有 CLI 入口，AI 想用只能
+  // 「让用户去敲命令」—— 这不是能力缺失，是入口缺失。四条都只读（doctor 默认只读，
+  // fix:true 是调用方显式选择），所以与检索类工具同域。
+  // 判据/渲染一律复用 CLI 唯一实现，这里只做「取上下文 + 结构化呈现」：
+  //   handoff → cli/handoff.ts 的 buildHandoff（内部就是 renderHandoff，五段格式不另写）
+  //   doctor  → cli/doctor.ts 的 runDoctorChecks（检查项与自愈只在那一个函数里）
+  //   market  → cli/market.ts 的 runMarket（取数/排序复用 core/lessons/market.ts）
+  //   calibrate → search-svc/feedback.ts 的 feedbackStats + MIN_OPENS_FOR_CALIBRATION
+
+  register('srelay_handoff', {
+    title: '生成五段交接包（只读）',
+    description: '把项目记忆拼成一份可直接转发的**五段交接包 markdown**：①现在到哪了 ②定过什么 ③还欠什么 ④下一步 ⑤坑（已验证经验）。'
+      + '何时用：接手项目/交接给同事或下一个会话、想一眼看全「现状+结论+欠账+下一步+踩过的坑」时。'
+      + '与 CLI `srelay handoff` 完全同一实现（renderHandoff，唯一格式），带出处可回查。'
+      + '**只读**：不写库、不写文件；要落盘请用 CLI 的 --out。返回的 markdown 字段就是那份文本。',
+    inputSchema: { ...zProject },
+  }, guard(async () => {
+    const { root, db, project } = get();
+    try {
+      const built = buildHandoff({ db, project, root });
+      return toolOut({
+        ok: true,
+        project,
+        readonly: true,
+        sections: ['① 现在到哪了', '② 定过什么', '③ 还欠什么', '④ 下一步', '⑤ 坑（已验证经验）'],
+        bytes: Buffer.byteLength(built.markdown, 'utf8'),
+        markdown: built.markdown,
+        note: '与 CLI `srelay handoff` 同一个 renderHandoff；只读、不写文件。要落盘用 CLI --out',
+      });
+    } catch (e) {
+      return failed('交接包生成失败：' + (e as Error).message, {
+        hint: '先确认项目库可读（srelay status / srelay sync），再重试',
+      });
+    }
+  }));
+
+  register('srelay_doctor', {
+    title: '自检体检（默认只读）',
+    description: '跑一遍体检：Node/FTS5/分词、数据源、库完整性、守护进程、记忆质量（注入污染/重复/地图落后）等，'
+      + '返回检查项数、通过/提示/失败、待修项清单。参数 fix 默认 false=**只体检、不改任何东西**；'
+      + 'fix:true 才执行**安全自愈**（只补已安装插件副本的缺文件 / 面板 vendor 落后，不碰库、不重启进程、不改配置），'
+      + '并返回「修了什么 / 跳过什么 / 为什么」。检查与自愈都复用 CLI 的同一份判据。',
+    inputSchema: {
+      fix: z.boolean().optional().describe('默认 false：只体检不改动；true：执行安全自愈（只补插件副本缺文件 / 面板 vendor 落后）'),
+      ...zProject,
+    },
+  }, guard(async (args: { fix?: boolean }) => {
+    const apply = args.fix === true;
+    try {
+      const rep = await runDoctorChecks({ fix: apply });
+      const okCount = rep.counts.ok;
+      const pending = rep.checks
+        .filter((k) => k.level !== 'ok')
+        .map((k) => ({ name: k.name, level: k.level, detail: k.detail, fix: k.fix ?? null }));
+      return toolOut({
+        ok: rep.counts.err === 0 && rep.heal.counts.failed === 0,
+        readonly: !rep.mode.apply,
+        mode: { apply: rep.mode.apply, note: rep.mode.note ?? null },
+        summary: rep.counts,
+        summaryText: rep.counts.total + ' 项检查：' + okCount + ' 通过 · ' + rep.counts.warn
+          + ' 提示 · ' + rep.counts.err + ' 失败',
+        pending,
+        selfHeal: {
+          apply: rep.heal.apply,
+          counts: rep.heal.counts,
+          steps: rep.heal.steps.map((s) => ({ label: s.label, status: s.status, summary: s.summary })),
+          notes: rep.heal.notes,
+        },
+        note: apply
+          ? '自愈只补「已安装副本」的缺文件 / 落后 vendor；不碰库、不重启进程、不改配置。副本更新需重启 DSH 才生效'
+          : '默认只读：传 fix:true 才会动手（依然只动已安装副本，不碰库与配置）',
+      });
+    } catch (e) {
+      return failed('体检执行失败：' + (e as Error).message);
+    }
+  }));
+
+  register('srelay_market', {
+    title: '跨项目经验推荐（只读）',
+    description: '按当前项目的工作区/领域/最近话题，从**全局经验库**推荐最该借鉴的别处经验，每条都带「为什么」（命中话题/同领域/复用次数…）。'
+      + '何时用：动手前想知道同类项目踩过什么坑、或想主动深挖经验层（开场只自动注入 3 条）。'
+      + '不传 topics 时用本项目最近会话的话题。返回 score 只表示相对排序；injectable 表示它现在真能进注入层。'
+      + '**只读**：两个库都只读打开，不建表、不写库。',
+    inputSchema: {
+      topics: z.array(z.string()).optional().describe('查询话题；不传=本项目最近会话的话题'),
+      limit: z.number().optional().describe('最多几条（默认 5，上限 50）'),
+      ...zProject,
+    },
+  }, guard(async (args: { topics?: string[]; limit?: number }) => {
+    const { root } = get();
+    try {
+      const rep = runMarket(root, args.topics ?? [], args.limit);
+      return toolOut({
+        ok: true,
+        readonly: true,
+        workspaceId: rep.workspaceId,
+        domain: rep.domain ?? null,
+        topics: rep.topics,
+        limit: rep.limit,
+        count: rep.items.length,
+        summary: rep.items.length > 0
+          ? '共 ' + rep.items.length + ' 条'
+          : '无推荐' + (rep.note ? '（' + rep.note + '）' : ''),
+        items: rep.items.map((it) => ({
+          id: it.lesson.id,
+          text: it.lesson.text,
+          scope: it.lesson.scope,
+          grade: it.lesson.grade,
+          status: it.lesson.status,
+          score: it.score,
+          reason: it.reason,
+          uses: Number(it.lesson.uses ?? 0),
+          hits: Number(it.lesson.hits ?? 0),
+          injectable: isInjectable(it.lesson),
+        })),
+        ...(rep.note ? { note: rep.note } : {}),
+        hint: '只读推荐：能不能进上下文仍由可见性（visibleWhere）+ 注入闸（isInjectable）共同决定',
+      });
+    } catch (e) {
+      return failed('经验市场读取失败：' + (e as Error).message, {
+        hint: '全局经验库损坏/被占用不影响本项目检索；可用 srelay lesson list 复查全局库',
+      });
+    }
+  }));
+
+  register('srelay_calibrate', {
+    title: '检索权重校准就绪度（只读）',
+    description: '检索排序权重的**校准就绪度检查**：真实反馈样本数（open 事件）/ 门槛 30 / 够不够 / 该跑哪条命令。'
+      + '**不跑基准、不写库、不改权重** —— 只回答「现在该不该调权重」。'
+      + '样本不足时明确返回「样本不足，保持默认」，并给攒样本的两步（先 search 再 5 分钟内 show）。',
+    inputSchema: { ...zProject },
+  }, guard(async () => {
+    const { project } = get();
+    let stats: ReturnType<typeof feedbackStats>;
+    try {
+      stats = feedbackStats({ project });
+    } catch (e) {
+      return failed('反馈库读取失败：' + (e as Error).message, {
+        hint: '反馈是旁路数据：它坏了不影响检索与简报；确认磁盘可写后用 srelay_doctor 复查',
+      });
+    }
+    const enough = stats.total >= MIN_OPENS_FOR_CALIBRATION;
+    return toolOut({
+      ok: true,
+      readonly: true,
+      project,
+      samples: stats.total,
+      threshold: MIN_OPENS_FOR_CALIBRATION,
+      enough,
+      verdict: enough
+        ? '样本已够：可以跑校准（只给建议，不自动改配置）'
+        : '样本不足，保持默认：' + stats.total + ' / ' + MIN_OPENS_FOR_CALIBRATION
+          + ' —— 攒够之前不调权重（几个样本的手感不是证据）',
+      command: 'npx tsx scripts/calibrate-weights.ts',
+      detail: {
+        searches: stats.searches,
+        queries: stats.queries,
+        sessions: stats.sessions,
+        avgPosition: stats.avgPosition,
+        firstAt: stats.firstAt,
+        lastAt: stats.lastAt,
+      },
+      note: '本工具只报就绪度：不跑基准、不写库、不改配置；改权重是人的动作',
+    });
+  }));
+
   register('set_scope', {
     title: '调整检索边界（逃生口）',
     description: '收得太紧时的放宽通道：mode:"full" 解除裁剪（隐私 ignore 永不受影响）；或设置新过滤条件',
@@ -737,7 +917,8 @@ const hits = searchSessions(cur.db, { project: cur.project, query: args.query, l
     return toolOut({ ok: true, sessionId: s.id, count: links.length, links });
   }));
 
-  // 第 14 个工具（design-related）：算法发现的相关会话——与 get_linked_sessions（显式建立）语义不同
+  // design-related：算法发现的相关会话——与 get_linked_sessions（显式建立）语义不同
+  // （1020 加四工具后它不再是「第 14 个」；顺序不表态，工具清单以 TOOL_NAMES 为准）
   register('suggest_related_sessions', {
     title: '相关会话推荐',
     description: '推荐与某会话主题相关的其他历史会话（算法发现，非显式关联）。何时用：正在看一个会话想知道"还有哪些相关讨论"、开新会话前想找可 attach 的历史、记不清关键词搜不到时以会话为锚找线索。注意：推荐仅为导航线索，内容以 srelay_show 为准',
