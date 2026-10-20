@@ -7,6 +7,7 @@ import { openRelayDb } from './ui.js';
 import { openStats } from '../core/stats/counter.js';
 
 export async function cmdSync(opts: { backfill?: string; json?: boolean }): Promise<void> {
+  const t0 = Date.now();   // [1021 好用] 耗时统一在这里算（含取数+判定+看板刷新）
   const root = requireRoot();
   const cfg = loadConfig(root);
   const db = openRelayDb(root);
@@ -26,7 +27,18 @@ export async function cmdSync(opts: { backfill?: string; json?: boolean }): Prom
       cooldownH: cfg.capture.cooldown_hours,
     });
     if (opts.json) { console.log(JSON.stringify({ ...s, judge: j }, null, 2)); return; }
-    console.log(`同步完成：发现 ${s.discovered} · 新会话 ${s.newSessions} · 新消息 ${s.newMessages} · resumed ${s.resumed}${s.blocked ? pc.yellow(` · 拦截 ${s.blocked}`) : ''}`);
+    // [1021 好用] 「发现 1000 场却 0 新增」必须有解释：把「跳过（内容没变）」与耗时一起说出来，
+    //   否则用户只会觉得采集卡住了/坏了（本仓最嫌恶的静默）。
+    const ms = Date.now() - t0;
+    // 口径：核对 = 真正走到「读源文件/比签名」的那部分（发现 − 拦截）；复用 = 签名没变直接跳过。
+    //   这样「发现 1000 场却 0 新增」能自己解释，不用人去猜（实测冷进程约 11s，全花在核对上）。
+    const checked = Math.max(0, s.discovered - s.blocked - s.skipped);
+    console.log(
+      `同步完成：发现 ${s.discovered} · 新会话 ${s.newSessions} · 新消息 ${s.newMessages} · 核对 ${checked} 场已知会话`
+      + (s.skipped ? ` · 复用 ${s.skipped}（签名未变）` : '')
+      + (s.blocked ? pc.yellow(` · 拦截 ${s.blocked}`) : '')
+      + ` · 用时 ${ms}ms`,
+    );
     if (j.toPending || j.confirmed) console.log(pc.dim(`判定：${j.toPending} 转 pending · ${j.confirmed} 确认`));
     // 语义 digest（守护不在时的补嵌路径；未启用时零开销短路）
     const { digestSemantic } = await import('../search-svc/semantic.js');

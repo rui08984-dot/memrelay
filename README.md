@@ -244,6 +244,14 @@ srelay semantic --disable  # 关回去（向量保留，检索立刻回退纯字
 </details>
 
 `SRELAY_MCP_TOOLS` 白名单可以只暴露你要的几个（运维类工具不必每轮都进上下文）。
+
+**推荐白名单**（8 个，实测常驻约 **1.3k tokens**，是全量 16 个的四成）：
+
+```
+srelay_search,srelay_show,srelay_lessons,list_sessions,save_note,get_stats,srelay_handoff,srelay_health
+```
+
+覆盖「查 / 看 / 记 / 交接 / 体检」五件事；`set_scope`、`annotate_session`、`link_sessions`、`import_handoff` 等运维写入类按需再加。
 注意代码里有一条判据：**白名单写满全部工具 = 等于没设**——"想裁剪"必须真的裁，不能靠留空。
 
 ---

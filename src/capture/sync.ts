@@ -47,6 +47,8 @@ export interface SyncStats {
   resumed: number;
   badLines: number;
   blocked: number;
+  /** [1021 好用] 因「内容没变」而跳过的会话数：用来解释「发现 1000 场却 0 新增」。 */
+  skipped: number;
   warnings: string[];  // 改动 3：compaction 丢数据警告等
 }
 
@@ -97,7 +99,7 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
   const root = opts.projectRoot;
   const cfg = opts.config;
   const mode = cfg.capture.mode;
-  const result: SyncStats = { mode, discovered: 0, newSessions: 0, newMessages: 0, updatedMessages: 0, resumed: 0, badLines: 0, blocked: 0, warnings: [] };
+  const result: SyncStats = { mode, discovered: 0, newSessions: 0, newMessages: 0, updatedMessages: 0, resumed: 0, badLines: 0, blocked: 0, skipped: 0, warnings: [] };
 
   if (mode === 'off') return result;
 
@@ -206,7 +208,10 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
         const sig = probe
           ? probe.get(ds.sourceSessionId)
           : (ds.mtimeMs !== undefined ? `${ds.mtimeMs}:${ds.sizeBytes}` : undefined);
-        if (sig !== undefined && syncWatermark.get(wmKey) === sig && knownSessions.has(wmKey)) continue;
+        if (sig !== undefined && syncWatermark.get(wmKey) === sig && knownSessions.has(wmKey)) {
+          result.skipped++   // [1021 好用] 让「发现 N 场却没有新增」有解释
+          continue;
+        }
 
         // ⚠️ per-session 隔离（红队 P1#3 的另一半）：原来一场会话读失败 ⇒ 整轮中断，
         //   同源后续的健康会话也全不采。单场坏就单场坏，别连坐。
@@ -301,7 +306,7 @@ export async function captureSessions(opts: {
   stats?: StatsCounter;
 }): Promise<SyncStats> {
   const cfg = opts.config;
-  const result: SyncStats = { mode: 'manual', discovered: opts.sessions.length, newSessions: 0, newMessages: 0, updatedMessages: 0, resumed: 0, badLines: 0, blocked: 0, warnings: [] };
+  const result: SyncStats = { mode: 'manual', discovered: opts.sessions.length, newSessions: 0, newMessages: 0, updatedMessages: 0, resumed: 0, badLines: 0, blocked: 0, skipped: 0, warnings: [] };
   const ignoreRules = loadIgnoreRules(opts.projectRoot);
   const tombstones = loadTombstones(opts.db);
   const projectId = cfg.identity.project_id ?? projectIdOf(opts.projectRoot);
