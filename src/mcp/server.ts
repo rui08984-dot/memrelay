@@ -59,17 +59,17 @@ function toolOut(obj: unknown) {
 }
 
 const zPred = {
-  topic: z.string().optional().describe('按话题过滤（精确）'),
-  tag: z.string().optional().describe('按用户标签过滤'),
-  file: z.string().optional().describe('按涉及文件前缀过滤'),
-  source: z.string().optional().describe('按来源 agent 过滤：claude-code | zcode | …'),
-  since: z.string().optional().describe('ISO 日期下界'),
-  until: z.string().optional().describe('ISO 日期上界'),
+  topic: z.string().optional().describe('话题'),
+  tag: z.string().optional().describe('标签'),
+  file: z.string().optional().describe('文件前缀'),
+  source: z.string().optional().describe('来源：claude-code|zcode|…'),
+  since: z.string().optional().describe('ISO 起'),
+  until: z.string().optional().describe('ISO 止'),
 };
 
 // 多项目参数（design-serve-resolve §6）：全部 18 工具可选；选中后本连接记住
 const zProject = {
-  project: z.string().optional().describe('项目根绝对路径。仅当服务端提示 unresolved_project（多项目/未自动识别）时选择传此参；传一次后本连接记住'),
+  project: z.string().optional().describe('项目根路径（仅 unresolved_project 时传；记住）'),
 };
 
 type zPredShape = { topic?: string; tag?: string; file?: string; source?: string; since?: string; until?: string };
@@ -349,15 +349,15 @@ const hits = searchSessions(cur.db, { project: cur.project, query: args.query, l
 
   register('srelay_show', {
     title: '会话详情',
-    description: '取某会话的消息（可按角色过滤、限制范围与长度）。默认安全：最多 20 条 × 1000 字 ≈ 20KB。要更多请显式传 start_msg/end_msg 或 max_chars。session_id 支持前缀',
+    description: '取某会话的消息（可按角色/范围/长度限制）。默认 20 条 × 1000 字 ≈ 20KB；要更多显式传 start_msg/end_msg 或 max_chars。session_id 支持前缀',
     inputSchema: {
       session_id: z.string(),
-      start_msg: z.number().optional().describe('起始消息序号（含）'),
-      end_msg: z.number().optional().describe('结束消息序号（含）'),
-      message_id: z.union([z.string(), z.number()]).optional().describe('消息稳定主键（出处块里的 msgId）。回跳单条出处时**优先用它**：seq 是位置索引，会话归档/裁剪后会漂'),
-      role: z.enum(['user', 'assistant']).optional().describe('只取该角色的消息（user=用户提问，轻量）'),
-      include_exchanges: z.boolean().optional().describe('附带关键往返（用户提问+AI结论对，约 3KB）——理解"为什么"的中间粒度，省去拉全文'),
-      max_chars: z.number().optional().describe('单条截断长度（默认 1000；需全文时显式传大值如 5000）'),
+      start_msg: z.number().optional().describe('起始序号（含）'),
+      end_msg: z.number().optional().describe('结束序号（含）'),
+      message_id: z.union([z.string(), z.number()]).optional().describe('msgId（回跳单条时优先用它，seq 会漂）'),
+      role: z.enum(['user', 'assistant']).optional().describe('只取该角色（user=提问，轻量）'),
+      include_exchanges: z.boolean().optional().describe('附带关键往返（约 3KB）'),
+      max_chars: z.number().optional().describe('单条截断（默认 1000）'),
       ...zProject,
     },
   }, guard(async (args: { session_id: string; start_msg?: number; end_msg?: number; message_id?: string | number; role?: 'user' | 'assistant'; include_exchanges?: boolean; max_chars?: number }) => {
