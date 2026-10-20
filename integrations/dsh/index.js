@@ -51,7 +51,7 @@ import { fileURLToPath } from 'node:url'
 // 历史上两侧手抄导致过滤器漂移（DSH 多一条而 ZCode 没有，用户日常在 ZCode 侧干活）。
 import { passesBriefFilters } from './src/brief-filters.mjs'
 import { resolveProjectRoot, shouldAutoInit } from './project-resolve.mjs'
-import { searchTool, showTool, rememberTool, projectTool, handoffTool, doctorTool, marketTool, calibrateTool } from './src/tools.js'
+import { searchTool, showTool, rememberTool, projectTool, handoffTool, healthTool, lessonsTool } from './src/tools.js'
 import { setStorageAdapter, disposeBindState } from './src/state.js'
 import { queryBriefData, sqlChannelAvailable, queryRecentFiles, foldPresentation, readRefCounts } from './src/brief-sql.mjs'
 import { registerHooks } from './src/hooks.mjs'
@@ -846,8 +846,8 @@ export function apply(ctx) {
   // [1020] 四个「以前只能敲命令」的能力做成工具：这样一句话（语音也行）就能触发，
   //   不用模型自己拼 shell。全部**只读语义**（doctor 的 fix 默认 false），
   //   与 MCP 侧同名工具口径一致（判据都在内核 CLI，插件只包一层参数）。
-  const allTools = [searchTool, showTool, rememberTool, projectTool,
-    handoffTool, doctorTool, marketTool, calibrateTool]
+  // [1020 精简] 4 → 7：交接包 / 系统健康(体检+校准合并) / 经验(列出+检索+跨项目推荐合并)
+  const allTools = [searchTool, showTool, rememberTool, projectTool, handoffTool, healthTool, lessonsTool]
   for (const t of allTools) {
     try { ctx.tools.register(t) } catch { /* 单个失败不拖垮其他 */ }
   }

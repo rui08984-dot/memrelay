@@ -153,9 +153,9 @@ try {
 check('apply 不抛异常', registerErr === null);
 if (registerErr) console.log('     异常:', registerErr.message);
 // defineTool 解析成功时，收集器必须收到全部工具；解析不到时必须是 0 而不是半注册。
-// [1020] 工具面：search / show / remember / project + handoff / doctor / market / calibrate = 8
-const expectedToolCount = 8;
-check('工具数只能是 0 或 8（不存在部分注册的中间态）',
+// [1020 精简] search / show / remember / project + handoff / health / lessons = 7（体检+校准合并、市场并入经验）
+const expectedToolCount = 7;
+check('工具数只能是 0 或 7（不存在部分注册的中间态）',
   tools2.length === 0 || tools2.length === expectedToolCount);
 console.log('     收集到', tools2.length, '个工具:', tools2.map(t => t.name ?? t.spec?.name ?? '?').join(', ') || '(裸 node 未解析 dsh-tools，属预期)');
 if (tools2.length) {
@@ -167,7 +167,7 @@ if (tools2.length) {
   check('包含 srelay_record', toolNames.includes('srelay_record'));
   check('包含 srelay_cancel_bind_project', toolNames.includes('srelay_cancel_bind_project'));
   // [1020] 四个"以前只能敲命令"的能力必须真的注册成工具（否则语音/自然语言只能靠模型拼 shell）
-  for (const n of ['srelay_handoff', 'srelay_doctor', 'srelay_market', 'srelay_calibrate']) {
+  for (const n of ['srelay_handoff', 'srelay_health', 'srelay_lessons']) {
     check('包含 ' + n + '（工具化，可被一句话触发）', toolNames.includes(n));
   }
 

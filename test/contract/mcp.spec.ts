@@ -125,7 +125,7 @@ describe('P7 · MCP 只读子集（SRELAY_MCP_TOOLS 白名单，Phase 1）', () 
     }
   }, 30000);
 
-  it('白名单写满全部 18 个 = 等于没设（走全注册，不会少一个）', async () => {
+  it('白名单写满全部 16 个 = 等于没设（走全注册，不会少一个）', async () => {
     const t = new StdioClientTransport({
       command: process.execPath,
       args: ['--import', `file:///${path.join(REPO, 'node_modules/tsx/dist/loader.mjs').replace(/\\/g, '/')}`, path.join(REPO, 'src/bin/srelay.ts'), 'serve'],
@@ -135,13 +135,13 @@ describe('P7 · MCP 只读子集（SRELAY_MCP_TOOLS 白名单，Phase 1）', () 
     //   说明这条测试真正测的是「两份名单是否一致」，而它自己的那份名单没人维护。
     //   ⇒ 现在两份都对到 18（[1020] 加 handoff/doctor/market/calibrate），TOOL_NAMES 那边有
     //     test/unit/mcp-tool-names.spec.ts 静态对拍兜底。
-    SRELAY_MCP_TOOLS: 'srelay_search,srelay_show,srelay_lessons,list_sessions,get_stats,set_scope,annotate_session,save_note,export_handoff,import_handoff,release_quarantine,link_sessions,get_linked_sessions,suggest_related_sessions,srelay_handoff,srelay_doctor,srelay_market,srelay_calibrate' } as Record<string, string>,
+    SRELAY_MCP_TOOLS: 'srelay_search,srelay_show,srelay_lessons,list_sessions,get_stats,set_scope,annotate_session,save_note,export_handoff,import_handoff,release_quarantine,link_sessions,get_linked_sessions,suggest_related_sessions,srelay_handoff,srelay_health' } as Record<string, string>,
       stderr: 'ignore',
     });
     const c = new Client({ name: 'srelay-full-wl', version: '0.0.0' });
     try {
       await c.connect(t);
-      expect((await c.listTools()).tools.length).toBe(18);
+      expect((await c.listTools()).tools.length).toBe(16);
     } finally {
       try { await c.close(); } catch {}
     }
@@ -149,14 +149,14 @@ describe('P7 · MCP 只读子集（SRELAY_MCP_TOOLS 白名单，Phase 1）', () 
 });
 
 describe('P3 · MCP 契约（stdio 真握手）', () => {
-  it('initialize + tools/list：18 个工具全部注册（Phase 1 检索四合一 + 1020 四工具后）+ 删除类名称黑名单扫描', async () => {
+  it('initialize + tools/list：16 个工具全部注册（Phase 1 检索四合一 + 1020 常驻能力合并后）+ 删除类名称黑名单扫描', async () => {
     const tools = await client.listTools();
     const names = tools.tools.map((t) => t.name).sort();
     expect(names).toEqual([
       'annotate_session', 'export_handoff', 'get_linked_sessions', 'get_stats',
       'import_handoff', 'link_sessions', 'list_sessions', 'release_quarantine',
-      'save_note', 'set_scope', 'srelay_calibrate', 'srelay_doctor', 'srelay_handoff',
-      'srelay_lessons', 'srelay_market', 'srelay_search', 'srelay_show',
+      'save_note', 'set_scope', 'srelay_handoff', 'srelay_health',
+      'srelay_lessons', 'srelay_search', 'srelay_show',
       'suggest_related_sessions',
     ]);
     // 不变量（forget 设计 §2 的真正意图）：删除是人的特权——工具名含删除语义即 fail，
@@ -333,8 +333,8 @@ describe('P3b · 四工具（handoff / doctor / market / calibrate，只读）',
     expect(out.sections).toHaveLength(5);
   });
 
-  it('srelay_doctor：返回检查项数 + 通过/提示/失败 + 待修清单（默认只读）', async () => {
-    const out = (await call('srelay_doctor', {})) as {
+  it('srelay_health(mode=check)：返回检查项数 + 通过/提示/失败 + 待修清单（默认只读）', async () => {
+    const out = (await call('srelay_health', { mode: 'check' })) as {
       readonly: boolean; mode: { apply: boolean };
       summary: { total: number; ok: number; warn: number; err: number };
       summaryText: string; pending: Array<{ name: string; level: string }>;
@@ -347,8 +347,8 @@ describe('P3b · 四工具（handoff / doctor / market / calibrate，只读）',
     expect(Array.isArray(out.pending)).toBe(true);
   }, 90000); // 体检会扫技能目录/库完整性，给它宽一点的超时
 
-  it('srelay_market：给出「共 N 条」或明确「无推荐」，每条都带「为什么」', async () => {
-    const out = (await call('srelay_market', { topics: ['检索'], limit: 3 })) as {
+  it('srelay_lessons(mode=market)：给出「共 N 条」或明确「无推荐」，每条都带「为什么」', async () => {
+    const out = (await call('srelay_lessons', { mode: 'market', topics: ['检索'], limit: 3 })) as {
       ok: boolean; readonly: boolean; count: number; summary: string;
       items: Array<{ text: string; reason: string; score: number }>;
     };
@@ -362,8 +362,8 @@ describe('P3b · 四工具（handoff / doctor / market / calibrate，只读）',
     }
   });
 
-  it('srelay_calibrate：只报就绪度（样本数/门槛/够不够），不跑基准', async () => {
-    const out = (await call('srelay_calibrate', {})) as {
+  it('srelay_health(mode=calibrate)：只报就绪度（样本数/门槛/够不够），不跑基准', async () => {
+    const out = (await call('srelay_health', { mode: 'calibrate' })) as {
       readonly: boolean; samples: number; threshold: number; enough: boolean;
       verdict: string; command: string;
     };
@@ -375,4 +375,3 @@ describe('P3b · 四工具（handoff / doctor / market / calibrate，只读）',
     if (!out.enough) expect(out.verdict).toContain('样本不足，保持默认');
   });
 });
-

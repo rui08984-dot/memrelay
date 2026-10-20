@@ -15,7 +15,7 @@ description: 交接、全资源地图与状态栈（原 handoff + project-atlas 
 > 合并理由：三者**本来就是同一条流水线的三段**——状态栈是「底座怎么跑」，交接件是「交给人看什么」，地图是「项目有什么」。
 > 分开维护的实测代价：handoff 的 B5-2 只是「指向 project-atlas」，常只刷文件全图、忘写现状节；而 state-stack 的看板填表纪律又与交接侧的看板同步各写一遍。
 
-> **适配版本**：本技能对齐 **SessionRelay v1.0.0+**（DSH **8 个**原生工具 / MCP `srelay serve` **18 个**）。
+> **适配版本**：本技能对齐 **SessionRelay v1.0.0+**（DSH **7 个**原生工具 / MCP `srelay serve` **16 个**）。
 > 2026-10-20 起：交接包 / 自愈体检 / 经验市场 / 校准就绪度**四个能力都做成了工具**，能一句话触发，不必手拼 shell。
 > ⚠️ v1.0.0 起 DSH 工具面从 14 合并为 4（`srelay_search` 吃 `kind` / `remember` / `project`）——
 > 旧工具名不再注册，按旧名字调会「工具不存在」。
@@ -107,7 +107,7 @@ description: 交接、全资源地图与状态栈（原 handoff + project-atlas 
 
 > 工具只读、不写文件、不动库；跑不动时会明说失败原因，不会给半份假交接件。
 
-**跨面一致性**：DSH 与 ZCode 走**同一份库、同一套工具**（DSH 8 个原生工具，ZCode 经 MCP `srelay serve` 18 个）。
+**跨面一致性**：DSH 与 ZCode 走**同一份库、同一套工具**（DSH 7 个原生工具，ZCode 经 MCP `srelay serve` 16 个）。
 任一边查到的结论，另一边必须也能查到。**查不到就是 bug，不是"这边没装"**。
 
 ---

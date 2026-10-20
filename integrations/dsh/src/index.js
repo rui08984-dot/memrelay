@@ -1,22 +1,22 @@
 // index.js — SessionRelay DSH 原生工具模块入口
 //
-// 导出 8 个原生工具实例以及统一注册函数 registerTools(ctx)，
+// 导出 7 个原生工具实例以及统一注册函数 registerTools(ctx)，
 // 供宿主插件或主线 index.js 在 apply(ctx) 阶段直接注入使用：
 //
 //   import { registerTools } from './src/index.js'
 //   export function apply(ctx) {
 //     registerTools(ctx)
 //   }
-import { searchTool, showTool, rememberTool, projectTool, handoffTool, doctorTool, marketTool, calibrateTool } from './tools.js'
+import { searchTool, showTool, rememberTool, projectTool, handoffTool, healthTool, lessonsTool } from './tools.js'
 import * as bindState from './state.js'
 import { execSrelay, clip } from './cli.js'
 
-export { searchTool, showTool, rememberTool, projectTool, handoffTool, doctorTool, marketTool, calibrateTool }
+export { searchTool, showTool, rememberTool, projectTool, handoffTool, healthTool, lessonsTool }
 export { bindState }
 export { execSrelay, clip }
 
 /**
- * 将 8 个原生工具一次性注册到 DSH tools 服务中
+ * 将 7 个原生工具一次性注册到 DSH tools 服务中
  * @param {{ tools: { register: (tool: any) => void } }} ctx DSH 插件上下文
  */
 export function registerTools(ctx) {
@@ -30,7 +30,6 @@ export function registerTools(ctx) {
   ctx.tools.register(projectTool)
   // [1020] 四个「以前只能敲命令」的能力：交接包 / 自愈体检 / 经验市场 / 校准就绪度
   ctx.tools.register(handoffTool)
-  ctx.tools.register(doctorTool)
-  ctx.tools.register(marketTool)
-  ctx.tools.register(calibrateTool)
+  ctx.tools.register(healthTool)
+  ctx.tools.register(lessonsTool)
 }

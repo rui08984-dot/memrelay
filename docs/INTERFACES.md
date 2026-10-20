@@ -1,6 +1,6 @@
 # 接口面
 
-**读这篇你会知道**：CLI / MCP / DSH 插件 / 面板各能做什么、18 个和 4 个是什么关系、以及为什么合并入口不等于砍能力。
+**读这篇你会知道**：CLI / MCP / DSH 插件 / 面板各能做什么、16 个和 7 个是什么关系、以及为什么合并入口不等于砍能力。
 
 **什么时候该读**：想接进自己的工具、工具列表对不上、或者要改某个面的行为。
 
@@ -23,7 +23,7 @@ DSH 插件是另一条路：它注册 4 个工具，并在会话开场自动注�
 | 现象 | 大概率原因 | 怎么办 |
 |---|---|---|
 | MCP 客户端看不到工具 | `serve` 没起，或客户端配置路径不对 | 先手跑 `srelay serve` 看有没有输出 |
-| DSH 插件工具数是 4，文档写 18 | 两套不同的面：MCP 18 个，DSH 合并成 4 个 | 见下文对照表 |
+| DSH 插件工具数是 4，文档写 18 | 两套不同的面：MCP 16 个，DSH 合并成 7 个 | 见下文对照表 |
 | 工具名在 README 里找不到 | 文档漏更新（曾有判据假绿半年） | 开 issue；门禁现在会拦 |
 | 插件改了没生效 | **改完没重新 vendor**，插件跑的是旧副本 | 重跑 vendor，再跑插件 selftest |
 
@@ -81,7 +81,7 @@ DSH 插件是另一条路：它注册 4 个工具，并在会话开场自动注�
 | `archive` | 归档旧会话正文 / 查看归档历史 |
 | `lesson` | 全局经验层：add/list/search/maintain/export |
 
-## MCP Server：18 个工具（11 读 + 7 写）
+## MCP Server：16 个工具（10 读 + 6 写；体检与校准合并、经验市场并入经验）
 
 全部注册在 `src/mcp/server.ts`，`srelay serve` 起 stdio 服务。**读**：`srelay_search`（kind=sessions/decisions/unresolved/files 四类合一）、`srelay_show`、`list_sessions`、`get_stats`、`srelay_lessons`、`get_linked_sessions`、`suggest_related_sessions`、`srelay_handoff`（五段交接包 markdown）、`srelay_doctor`（体检；默认只读）、`srelay_market`（跨项目经验推荐）、`srelay_calibrate`（权重校准就绪度）。**写**：`set_scope`（写 scope.json + scope_log）、`annotate_session`（标签/摘要）、`save_note`（建 note 会话）、`export_handoff`（写包文件）、`import_handoff`、`release_quarantine`、`link_sessions`。
 
@@ -121,7 +121,7 @@ DSH 插件是另一条路：它注册 4 个工具，并在会话开场自动注�
 
 ## 已知限制
 
-- MCP 工具数已对齐为 **18 个（11 读 + 7 写）**：README、user-guide、ARCHITECTURE 与本文件的表述在 1020 四工具上线时一起改过（此前 README 的「7 读 + 6 写」自相矛盾，已修）。
+- MCP 工具数已对齐为 **16 个（10 读 + 6 写）**：README、user-guide、ARCHITECTURE 与本文件的表述在 1020 四工具上线时一起改过（此前 README 的「7 读 + 6 写」自相矛盾，已修）。
 - README 说「三个适配器（integrations/ 目录）」（`README.md:70`），实际 `integrations/` 只有 `dsh` 一个；适配器在 `src/adapters/`。
 - `src/panel-entry.ts:8` 引用 `tools/check-panel-deps.mjs` 作为依赖闭包的守卫，但该文件在仓库里不存在（`tools/` 只有一个探针脚本），这条断言目前无实现。
 - `src/mcp/server.ts` 里 `suggest_related_sessions` 上方的「第 14 个工具」注释在 1020 加四工具后已过期，已改成不表态序号的写法；工具顺序以 `TOOL_NAMES` 为准。

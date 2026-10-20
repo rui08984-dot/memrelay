@@ -55,7 +55,7 @@ const ctx = {
 }
 
 registerTools(ctx)
-check('注册工具数量恰好为 8', registered.length === 8, `实际: ${registered.length}`)
+check('注册工具数量恰好为 7', registered.length === 7, `实际: ${registered.length}`)
 
 const toolMap = new Map(registered.map((t) => [t.name, t]))
 check('包含 srelay_search', toolMap.has('srelay_search'))
@@ -63,12 +63,12 @@ check('包含 srelay_show', toolMap.has('srelay_show'))
 check('包含 srelay_remember', toolMap.has('srelay_remember'))
 check('包含 srelay_project', toolMap.has('srelay_project'))
 // [1020] 四个「以前只能敲命令」的能力必须真的注册成工具
-for (const n of ['srelay_handoff', 'srelay_doctor', 'srelay_market', 'srelay_calibrate']) {
+for (const n of ['srelay_handoff', 'srelay_health', 'srelay_lessons']) {
   check('包含 ' + n, toolMap.has(n))
 }
 // [1026 工具面精简] 下面这几个名字**必须不在**：它们已经被合并进上面 4 个，
 //   还注册着就说明精简没真做（模型上下文一点没省）。
-for (const gone of ['srelay_decisions', 'srelay_unresolved', 'srelay_lessons', 'srelay_history',
+for (const gone of ['srelay_decisions', 'srelay_unresolved', 'srelay_history',
   'srelay_related', 'srelay_stats', 'srelay_pin', 'srelay_record', 'srelay_init',
   'srelay_bind_project', 'srelay_confirm_bind_project', 'srelay_cancel_bind_project']) {
   check(`已合并下线: ${gone} 不再注册`, !toolMap.has(gone))

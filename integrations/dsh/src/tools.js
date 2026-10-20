@@ -96,13 +96,8 @@ const resultSchema = {
  */
 export const searchTool = defineTool({
   name: 'srelay_search',
-  description: '记忆检索的唯一入口（一个工具六种视角，用 kind 选）。'
-    + 'kind=sessions（默认）：按关键词检索历史会话与讨论——想了解过往背景、曾讨论过的设计思路时用它。'
-    + 'kind=decisions：列本项目已确认决策（含被否掉的路），动手前先确认「是不是已经定过」。'
-    + 'kind=unresolved：列提出过但还没解决的问题。'
-    + 'kind=lessons：查跨项目经验库（自动注入那 3 条之外的深挖入口）。'
-    + 'kind=history：查某个文件被哪些会话讨论过（改文件前先看来历）。'
-    + 'kind=related：给一个会话 ID，找主题相关的其他会话。',
+  description: '检索本项目记忆，kind 选视角：sessions 搜会话（默认）、decisions 已定结论（含被否掉的路）、'
+    + 'unresolved 未解决、lessons 经验、history 某文件的来历、related 相似会话。用户说「之前/上次/定过吗」时用。',
   parameters: {
     kind: { type: 'string', description: 'sessions（默认）/ decisions / unresolved / lessons / history / related' },
     query: { type: 'string', description: '检索关键词（kind=sessions / lessons 用；多词空格分隔，如 "PostgreSQL 迁移"）' },
@@ -543,14 +538,23 @@ export const decisionsTool = describeTextTool({
  */
 export const lessonsTool = describeTextTool({
   name: 'srelay_lessons',
-  description: '查跨项目经验库（全局）。给 query 就按关键词检索，不给就按重要度列出。'
-    + '**这是开场自动注入那 3 条之外的深挖入口** —— 想找特定主题（如「检索排序」「分词器」「部署」）的既往教训时用它。'
-    + '输出里 ● 表示现在真会进注入层（状态/定级/阈值三样都过），○ 表示可查到但不会自动注入。',
+  description: '经验库：mode=list 列出、mode=search 检索、mode=market 从别的项目推荐（带「为什么」）。只读。',
   parameters: {
-    query: { type: 'string', description: '关键词（中文可；不填则按重要度列出）' },
-    limit: { type: 'number', description: '最多几条，默认 10' },
+    mode: { type: 'string', description: 'list | search（默认）| market' },
+    query: { type: 'string', description: '检索词；mode=market 时也当话题' },
+    topics: { type: 'string', description: 'mode=market：话题，空格分隔（不填=本项目最近话题）' },
+    limit: { type: 'number', description: '最多几条，默认 10（market 默认 5）' },
   },
   buildArgs: (a) => {
+    // [1020 合并] 原 srelay_market 并入这里（mode=market）：同一个问题「有没有能借用的经验」，
+    //   取数与排序仍走 CLI 的 market（唯一实现），不另写一套。
+    const mode = String(a.mode || (String(a.query || '').trim() ? 'search' : 'list')).trim()
+    if (mode === 'market') {
+      const t = String(a.topics || a.query || '').trim()
+      const arr = t ? t.split(/\s+/).filter(Boolean) : []
+      const n = Number(a.limit)
+      return ['market', ...arr, ...(Number.isFinite(n) && n > 0 ? ['--limit', String(n)] : [])]
+    }
     const q = String(a.query || '').trim()
     return q ? ['lesson', 'search', q, '--json'] : ['lesson', '--json']
   },
@@ -560,6 +564,8 @@ export const lessonsTool = describeTextTool({
   //   limit 在**排版层**截断：CLI 的 lesson 没有 --limit（顺序即重要度排序），
   //   但工具参数承诺了 limit —— 承诺了就得兑现，否则模型拿到 20 条还以为只返 3 条。
   format: (stdout, a) => {
+    // market 模式输出是人话（CLI 的 market 没有 --json），原样透传
+    if (String(a?.mode || '').trim() === 'market') return stdout
     try {
       const all = JSON.parse(stdout)
       if (!Array.isArray(all) || all.length === 0) return ''
@@ -624,69 +630,41 @@ export const pinTool = describeTextTool({
 /** 交接包：五段固定格式的交接文档（程序拼、每条带出处）。 */
 export const handoffTool = describeTextTool({
   name: 'srelay_handoff',
-  description: '生成「交接包」——固定五段（①现在到哪了 ②定过什么 ③还欠什么 ④下一步 ⑤坑），'
-    + '每条决策/未决都带 sessionId + msgId 出处，可直接转发给新会话或新同事。'
-    + '何时用：用户说「交接一下 / 换会话继续 / 写个接手文档」，或一个阶段收尾要交棒时。只读，不写文件。',
+  description: '交接包：五段（现状/定过什么/还欠什么/下一步/坑），每条带 sessionId+msgId 出处。用户说「交接一下 / 换会话继续」时用。只读。',
   parameters: {},
   buildArgs: () => ['handoff'],
   emptyHint: '交接包生成失败（项目尚未初始化或库里没有可交接的内容）。',
 })
 
-/** 自愈：只修已知安全项，默认只体检不改。 */
-export const doctorTool = describeTextTool({
-  name: 'srelay_doctor',
-  description: '环境自检（23 项：源目录/守护/库完整性/副本一致性/抽取版本…），每条带建议。'
-    + 'fix=true 时执行**安全自愈**（只修「插件副本缺文件」「面板 vendor 落后」这类已知项，绝不改数据库内容），'
-    + '默认 false = 只体检。何时用：用户说「体检一下 / 怎么没生效 / 修一下环境」。',
+/** 系统健康：体检 + 校准就绪度（合并；只读或显式修）。 */
+export const healthTool = describeTextTool({
+  name: 'srelay_health',
+  description: '系统健康：mode=check 查环境与库（fix=true 才修副本）；mode=calibrate 看检索反馈够不够调权重。默认只读。',
   parameters: {
-    fix: { type: 'boolean', description: 'true = 真的修（默认 false 只体检）' },
-  },
-  buildArgs: (a) => (a.fix ? ['doctor', '--fix'] : ['doctor']),
-  emptyHint: '体检没有输出（可能不是 srelay 项目目录）。',
-})
-
-/** 经验市场：跨项目推荐验证过的经验。 */
-export const marketTool = describeTextTool({
-  name: 'srelay_market',
-  description: '跨项目经验市场：按工作区/领域 + 话题词元重叠，从**别的项目**里挑验证过的经验给你，'
-    + '每条带「为什么推荐」（命中哪些词、复用几次）。只读。'
-    + '何时用：开新项目、换技术栈、或用户问「别的项目有没有踩过类似的坑」。',
-  parameters: {
-    topics: { type: 'string', description: '话题词，空格分隔（如「插件 部署」）；不填则按当前项目自动推断' },
+    mode: { type: 'string', description: 'check（默认）| calibrate' },
+    fix: { type: 'boolean', description: 'mode=check 时 true 才真修（默认 false 只体检）' },
   },
   buildArgs: (a) => {
-    const t = String(a.topics || '').trim()
-    return t ? ['market', ...t.split(/\s+/).filter(Boolean)] : ['market']
+    const mode = String(a.mode || 'check').trim()
+    if (mode === 'calibrate') return ['feedback', '--json']
+    return a.fix ? ['doctor', '--fix'] : ['doctor']
   },
-  emptyHint: '没有可推荐的经验（全局经验库为空，或话题词都不匹配）。',
-})
-
-/** 权重自校准：只报「现在够不够格跑」，不跑基准、不改配置。 */
-export const calibrateTool = describeTextTool({
-  name: 'srelay_calibrate',
-  description: '检索权重自校准的**就绪度检查**：真实反馈样本数 / 门槛（30）/ 够不够，以及该怎么跑。'
-    + '不会自动跑基准、绝不改配置 —— 出建议是人跑脚本的事。'
-    + '何时用：用户问「能不能调权重 / 检索还能不能更好」。',
-  parameters: {},
-  buildArgs: () => ['feedback', '--json'],
-  // CLI 的 --json 是给程序读的；这里转成人话（模型与用户都要能直接看懂）
-  format: (stdout) => {
+  format: (stdout, a) => {
+    if (String(a?.mode || 'check').trim() !== 'calibrate') return stdout
     try {
       const j = JSON.parse(stdout)
       const n = Number(j?.stats?.total ?? 0)
       const need = Number(j?.minOpens ?? 30)
-      const head = n >= need
-        ? '✅ 样本已够（' + n + ' / ' + need + '）：可以跑了'
-        : '⏳ 样本不足（' + n + ' / ' + need + '）：现在跑只会得到「保持默认」'
       return [
-        head,
-        '口径：真实反馈 = 「检索后 5 分钟内打开候选里的会话」记一条；平均名次 ' + (j?.stats?.avgPosition ?? '—'),
+        (n >= need ? '✅ 样本已够（' : '⏳ 样本不足（') + n + ' / ' + need + '）：'
+          + (n >= need ? '可以跑了' : '现在跑只会得到「保持默认」'),
         '跑法：npx tsx scripts/calibrate-weights.ts --n 60（只出建议，绝不改 config.json）',
       ].join('\n')
     } catch { return stdout }
   },
-  emptyHint: '读不到反馈数据（全局库不可用）。',
+  emptyHint: '没有输出（可能不是 srelay 项目目录）。',
 })
+
 
 /** 记一条结论，或把某条顶上去 —— 两件事的共同点是「让以后看得见」。 */
 export const rememberTool = defineTool({
@@ -723,11 +701,7 @@ export const rememberTool = defineTool({
 /** 这个项目的记忆库：建、切、看。 */
 export const projectTool = defineTool({
   name: 'srelay_project',
-  description: '项目记忆库的管理入口（action 选动作）。'
-    + 'init：为当前项目建库（可逆，只建 .sessionrelay 目录）；'
-    + 'bind：**提议**切换到另一个项目（两段式，本轮只提议、不生效）；'
-    + 'confirm / cancel：用户明确同意/反悔后，确认或撤销上面那条提议；'
-    + 'stats：看这个库的规模与健康（会话/决策/未决/归档/体积/守护是否在跑）。',
+  description: '项目库管理：init 建库（可逆）、bind 提议切换（两段式，不立即生效）、confirm/cancel 确认或撤销、stats 看规模与健康。',
   parameters: {
     action: { type: 'string', required: true, description: 'init / bind / confirm / cancel / stats' },
     projectPath: { type: 'string', description: '目标项目绝对路径（action=init / bind 用）' },
@@ -759,4 +733,3 @@ export const projectTool = defineTool({
     return spec.execute(args, exec)
   },
 })
-
