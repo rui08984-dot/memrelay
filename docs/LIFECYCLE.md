@@ -1,6 +1,6 @@
 # 生命周期
 
-**读这篇你会知道**：11 个阶段各自什么时候跑、干什么、哪个会删数据、以及「一排全绿」到底有多大信息量。
+**读这篇你会知道**：12 个阶段各自什么时候跑、干什么、哪个会删数据、以及「一排全绿」到底有多大信息量。
 
 **什么时候该读**：`srelay status` 里某个阶段一直失败、库越来越大、或者担心数据被删。
 
@@ -23,16 +23,18 @@ srelay status              # 各阶段最近一次结果
 | 某个阶段一直失败 | 该阶段的熔断在冷却 | 等冷却期过；持续失败看 `health_events` |
 | 库一直变大 | `cleanup` / `compact` 没跑或没生效 | 手动 `srelay lifecycle --only cleanup` |
 | 正文不见了，只剩决策 | `aging` 归档了（唯一会删正文的阶段） | 原文在客户端；归档不可逆，重要的先 `pin` |
-| 「11 阶段全 OK」但实际有问题 | `guard`/`repair` 曾恒真（已修） | 现在能真变红了；别只看绿勾，看具体计数 |
+| 「12 阶段全 OK」但实际有问题 | `guard`/`repair` 曾恒真（已修） | 现在能真变红了；别只看绿勾，看具体计数 |
 | 两个守护同时在跑 | `--install-service` 装了两遍 | `srelay status` 看进程数，多余的杀掉 |
 
 ---
 
-生命周期是框架内的一条流水线：11 个阶段按各自的节奏跑，状态与错误落进全局库，每次运行有单写入方锁，坏阶段进熔断冷却。它由守护进程（`srelay watch`）每 5 分钟检查一次「哪些阶段到期」来驱动（`../src/capture/watch.ts:485-500`），也可以手动 `srelay lifecycle` 跑一轮（`../src/bin/srelay.ts:377`）。
+生命周期是框架内的一条流水线：12 个阶段按各自的节奏跑，状态与错误落进全局库，每次运行有单写入方锁，坏阶段进熔断冷却。它由守护进程（`srelay watch`）每 5 分钟检查一次「哪些阶段到期」来驱动（`../src/capture/watch.ts:485-500`），也可以手动 `srelay lifecycle` 跑一轮（`../src/bin/srelay.ts:377`）。
 
 **不负责**：采集适配器本身的格式解析（那在 `../src/adapters/`）、检索打分、部署物。面板 HTML / 导出这类东西由宿主通过 `opts.distribute` 注入，内核不知道 DSH 面板是什么（`../src/core/lifecycle/runner.ts:499-502`）。
 
-![生命周期 11 阶段：五组、节奏、职责，aging 是唯一删正文的](./diagrams/lifecycle.png)
+![生命周期示意图：五组、节奏、职责，aging 是唯一删正文的](./diagrams/lifecycle.png)
+
+> 示意图当前未画 `audit`（24h、只读、NO_BREAKER）；阶段清单以本文表格为准。
 
 <sub>图源 [diagrams/lifecycle.mmd](./diagrams/lifecycle.mmd)，改完重渲染</sub>
 
@@ -53,6 +55,7 @@ srelay status              # 各阶段最近一次结果
 | `tags` | 标签图谱重建 | 86400s | heavy | 是 | 只写 note（`runner.ts:476`） |
 | `aging` | 老化压缩（老会话正文→摘要，结论留全） | 86400s | heavy | 是，且 `lossy` | 无逐项目兜底：任一项目抛错 → 整阶段红（`runner.ts:483-496`） |
 | `distribute` | 分发（简报段 / 面板 / 导出） | 900s | light | 否 | 无钩子时返回「未注入」（`runner.ts:500`），不算失败 |
+| `audit` | 审计契约（七项只读） | 86400s | light | **否（只读零写入）** | 永不进熔断（`NO_BREAKER`）；查出 P0 不算失败，P0 由简报首行告警 |
 
 「可失败」不是布尔值，是三条不同路径：**抛错**（任何阶段）、**显式 `{ok:false}`**（只有 `guard`/`repair` 用）、**只写进 note**（其余阶段的「部分库失败」）。这个区别决定了下面那排勾到底有多少信息量。
 
@@ -100,7 +103,7 @@ panel / srelay lifecycle --status 读同一张表
 
 CHANGELOG 记着这条修复（`../CHANGELOG.md:38-40`）：`guard` / `repair` 的 `ok` 曾经**恒真**——失败了只写进 note 就 return，`runOne` 一律记 `ok:true`。原文给的数量是「283 轮 11 阶段全 OK」，并明说这句话对 `guard` / `repair` / `extract` / `cleanup` 四个阶段**原本不携带任何信息**。`guard` 改成会真变红之后自己又进了熔断，于是补了 `NO_BREAKER`（`../CHANGELOG.md:40`）。
 
-现在的状态要说清楚：`guard` 与 `repair` 能真变红；`capture` 靠抛错变红；而 `extract` / `harvest` / `compact` / `cleanup` / `tags` 的「部分项目失败」仍然只写进 note，`ok` 为 true；`aging` 反过来没有逐项目兜底，一个项目抛错会让整阶段变红、同时丢掉其余项目本轮的结果。所以「11 个全绿」的含义是「11 个阶段都跑到了，且 `guard`/`repair`/`capture` 没红」，不等于 11 个阶段都验过。判据有多严，那排勾才有多可信。
+现在的状态要说清楚：`guard` 与 `repair` 能真变红；`capture` 靠抛错变红；而 `extract` / `harvest` / `compact` / `cleanup` / `tags` 的「部分项目失败」仍然只写进 note，`ok` 为 true；`aging` 反过来没有逐项目兜底，一个项目抛错会让整阶段变红、同时丢掉其余项目本轮的结果。所以「11 个全绿」的含义是「12 个阶段都跑到了，且 `guard`/`repair`/`capture` 没红」，不等于 12 个阶段都验过。判据有多严，那排勾才有多可信。
 
 ## aging：唯一会删正文的阶段
 

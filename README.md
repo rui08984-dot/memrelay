@@ -26,7 +26,7 @@ memrelay 干的事只有一件：**把这些对话在本地收下来，整理成
 ```
 采集（六个客户端） → 抽取（决策/话题/文件/未决） → 存储（SQLite + FTS5）
                                                       ↓
-                        生命周期（11 个阶段，含归档与经验沉淀）
+                        生命周期（12 个阶段，含归档与经验沉淀）
                                                       ↓
                           检索 / 简报 / 看板 / 地图 / 面板
 ```
@@ -85,7 +85,7 @@ srelay status                     # 会话数、消息数、各阶段最近一�
 | **抽取** `src/core/extract/` | 决策 / 话题 / 涉及文件 / 未决问题四件套；规则可整体重算 | 不读源文件（只读库里的正文） | [docs/EXTRACT.md](./docs/EXTRACT.md) |
 | **存储** `src/store/` | 两个库的 schema、FTS5 索引、归档与重建 | 不做检索排序 | [docs/STORE.md](./docs/STORE.md) |
 | **检索** `src/search-svc/` | 四路融合、长度惩罚、时间衰减、多库合并 | 不改数据 | [docs/SEARCH.md](./docs/SEARCH.md) |
-| **生命周期** `src/core/lifecycle/` | 11 个阶段的节奏、熔断、健康事件 | 不是流水线（各阶段独立） | [docs/LIFECYCLE.md](./docs/LIFECYCLE.md) |
+| **生命周期** `src/core/lifecycle/` | 12 个阶段的节奏、熔断、健康事件 | 不是流水线（各阶段独立） | [docs/LIFECYCLE.md](./docs/LIFECYCLE.md) |
 | **地图** `src/map/` `src/cli/map.ts` | 计划的结构真值：层、依赖边、状态、对账 | 不写 `progress.md` 的人写行 | [docs/MAP.md](./docs/MAP.md) |
 | **接口面** `src/bin/` `src/mcp/` `src/panel/` `integrations/` | CLI、MCP Server、面板、客户端集成 | 不各自定义数据口径 | [docs/INTERFACES.md](./docs/INTERFACES.md) |
 
@@ -162,11 +162,11 @@ srelay semantic --disable  # 关回去（向量保留，检索立刻回退纯字
 
 ---
 
-## 六、生命周期：11 个阶段
+## 六、生命周期：12 个阶段
 
-守护进程按各自的节奏跑 11 个阶段。不是流水线，是各自独立的定时任务——一个失败不该拖垮别的。
+守护进程按各自的节奏跑 12 个阶段。不是流水线，是各自独立的定时任务——一个失败不该拖垮别的。
 
-![生命周期 11 阶段](./docs/diagrams/lifecycle.png)
+![生命周期示意图](./docs/diagrams/lifecycle.png)
 
 *图源 [lifecycle.mmd](./docs/diagrams/lifecycle.mmd)*
 
@@ -183,11 +183,12 @@ srelay semantic --disable  # 关回去（向量保留，检索立刻回退纯字
 | `tags` | 标签图谱重建（检索扩展用） | 24 小时 | 是 |
 | `aging` | 老化压缩：老会话正文 → 摘要 | 24 小时 | **是，且有损** |
 | `distribute` | 分发（简报段 / 面板 / 导出） | 15 分钟 | 否 |
+| `audit` | 审计契约（七项只读：证据/碎片/冲突/源码对账/FTS） | 24 小时 | 否 |
 
 **`aging` 是唯一会删正文的阶段**，所以它的判据写得最紧：强度低于阈值、且不在保护名单里的会话才归档；
 归档前把决策与话题的骨架留下，正文蒸发。
 
-有一句话要说清楚：**「11 个阶段全绿」本身信息量有限**。`guard` / `repair` 曾经是「恒真」的——失败了只写进 note，`ok` 还是 true。
+有一句话要说清楚：**「12 个阶段全绿」本身信息量有限**。`guard` / `repair` 曾经是「恒真」的——失败了只写进 note，`ok` 还是 true。
 现在改成了能真变红，但这句话的含金量取决于每个阶段的判据有多严，而不是那排勾。
 
 ---

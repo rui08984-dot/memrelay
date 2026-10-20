@@ -18,7 +18,7 @@
 | [EXTRACT.md](./EXTRACT.md) | 决策·话题·文件·未决四件套、判据清单、规则版本 | 抽错了 / 想加判据 |
 | [STORE.md](./STORE.md) | 两个库、schema、FTS5、归档与重建 | 数据长什么样 / 迁移 |
 | [SEARCH.md](./SEARCH.md) | 四路融合、长度惩罚、时间衰减、实测与负结果 | 检索不准 / 调排序 |
-| [LIFECYCLE.md](./LIFECYCLE.md) | 11 个阶段、节奏、熔断、`aging` 的边界 | 守护在干什么 / 阶段红了 |
+| [LIFECYCLE.md](./LIFECYCLE.md) | 12 个阶段、节奏、熔断、`aging` 的边界 | 守护在干什么 / 阶段红了 |
 | [MAP.md](./MAP.md) | 地图结构真值、自动孵化、拓扑分层、增量同步 | 图不刷新 / 想分层 |
 | [INTERFACES.md](./INTERFACES.md) | CLI / MCP / DSH 插件 / 面板 / 集成 | 接新客户端 |
 | [map-cli.md](./map-cli.md) | `srelay map` 九动作的完整手册（参数、退出码、边界） | 用地图命令 |
