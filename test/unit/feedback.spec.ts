@@ -22,7 +22,9 @@ import {
   rememberSearch,
   recordSearchOpen,
   feedbackStats,
-  resetSearchMemory,
+  lastSearchStatus,
+  snapshotFileOf,
+  MIN_OPENS_FOR_CALIBRATION,
 } from '../../src/search-svc/feedback.js';
 
 // 固定时钟：用 Date.now() 的话，「5 分钟边界」这类用例会看运气。
@@ -35,19 +37,17 @@ beforeEach(() => {
   prevHome = process.env.SRELAY_GLOBAL_HOME;
   tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'sr-feedback-'));
   process.env.SRELAY_GLOBAL_HOME = path.join(tmp, 'global');
-  resetSearchMemory();
 });
 
 afterEach(() => {
   // **恢复**而不是 delete：delete 会让同一 worker 里后跑的用例回落到 ~/.sessionrelay（真库）。
   if (prevHome === undefined) delete process.env.SRELAY_GLOBAL_HOME;
   else process.env.SRELAY_GLOBAL_HOME = prevHome;
-  resetSearchMemory();
   try { fs.rmSync(tmp, { recursive: true, force: true }); } catch { /* 清理失败不影响结论 */ }
 });
 
 interface Row {
-  at: string; project: string; query_hash: string; query_len_bucket: string;
+  at: string; project: string; search_id: string | null; query_hash: string; query_len_bucket: string;
   position: number; session_id: string; open_kind: string;
 }
 
@@ -58,7 +58,7 @@ function rows(): Row[] {
     const t = g.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='search_feedback'").get();
     if (!t) return [];
     return g.prepare(
-      'SELECT at, project, query_hash, query_len_bucket, position, session_id, open_kind FROM search_feedback ORDER BY id',
+      'SELECT at, project, search_id, query_hash, query_len_bucket, position, session_id, open_kind FROM search_feedback ORDER BY id',
     ).all() as Row[];
   } finally { g.close(); }
 }
@@ -83,6 +83,7 @@ describe('检索自校准反馈采集（feedback）', () => {
     expect(got[0]).toEqual({
       at: new Date(T0 + 1_000).toISOString(),
       project: 'proj-a',
+      search_id: expect.any(String),   // 这次检索的身份（去重键），不是判据之外的巧合
       query_hash: queryHash('交接 文档'),
       query_len_bucket: '5-9',
       position: 1,
@@ -106,6 +107,7 @@ describe('检索自校准反馈采集（feedback）', () => {
 
     const s = feedbackStats();
     expect(s.total).toBe(3);
+    expect(s.searches).toBe(3);                      // 三次检索（search_id 各不相同）
     expect(s.queries).toBe(2);                       // '短'×2 只算一个查询
     expect(s.sessions).toBe(3);                      // a / b / e
     expect(s.avgPosition).toBe(2);                   // (1+2+3)/3
@@ -159,4 +161,57 @@ describe('检索自校准反馈采集（feedback）', () => {
 
     expect(rows()).toHaveLength(0);
   });
+it('跨进程：候选快照真的落盘，第二个进程读得回来（原实现只留内存 ⇒ CLI 永远借不到）', () => {
+    const r = rememberSearch('proj-a', '交接 文档', ['sess-a', 'sess-b'], { now: T0 });
+    expect(r.persisted).toBe(true);
+    expect(r.searchId.length).toBeGreaterThan(10);
+    expect(fs.existsSync(r.file)).toBe(true);
+    expect(r.file.startsWith(path.join(tmp, 'global'))).toBe(true);   // 落在临时全局目录，不碰 ~/.sessionrelay
+
+    // 快照里**不许**有正文/明文查询：只有 id、名次、指纹、长度桶
+    const raw = fs.readFileSync(r.file, 'utf8');
+    expect(raw).not.toContain('交接');
+    expect(JSON.parse(raw)).toMatchObject({ v: 1, project: 'proj-a', candidates: 2 });
+
+    const st = lastSearchStatus('proj-a', { now: T0 + 1_000 });
+    expect(st).toMatchObject({ exists: true, expired: false, candidates: 2, note: null });
+    expect(st.queryHash).toBe(queryHash('交接 文档'));
+
+    const rec = recordSearchOpen({ project: 'proj-a', sessionId: 'sess-b', openKind: 'cli_show', now: T0 + 1_000 });
+    expect(rec).toMatchObject({ recorded: true, position: 2 });
+    expect(rows()[0].search_id).toBe(r.searchId);                     // 去重键 = 这次检索的身份
+  });
+
+  it('快照坏了：不记账，但也不假装「没检索过」（reason=snapshot_corrupt）', () => {
+    const f = snapshotFileOf('proj-a');
+    fs.mkdirSync(path.dirname(f), { recursive: true });
+    fs.writeFileSync(f, '{ 半个 JSON', 'utf8');
+
+    const r = recordSearchOpen({ project: 'proj-a', sessionId: 'a', openKind: 'cli_show', now: T0 });
+    expect(r).toMatchObject({ recorded: false, reason: 'snapshot_corrupt' });
+    expect(lastSearchStatus('proj-a', { now: T0 })).toMatchObject({ exists: true, note: 'corrupt' });
+    expect(rows()).toHaveLength(0);
+  });
+
+  it('同槽位不是本项目的快照：不借用别人的候选', () => {
+    const f = snapshotFileOf('proj-a');
+    fs.mkdirSync(path.dirname(f), { recursive: true });
+    fs.writeFileSync(f, JSON.stringify({
+      v: 1, at: T0, project: 'proj-b', searchId: 'x', queryHash: 'deadbeefdeadbeef',
+      bucket: '5-9', positions: { a: 1 }, candidates: 1,
+    }), 'utf8');
+
+    const r = recordSearchOpen({ project: 'proj-a', sessionId: 'a', openKind: 'cli_show', now: T0 + 1_000 });
+    expect(r).toMatchObject({ recorded: false, reason: 'other_project' });
+    expect(rows()).toHaveLength(0);
+  });
+
+  it('零数据口径：0 条时 avgPosition 是 null（不是 0），样本门槛是常量而不是散落的魔法数', () => {
+    const s = feedbackStats();
+    expect(s.total).toBe(0);
+    expect(s.avgPosition).toBeNull();
+    expect(s.searches).toBe(0);
+    expect(MIN_OPENS_FOR_CALIBRATION).toBeGreaterThan(0);
+  });
 });
+

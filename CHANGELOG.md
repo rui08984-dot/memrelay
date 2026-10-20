@@ -5,6 +5,15 @@
 
 ## [Unreleased]
 
+### 反馈采集真正生效：候选改「落盘快照」（10-20）
+
+- **修一个"代码在、功能没生效"的洞**：`search_feedback` 表在真机上**从未存在过**。根因不是进程旧，而是候选只留**进程内存**，而真实调用链是两个进程（DSH 插件 `srelay_search` → 子进程 `srelay search`；`srelay_show` → 另一个子进程 `srelay show`）⇒ 永远借不到候选，一次都没记上。实测：重启 DSH + 真跑 search/show 后，全局库里连表都没有。
+- 现在候选落**磁盘快照**（`<SRELAY_GLOBAL_HOME>/last-search/<sha16(project)>.json`，TTL 5 分钟，原子写）：MCP 与 CLI 走**同一条**判据；快照里只有 sessionId、名次、查询哈希、长度桶，**无正文、无明文查询、无路径**。
+- 去重从「进程内 Set」改成**库级唯一索引** `(search_id, session_id)`：`search_feedback` 新增 `search_id` 列（老库就地 ALTER + 补索引，NULL 历史行不受约束）。跨进程重复 show 不再记两条。
+- 新增 `srelay feedback [--json] [--days N] [--project id] [--top N]`：**采集状态**（快照新鲜/过期/损坏/项目对不上）+ 统计（次数/检索数/名次分布/长度桶/入口/常被打开）。0 条时逐条给排查动作，不猜。
+- 样本门槛成为常量 `MIN_OPENS_FOR_CALIBRATION = 30`（CLI 与校准脚本共用）：低于它只报「样本不足」，不许调权重。
+- 真机验收：`search → show` 记到 1 条（名次 1、`cli_show`），`srelay feedback` 显示 `1 / 30 样本不足`；两个真进程的集成测试各 1 条（含重复 show 只有一行）。单测 9 条（含快照损坏、项目串位、隐私不落明文查询）。
+
 ### 简报自动显示体检分（10-19）
 
 - `srelay brief` 第一屏新增「🩺 记忆体检 N 分 · A/B/C/D」一行（判据仍是 `core/health/score.ts`，只加渲染；计算失败打印原因，不静默）。

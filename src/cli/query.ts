@@ -120,9 +120,10 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
       // [10-19 · 任务 B] 默认 false：不填 explain、不额外查询；--explain 时才生成明细
       explain: flags.explain === true,
     });
-    // [10-19 任务 D] 记住本次候选（**进程内存**，TTL 5 分钟）：同进程的 srelay show 据此记 open。
-    //   只写内存、不改 hits。CLI 的 search / show 通常是两个进程，这条路实际很少触发——
-    //   但判据仍是 feedback.ts 那一份（MCP 与 CLI 不各写一套）。
+    // [10-19 任务 D / 1020 修正] 记住本次候选（**落盘快照**，TTL 5 分钟）：随后的 srelay show 据此记 open。
+    //   只写快照、不改 hits。CLI 的 search 与 show 是**两个进程**，所以候选必须落盘
+    //   （原实现只留内存 ⇒ CLI 这条路一次都没记上）。判据仍只有 feedback.ts 那一份。
+    //   写失败不阻塞检索：rememberSearch 返回 persisted:false，用 srelay feedback 看状态。
     rememberSearch(cfg.identity.project_id ?? root, query, hits.map((h) => h.sessionId));
     if (flags.json) {
       const rows = hits.map((h) => {

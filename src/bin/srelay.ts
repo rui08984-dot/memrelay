@@ -296,6 +296,18 @@ program
   });
 
 program
+  .command('feedback')
+  .description('检索反馈：采集状态 + open 统计（判据全部来自 search-svc/feedback.ts，不在本命令里重算）')
+  .option('--project <id>', '只看某个项目（缺省 = 当前项目）')
+  .option('--days <n>', '只看最近 N 天（缺省 = 全部）')
+  .option('--top <n>', '常被打开的会话列几条（默认 5）')
+  .option('--json', '机器格式')
+  .action(async (opts) => {
+    const { cmdFeedback } = await import('../cli/feedback.js');
+    await cmdFeedback(opts as never);
+  });
+
+program
   .command('serve')
   .description('启动 MCP Server（stdio，供 AI agent 调用）')
   .action(async () => { const { runServe } = await import('../mcp/server.js'); await runServe(); });
