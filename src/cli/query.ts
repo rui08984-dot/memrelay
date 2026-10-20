@@ -5,7 +5,7 @@ import { searchSessions, DEFAULT_TITLE_BOOST, type SearchExplain } from '../sear
 import { groupSessions } from '../search-svc/session-groups.js';
 // [10-19 任务 D] 检索自校准第一步：只采集 open 事件，不改检索结果/排序。
 import { rememberSearch, recordSearchOpen } from '../search-svc/feedback.js';
-import { diagnoseEmpty } from '../search-svc/why-empty.js';
+import { diagnoseEmpty, diagnoseWeak } from '../search-svc/why-empty.js';
 import { findSessionByPrefix, getSession, listSessions, getMessageRange, isNoteSession } from '../store/db.js';
 import { openStats } from '../core/stats/counter.js';
 import { requireRoot, openRelayDb, pc, fmtDate, stateBadge } from './ui.js';
@@ -91,6 +91,8 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
   }
   const root = requireRoot();
   const cfg = loadConfig(root);
+  // 项目 id 的口径只在这里解析一次（诊断/弱命中提示都要用，别再各写一遍 cfg.identity.project_id ?? root）
+  const project = cfg.identity.project_id ?? root;
   const db = openRelayDb(root);
   const stats = openStats(root);
   stats.increment('cli_search');
@@ -140,7 +142,11 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
       });
       // [10-19] 多会话组：与 MCP 的 groups 同源（groupSessions 唯一实现），便于 DSH/CLI 对齐
       const groups = groupSessions(db, hits.map((h) => ({ sessionId: h.sessionId, score: h.score })));
-      console.log(JSON.stringify({ query, count: rows.length, hits: rows, groups }, null, 2));
+      // [1020] 弱命中：首条没覆盖全部关键词时才多查一次（强命中零开销），指出哪个词在本库没出现
+      const weak = hits.length > 0 && hits[0].coverage < 1
+        ? diagnoseWeak({ db, projectId: project, query })
+        : { note: null as string | null };
+      console.log(JSON.stringify({ query, count: rows.length, hits: rows, groups, ...(weak.note ? { weakHint: weak.note } : {}) }, null, 2));
       return;
     }
     if (hits.length === 0) {
@@ -148,7 +154,6 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
       //   判据全在 why-empty.ts（词太泛 / 词不存在 / 时间窗 / scope / 约束太多），
       //   这里只负责打印；没有诊断时它会给出兜底原因，绝不再只说「未找到」。
       const scoped = !!(asm.scopeFile && asm.scopeFile.mode !== 'full' && asm.where);
-      const project = cfg.identity.project_id ?? root;
       let total = 0;
       try { total = (db.prepare('SELECT COUNT(*) AS c FROM sessions WHERE project_id = ?').get(project) as { c: number }).c; } catch { total = 0; }
       const diag = diagnoseEmpty({ db, projectId: project, query, sessions: total, scopeNarrowed: scoped, since: flags.since, until: flags.until });
@@ -178,6 +183,11 @@ export async function cmdSearch(query: string, flags: SearchFlags): Promise<void
         const sig = [...g.sharedTopics.slice(0, 2), ...g.sharedFiles.slice(0, 1)].join(' / ');
         console.log(pc.dim('  · ') + title.slice(0, 40) + pc.dim('  [' + g.sessionIds.length + ' 条' + (sig ? ' · 共享 ' + sig : '') + ']'));
       }
+    }
+    // [1020] 弱命中提示：只归因，不改检索；强命中（覆盖 100%）不做任何额外查询
+    if (hits[0].coverage < 1) {
+      const weak = diagnoseWeak({ db, projectId: project, query });
+      if (weak.note) console.log(pc.yellow('⚠ ') + pc.dim(weak.note));
     }
     console.log(pc.dim(`\n${hits.length} 条命中。--json 看机器格式。`));
   } finally {

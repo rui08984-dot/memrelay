@@ -1,4 +1,10 @@
-// why-empty.ts —— 检索 0 命中时的**确定性诊断**：告诉用户为什么没找到，而不是只说「未找到」。
+// why-empty.ts —— 检索诊断：告诉用户为什么没找到 / 为什么只找到一部分，而不是只说「未找到」。
+//
+// 两种场景，同一套判据（`tokenPresence`）：
+//   · `diagnoseEmpty`：0 命中 → 五类归因（下面 ①~⑤）；
+//   · `diagnoseWeak`：有命中但首条没覆盖全部关键词 → 指出「哪个词在本库根本没出现」。
+//     1020 新增：原诊断只在 0 命中时触发，而"任一词元命中就返回"让多词查询几乎总能捞到一条
+//     ⇒ 真机上几乎从不出现（功能在、用不上）。
 //
 // 只做归因，不改检索：
 //   ①词太泛（每个词元在库里覆盖太多会话 ⇒ AND 全中很难）
@@ -32,21 +38,50 @@ export interface EmptyDiagnosis {
 /** 词元覆盖率超过这个比例 ⇒ 视为「太泛」（AND 全中概率低） */
 const BROAD_RATIO = 0.3;
 
+export interface TokenPresence { token: string; sessions: number }
+
+/**
+ * 词元在**本项目**里出现过多少场会话 —— 诊断的**唯一口径**（diagnoseEmpty 与 diagnoseWeak 共用）。
+ *
+ * 为什么必须按项目过滤（1020 修）：原实现第一条 SQL 写的是 `WHERE project_id IS NULL`
+ * （messages 表根本没有这一列 ⇒ 永远抛错 ⇒ 落进 catch 走的**未过滤**那条路），
+ * 于是诊断把**别的项目库**的词也算进来：本库没有的词会被说成"词太泛"，本库有的词会被说成"没出现"。
+ * 判定对象是"这个项目的记忆里有没有"，分母也是本项目会话数，口径必须一致。
+ */
+export function tokenPresence(db: DB, projectId: string, query: string): TokenPresence[] {
+  const tokens = (parseQuery(query).units.flat()).filter((t) => t.length >= 2);
+  const sql = 'SELECT COUNT(DISTINCT m.session_id) AS c FROM messages m JOIN sessions s ON s.id = m.session_id'
+    + ' WHERE s.project_id = ? AND m.search_text LIKE ?';
+  return tokens.map((t) => {
+    const row = db.prepare(sql).get(projectId, '%' + t + '%') as { c?: number } | undefined;
+    return { token: t, sessions: Number(row?.c ?? 0) };
+  });
+}
+
+/**
+ * **弱命中**诊断：有结果、但首条没覆盖全部关键词时，指出到底哪个词在本库根本没出现过。
+ *
+ * 为什么需要（1020）：原来的诊断只在"0 命中"时触发，而检索是"任一词元命中就返回"，
+ * 多词查询几乎总能捞到一条 ⇒ 诊断在真机上**几乎从不出现**（功能在、用不上）。
+ * 现在只要首条覆盖度 <100% 就问一句"缺的是哪个词"，仍然是只归因、不改检索；
+ * 强命中（覆盖 100%）**零开销**（不做任何额外查询）。
+ */
+export interface WeakDiagnosis { missing: TokenPresence[]; note: string | null }
+
+export function diagnoseWeak(inp: { db: DB; projectId: string; query: string }): WeakDiagnosis {
+  const missing = tokenPresence(inp.db, inp.projectId, inp.query).filter((t) => t.sessions === 0);
+  if (missing.length === 0) return { missing: [], note: null };
+  return {
+    missing,
+    note: '关键词 ' + missing.map((m) => '「' + m.token + '」').join('') + ' 在本库一次都没出现 —— 上面是只命中其余词的结果',
+  };
+}
+
 export function diagnoseEmpty(inp: EmptyDiagnosisInput): EmptyDiagnosis {
   const reasons: string[] = [];
   const suggestions: string[] = [];
-  const tokens = (parseQuery(inp.query).units.flat()).filter((t) => t.length >= 2);
-  const counts: Array<{ token: string; sessions: number }> = [];
+  const counts: Array<{ token: string; sessions: number }> = tokenPresence(inp.db, inp.projectId, inp.query);
   const denom = Math.max(1, inp.sessions);
-  for (const t of tokens) {
-    let n = 0;
-    try {
-      n = (inp.db.prepare('SELECT COUNT(DISTINCT session_id) AS c FROM messages WHERE project_id IS NULL AND search_text LIKE ?').get('%' + t + '%') as { c: number }).c;
-    } catch {
-      try { n = (inp.db.prepare('SELECT COUNT(DISTINCT session_id) AS c FROM messages WHERE search_text LIKE ?').get('%' + t + '%') as { c: number }).c; } catch { n = 0; }
-    }
-    counts.push({ token: t, sessions: n });
-  }
   const missing = counts.filter((c) => c.sessions === 0);
   if (missing.length > 0) {
     reasons.push('这些词在全库一次都没出现：' + missing.map((c) => c.token).join('、'));
@@ -57,8 +92,8 @@ export function diagnoseEmpty(inp: EmptyDiagnosisInput): EmptyDiagnosis {
     reasons.push('词太泛：' + broad.map((c) => c.token + '（' + c.sessions + ' 场）').join('、') + ' 覆盖了 ≥30% 的会话，AND 全中很难');
     suggestions.push('用更具体的词，或把多个词分开搜');
   }
-  if (tokens.length > 3) {
-    reasons.push('约束太多：' + tokens.length + ' 个词元按 AND 匹配，每多一个词都更难同时命中');
+  if (counts.length > 3) {
+    reasons.push('约束太多：' + counts.length + ' 个词元按 AND 匹配，每多一个词都更难同时命中');
     suggestions.push('减少到 2-3 个关键词');
   }
   if (inp.since || inp.until) {

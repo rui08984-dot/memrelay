@@ -63,7 +63,10 @@ srelay sync --backfill all   # 全量重扫
 | `--since` / `--until` | 时间过滤 |
 | `--limit <n>` | 默认 10 |
 | `--global` | 跨项目联邦检索（只读） |
-| `--json` | 机器格式，带分数 |
+| `--explain` | 打印每条的分数构成（base × 覆盖 × 长度 × 时间 × 标题 ⇒ 最终分） |
+| `--json` | 机器格式，带分数；弱命中时附 `weakHint` |
+
+0 命中时自动给**归因**（词不存在 / 词太泛 / 时间窗 / scope / 词元太多）；有命中但缺词时给**弱命中提示**（指出哪个词在本库一次都没出现）。判据在 `src/search-svc/why-empty.ts`，零模型、只归因不改检索。
 
 ### 其余查询命令
 
@@ -125,6 +128,19 @@ srelay semantic --disable           # 停用（向量保留）
 
 完整手册见 [map-cli.md](./map-cli.md)。
 
+## 自证 · 自愈 · 进化
+
+| 命令 | 做什么 | 要点 |
+|---|---|---|
+| `srelay score` | 记忆体检分 0–100 + A/B/C/D | 权重 40 证据覆盖 / 25 新鲜度 / 15 碎片率 / 20 审计 P0；**归档未决不计分**（已接受历史债），FTS 不一致才算 P0；简报第一行自动显示 |
+| `srelay audit` | 审计契约（七项，只读零写入） | 退出码 **0 全过 / 1 只有 P1 / 2 有 P0 或跑不起来**；含 `decision-conflict`（后者可能推翻前者） |
+| `srelay handoff` | 一键交接包（固定五段） | ①现在到哪了 ②定过什么 ③还欠什么 ④下一步 ⑤坑；每条带 sessionId + msgId/seq；`--out` 落盘、`--json` |
+| `srelay market [topics...]` | 跨项目经验市场 | 按工作区/领域 + 话题词元重叠推荐，每条带「为什么」；只读 |
+| `srelay feedback` | 检索反馈采集状态 + 统计 | 快照新鲜/过期/损坏 + open 次数/名次分布/长度桶；样本 < `MIN_OPENS_FOR_CALIBRATION`(30) 只说「样本不足」 |
+
+> **自校准（D 第二步）**：`npx tsx scripts/calibrate-weights.ts` 用固定题面跑旋钮网格（titleBoost / coverageBoost / metaBoost / bestExcerpt），
+> 裁决在 `pickWinner`（hit@10 降一票否决 → hit@1/MRR 严格提升 → 并列取离默认最近），**只出建议、绝不写 config.json**。
+
 ### 决策置顶
 
 ```bash
@@ -138,7 +154,7 @@ srelay unpin "PostgreSQL"
 
 ### `srelay lifecycle`
 
-跑 11 个阶段（体检→自愈→采集→重算→经验→去重→清洗→老化→分发）。
+跑 12 个阶段：`guard`（体检）`repair`（自愈）`capture`（采集）`extract`（重算）`harvest`（经验）`consolidate`（去重）`compact`（压缩）`cleanup`（清洗）`tags` `aging`（老化）`distribute`（分发）`audit`（审计，只读、24h）。
 
 | 参数 | 说明 |
 |---|---|
@@ -231,7 +247,7 @@ srelay mode off      # 关自动捕获（save 是唯一入口）
 
 | 命令 | 做什么 |
 |---|---|
-| `doctor` | 环境自检，23 项检查，每条带建议 |
+| `doctor [--fix]` | 环境自检，23 项检查，每条带建议；`--fix` 默认 dry-run，只修已知安全项（插件副本缺文件 / 面板 vendor 落后），实测一次修 5 项、复查 0 待修 |
 | `serve` | 起 MCP Server（stdio），给 AI agent 用 |
 | `bench-extract --save` / `--diff latest` | 抽取规则改动的门禁：看谁被剔除/新增 |
 | `confirm <id>` | 手动强制会话为 confirmed（触发抽取） |

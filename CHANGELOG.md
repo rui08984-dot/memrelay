@@ -5,6 +5,15 @@
 
 ## [Unreleased]
 
+### 「为什么没找到」从"几乎不触发"改成真能用（10-20）
+
+- **两个洞**：① 诊断只在 **0 命中**时跑，而检索是"任一词元命中就返回" ⇒ 多词查询几乎总能捞到一条，真机上几乎从不出现；② 计数 SQL 拿 `messages.project_id` 过滤，可**这一列根本不存在**（永远落进 catch 的未过滤分支）⇒ 把别的项目库的词也算进来，"词不存在/词太泛"会判错。
+- 修法：
+  - `tokenPresence()` 成为**唯一口径**（`JOIN sessions` 按项目过滤），`diagnoseEmpty` 与新的 `diagnoseWeak` 共用；
+  - 新增**弱命中提示**：首条覆盖度 < 100% 时多问一句"哪个词在本库一次都没出现"（强命中**零开销**，不做额外查询）；`search --json` 附 `weakHint`。
+- 真跑：`srelay search "交接 <随机词>"` → `⚠ 关键词「3691705a」在本库一次都没出现 —— 上面是只命中其余词的结果`；实测 7 条单测（含项目作用域、弱命中不说话的分支）。
+- `docs/COMMANDS.md` 同步：补 score / audit / handoff / market / feedback / doctor --fix / search --explain，生命周期由"11 个阶段"更正为 **12 个**（含 audit）。
+
 ### 权重自校准脚本 scripts/calibrate-weights.ts（10-20）
 
 - **D 第二步**：`npx tsx scripts/calibrate-weights.ts` 跑**固定题面**的旋钮网格（titleBoost / coverageBoost / metaBoost / bestExcerpt，各组合独立子进程，因为 engine 在模块加载时读 env），产出 hit@1 / hit@10 / MRR + 反馈佐证 + 裁决。
