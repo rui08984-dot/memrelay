@@ -10,8 +10,14 @@
 //   任务 S 唯一改动是「超条数时选谁」：不再 slice(-limit) / slice(0, limit) 按时间一刀切，
 //   改由 core/brief/compress.ts 的 selectByBudget 按 pinned > refCount > 新鲜度 选前 N。
 //   48h 时间窗、pin 豁免、碎片闸、近重复折叠**一条都没动**。
-// · counts 就是上面两个数组的长度（= 老命令 --json 里的 count，ZCode 侧提示句的计数用它）；
-//   另加 decisionsCompressed / unresolvedCompressed = 这次按引用次数淘汰掉的条数（0 = 没压缩），
+// · counts.decisions / counts.unresolved 就是上面两个数组的长度（= 老命令 --json 里的 count，
+//   ZCode 侧提示句的计数用它）——**这一层没动**：payload 仍是「最多取回 --limit 条」。
+// · [1020] 选择现在是**两层、一个判据**（core/brief/compress.ts 的 selectByBudget）：
+//     ① 上限层：候选 > --limit（默认 200）→ 连 payload 都进不去（真机上几乎不发生）；
+//     ② 名额层：payload > BRIEF_DECISION_SLOTS（5）/ UNR_SLOTS（1）→ 进得了 payload，
+//        但简报只画这几行，所以"选谁"必须按判据选，而不是 slice。
+//   两层的结果分别给 decisionsShown / unresolvedShown（渲染只准照抄这两个字段）；
+//   decisionsCompressed / unresolvedCompressed = 两层**合计**淘汰数（候选 − 显示行数，0 = 没少显示），
 //   渲染末尾说明统一调 compressedNote()，不许客户端各写一种说法。
 // · recentFiles 见 listRecentFiles 的注释（与 DSH 插件同规）
 //
@@ -66,6 +72,24 @@ export const RELATED_MAX_GROUPS = 3;
 export const RELATED_MAX_REFS = 60;
 
 /**
+ * 简报决策段的**真实容量**（画出来几行）= 5。
+ *
+ * ⚠️ 这个数在三处各有副本：本文件的人话渲染、DSH 插件（`DEC_SLOTS`）、ZCode hook；
+ *    未决那边同理是 brief-filter.ts 的 UNR_SLOTS（=1）。改之前三处一起对齐。
+ *
+ * [1020 修「压缩永远触发不了」] 它以前**只是渲染细节**：
+ *   选择预算用的是 `--limit`（默认 200），而屏幕上只会 `slice(0,5)` ——
+ *   于是「pinned > 引用次数 > 新鲜度」要等 200 条候选才生效，真机上 48h 窗内的候选
+ *   实测只有 1~15 条（agent1super 438 条决策里只有 1 条在窗内、D:/dsh插件  记忆 38 条里 15 条），
+ *   判据永远轮不到；那 5 行由一句裸 `slice` 决定，**pinned 的、被打开过 9 次的老决策都会被剪掉**，
+ *   而且末尾一个字都不说少了几条。
+ *   现在名额层单独跑**同一个**判据（core/brief/compress.ts 的 selectByBudget，判据仍只有一份）：
+ *   候选 ≤ 名额 → 原样返回（顺序不动）；超了 → 按优先级选 5 条并排好序，
+ *   "没进简报的"条数进 counts.decisionsCompressed / unresolvedCompressed 说出来。
+ */
+export const BRIEF_DECISION_SLOTS = 5;
+
+/**
  * [task-14] 简报末尾那行说明的**唯一写法**（判据/口径都只有一份，文案也只有一份）。
  *
  * 为什么要打印：过滤是**静默**的 —— 用户看到决策从 8 条变成 6 条，却没有任何解释，
@@ -96,6 +120,19 @@ export interface BriefPayload {
   nextStep: { next: string | null; doing: string[] } | null;
   decisions: DecisionRow[];
   unresolved: UnresolvedRow[];
+  /**
+   * [1020] 简报**真正会显示**的那几行（≤ BRIEF_DECISION_SLOTS，已按 pinned > 引用次数 > 新鲜度 排好序）。
+   *
+   * 与 decisions 的关系（别再混为一谈）：
+   *   · decisions = 调用方要的**取数上限**（`--limit`，默认 200）——客户端契约，一个字没动；
+   *   · decisionsShown = 简报名额内**选谁 + 什么顺序**——判据唯一落地点。
+   * 渲染请照抄本字段：`decisions.slice(0,5)` 取到的是"payload 前 5 条"，
+   * 不看 pinned、也不看引用次数，等于把 任务S 的判据整个绕过。
+   * 纯新增字段：旧字段（含 decisions 的内容/顺序/长度）一个都没变。
+   */
+  decisionsShown?: DecisionRow[];
+  /** [1020] 未决同理（≤ UNR_SLOTS 条，判据相同） */
+  unresolvedShown?: UnresolvedRow[];
   counts: {
     decisions: number;
     /**
@@ -106,14 +143,19 @@ export interface BriefPayload {
     decisionsRaw?: number;
     folded?: number;
     /**
-     * [任务S] 超条数时按引用次数淘汰掉的**决策**条数（0 = 没压缩）。
-     * 与 counts.decisions 互补：折叠后过完过滤的条数 = decisions + decisionsCompressed。
+     * [任务S / 1020 修] 折叠后、过完过滤的候选里，**这一次简报没显示**的决策条数（0 = 没少显示）。
+     *
+     * 口径 = 两层淘汰**合计**（同一个判据 selectByBudget，只是容量不同）：
+     *   ① 上限层：候选 > `--limit`（默认 200）→ 连 payload 都进不去（真机上几乎不会发生）；
+     *   ② 名额层：payload > BRIEF_DECISION_SLOTS（5）→ 进得了 payload，但简报只画 5 行（**真机上就是这一层**）。
+     * 恒等式：`decisionsShown.length + decisionsCompressed = 折叠后候选数`；
+     * 而 `decisions.length = min(候选数, --limit)`（payload 契约不变，可能比简报多）。
      * 它们仍在库里、检索/导出/面板一条不少 —— 这个数只是"这一次少显示了几条"。
      * 渲染末尾说明请调 compressedNote()（core/brief/compress.ts），别在客户端另写一种说法。
      */
     decisionsCompressed?: number;
     unresolved: number;
-    /** [任务S] 超条数时按引用次数淘汰掉的**未决**条数（0 = 没压缩；口径同上） */
+    /** [任务S / 1020 修] 未决同理（口径同上：上限层 + 名额层合计，未决名额 = UNR_SLOTS） */
     unresolvedCompressed?: number;
     /**
      * [task-14] 展示层按 vagueDecisionObject 拦下的**存量碎片**条数（0 = 没有）。
@@ -218,11 +260,23 @@ export function collectBrief(
   // [任务S] 超条数时选谁：pinned > 引用次数 > 新鲜度（判据只在 core/brief/compress.ts）。
   //   未超预算时 selectByBudget **原样返回**（顺序也不动）—— 既有输出不因这次改动漂移；
   //   真压缩时按优先级排，让"被反复引用的那条"排到最前，否则它仍会被渲染层 slice(0,5) 挡住。
+  // 稳定键只有这一份函数（两层选择共用；compress.ts 的纪律③要求平手裁决不靠下标）
+  const decisionKeyOf = (d: DecisionRow): string => d.sessionId + '\u0000' + d.text;
+  // ① 上限层：候选 > --limit（默认 200）时淘汰 —— payload 契约（"最多取回多少条"）
   const decisionBudget = selectByBudget<DecisionRow>(foldedDecisions.rows, limit, {
     refCounts,
-    keyOf: (d) => d.sessionId + '\u0000' + d.text,
+    keyOf: decisionKeyOf,
   });
   const decisions = decisionBudget.kept;
+  // ② 名额层 [1020]：简报**真正画在屏幕上**的只有 BRIEF_DECISION_SLOTS 行，
+  //   所以"选谁"必须按真实容量再选一次，否则判据（pinned > 引用次数 > 新鲜度）永远轮不到
+  //   （上限层 200 条在真机上够不到：48h 窗内实测只有 1~15 条候选）。
+  //   候选 ≤ 名额时 selectByBudget 原样返回（连顺序都不动），既有输出不漂移。
+  const decisionShownBudget = selectByBudget<DecisionRow>(decisions, BRIEF_DECISION_SLOTS, {
+    refCounts,
+    keyOf: decisionKeyOf,
+  });
+  const decisionsShown = decisionShownBudget.kept;
   // [1021 红队 R4 修复] **三路分叉**：这里原来是「决策无时间窗 + 未决 14 天」，
   //   而 DSH（plugins/dsh/index.js:81 `FRESH_MS = 48 * 3600_000`）与
   //   ZCode（integrations/zcode/brief-shared.mjs:25 同值）**两者都是 48 小时**。
@@ -253,11 +307,19 @@ export function collectBrief(
   const unresolvedCandidates = unresolvedBeforeArchiveFilter
     .filter((r) => !archivedSessionsWithUnresolved.has(r.sessionId));
   // [任务S] 未决同理：超条数时按引用次数选（未超预算时原样返回，顺序不变）。
+  const unresolvedKeyOf = (u: UnresolvedRow): string => u.sessionId + '\u0000' + u.q;
+  // ① 上限层：payload 契约（`--limit`）
   const unresolvedBudget = selectByBudget<UnresolvedRow>(unresolvedCandidates, limit, {
     refCounts,
-    keyOf: (u) => u.sessionId + '\u0000' + u.q,
+    keyOf: unresolvedKeyOf,
   });
   const unresolved = unresolvedBudget.kept;
+  // ② 名额层 [1020]：未决的简报容量 = UNR_SLOTS（1 行），判据同一份。
+  const unresolvedShownBudget = selectByBudget<UnresolvedRow>(unresolved, UNR_SLOTS, {
+    refCounts,
+    keyOf: unresolvedKeyOf,
+  });
+  const unresolvedShown = unresolvedShownBudget.kept;
   // 归档隐藏数只算「归档」那一段；压缩掉的另记 —— 两个原因不许混成一个数
   //    （否则用户看到「已隐藏 N 条」会以为都是归档，实际是预算淘汰）。
   const archivedUnresolvedHidden = unresolvedBeforeArchiveFilter.length - unresolvedCandidates.length;
@@ -267,17 +329,42 @@ export function collectBrief(
     ...unresolved.map((u) => ({ sessionId: u.sessionId, at: u.at })),
   ]);
   const experiences = collectExperiences(root ?? process.cwd(), opts);
-  return { auditAlert: collectAuditAlert(root), nextStep: collectNextStep(root), relatedSessions, experiences, decisions, unresolved, recentFiles,
+  // [1020] 压缩计数 = 两层淘汰**合计** = 候选 − 简报实际显示的行数。
+  //   为什么不用 decisionBudget.evicted：真机上那一层恒为 0（候选够不到 --limit），
+  //   于是"少显示了 10 条"这件事从来没人说过。两层相加才是"这次简报少显示了几条"，
+  //   与恒等式 decisionsShown.length + decisionsCompressed = 候选数 一致（测试钉住）。
+  const decisionsCompressed = foldedDecisions.rows.length - decisionsShown.length;
+  const unresolvedCompressed = unresolvedCandidates.length - unresolvedShown.length;
+  return { auditAlert: collectAuditAlert(root), nextStep: collectNextStep(root), relatedSessions, experiences,
+    decisions, unresolved, decisionsShown, unresolvedShown, recentFiles,
     counts: {
       decisions: decisions.length,
       decisionsRaw: rawDecisions.length,
       folded,
-      decisionsCompressed: decisionBudget.evicted,
+      decisionsCompressed,
       unresolved: unresolved.length,
-      unresolvedCompressed: unresolvedBudget.evicted,
+      unresolvedCompressed,
       fragmentsHidden,
       archivedUnresolvedHidden,
     } };
+}
+
+/**
+ * [1020] 「简报会显示哪几行」的**唯一取值口** —— 人话渲染与出卡都必须走这两个函数。
+ *
+ * 为什么不能在外面写 `pay.decisions.slice(0, 5)`：
+ *   · 那等于绕过判据（不看 pinned、不看引用次数），任务S 的 selectByBudget 白跑；
+ *   · 判据改一次（名额/平手规则）要改的地方变成 N 处。
+ * 旧手工构造的 payload（测试/外部调用）没有 decisionsShown 时退回同样名额的 slice ——
+ * 那是**同义回退**，不是第二套判据（collectBrief 永远填这两个字段）。
+ */
+export function shownDecisions(pay: BriefPayload): DecisionRow[] {
+  return pay.decisionsShown ?? pay.decisions.slice(0, BRIEF_DECISION_SLOTS);
+}
+
+/** 未决同理（名额 = UNR_SLOTS） */
+export function shownUnresolved(pay: BriefPayload): UnresolvedRow[] {
+  return pay.unresolvedShown ?? pay.unresolved.slice(0, UNR_SLOTS);
 }
 
 export async function cmdBrief(opts: { limit?: number; days?: number; top?: number; json?: boolean }): Promise<void> {
@@ -326,8 +413,12 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     if (pay.nextStep?.doing?.length) head.push(pc.dim('  ↳ 进行中：' + pay.nextStep.doing.join(' / ')));
     head.push(`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`);
     for (const r of pay.recentFiles) head.push(pc.dim(`  🗂 ${r.file}（${r.sessions} 场）`));
-    for (const d of pay.decisions.slice(0, 5)) head.push(`  ${pc.dim(d.at?.slice(0, 10) ?? '')} ${d.kind === 'negative' ? pc.red('✗') : pc.green('✓')} ${d.text.slice(0, 60)}`);
-    for (const u of pay.unresolved.slice(0, UNR_SLOTS)) head.push(`  ${pc.yellow('◻')} ${u.q.slice(0, 60)}`);
+    // [1020] 决策/未决行按**判据选出的**那几条渲染（shownDecisions / shownUnresolved），
+    //   不是 `pay.decisions.slice(0,5)`：后者不看 pinned、不看引用次数，等于绕过 任务S 的判据。
+    const shownDec = shownDecisions(pay);
+    const shownUnr = shownUnresolved(pay);
+    for (const d of shownDec) head.push(`  ${pc.dim(d.at?.slice(0, 10) ?? '')} ${d.kind === 'negative' ? pc.red('✗') : pc.green('✓')} ${d.text.slice(0, 60)}`);
+    for (const u of shownUnr) head.push(`  ${pc.yellow('◻')} ${u.q.slice(0, 60)}`);
 
     const tail: string[] = [];
     // ── [1021 P1-1] 「相关会话」段：多会话组按组显示，不再逐条平铺 ──
@@ -375,8 +466,8 @@ export async function cmdBrief(opts: { limit?: number; days?: number; top?: numb
     // 出卡的会话 = 简报里**被点名**的那些（决策行在前、未决行在后），去重后前 BRIEF_CARD_MAX 场。
     // 挑选判据只有这份 list（"简报点了名"）；卡片里放什么、长什么样全在 core/cards。
     const blocks = collectBriefCards(db, [
-      ...pay.decisions.slice(0, 5).map((d) => d.sessionId),
-      ...pay.unresolved.slice(0, UNR_SLOTS).map((u) => u.sessionId),
+      ...shownDec.map((d) => d.sessionId),
+      ...shownUnr.map((u) => u.sessionId),
     ]);
     const out = composeBriefWithCards(head, blocks, tail);
     for (const line of out.lines) console.log(line);
@@ -426,11 +517,15 @@ export function briefComposeForTest(db: DB, pay: BriefPayload): BriefComposeResu
   if (pay.nextStep?.doing?.length) head.push('  ↳ 进行中：' + pay.nextStep.doing.join(' / '));
   head.push(`决策 ${pay.counts.decisions} 条 · 未决 ${pay.counts.unresolved} 条 · 最近在动 ${pay.recentFiles.length} 个`);
   for (const r of pay.recentFiles) head.push(`  🗂 ${r.file}（${r.sessions} 场）`);
-  for (const d of pay.decisions.slice(0, 5)) head.push(`  ${d.at?.slice(0, 10) ?? ''} ${d.kind === 'negative' ? '✗' : '✓'} ${d.text.slice(0, 60)}`);
-  for (const u of pay.unresolved.slice(0, UNR_SLOTS)) head.push(`  ◻ ${u.q.slice(0, 60)}`);
+  // 与 cmdBrief 走**同一个**取值口（shownDecisions / shownUnresolved）：
+  // 测试量到的预算账本必须就是真机上那条简报的账本。
+  const shownDec = shownDecisions(pay);
+  const shownUnr = shownUnresolved(pay);
+  for (const d of shownDec) head.push(`  ${d.at?.slice(0, 10) ?? ''} ${d.kind === 'negative' ? '✗' : '✓'} ${d.text.slice(0, 60)}`);
+  for (const u of shownUnr) head.push(`  ◻ ${u.q.slice(0, 60)}`);
   const blocks: BriefCardBlock[] = collectBriefCards(db, [
-    ...pay.decisions.slice(0, 5).map((d) => d.sessionId),
-    ...pay.unresolved.slice(0, UNR_SLOTS).map((u) => u.sessionId),
+    ...shownDec.map((d) => d.sessionId),
+    ...shownUnr.map((u) => u.sessionId),
   ]);
   return composeBriefWithCards(head, blocks, []);
 }

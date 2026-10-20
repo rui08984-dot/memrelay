@@ -10,13 +10,19 @@
 //   ⑥ brief 真的用它：超条数时旧但被引用的条目留下，counts.decisionsCompressed / unresolvedCompressed 报数；
 //   ⑦ refCount 的唯一来源 search_feedback 被只读地读出来（表不存在 = 空表，且**不建表**）；
 //   ⑧ cmdBrief 端到端：全局库的 open 次数真的驱动压缩，人话末尾与 --json counts 都说出来。
+//   ⑨⑩⑪ [1020] **名额层**：真机上候选数永远够不到 --limit 200（48h 窗内实测 1~15 条），
+//      所以压缩以前从来没触发过。现在「简报只画 5 行决策 / 1 行未决」这件事本身就是判据的容量，
+//      候选 > 名额就压缩、就说出来 —— 这三条钉住"不传 --limit（默认 200）也能触发"。
 import { describe, it, expect, vi } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import Database from 'better-sqlite3';
 import { selectByBudget, compressedNote, loadRefCounts } from '../../src/core/brief/compress.js';
-import { collectBrief, cmdBrief } from '../../src/cli/brief.js';
+import {
+  collectBrief, cmdBrief, shownDecisions, shownUnresolved, BRIEF_DECISION_SLOTS,
+} from '../../src/cli/brief.js';
+import { UNR_SLOTS } from '../../src/cli/brief-filter.js';
 import { createDb, dbFile, type DB } from '../../src/store/db.js';
 import { defaultConfig, saveConfig } from '../../src/shared/config.js';
 import { projectIdOf } from '../../src/shared/paths.js';
@@ -136,13 +142,22 @@ describe('[任务S] 接线：brief 超条数时按引用次数保留 + 说出淘
       expect(pay.decisions.map((d) => d.text)).toEqual([HOT_DEC, NEW_DEC]);
       expect(pay.counts.decisions).toBe(2);
       expect(pay.counts.decisionsCompressed).toBe(1);
-      // 未决同一判据
+      // 未决同一判据（payload 上限层：--limit 2）
       expect(pay.unresolved.map((u) => u.q)).toEqual([HOT_Q, NEW_Q]);
       expect(pay.counts.unresolved).toBe(2);
-      expect(pay.counts.unresolvedCompressed).toBe(1);
+      // [1020] 但**简报只画 UNR_SLOTS=1 行未决**，所以第三层（名额层）又淘汰了 1 条：
+      //   候选 3 = 显示 1 + 压缩 2。上一版这里期望 1，是因为名额层根本不计入 ——
+      //   那正是"真机上从未触发过压缩"的一半原因（见文件头 ⑨⑩⑪）。
+      expect(pay.counts.unresolvedCompressed).toBe(2);
+      // 名额层的结果也必须交出来（渲染不许再自己 slice）
+      expect(shownDecisions(pay).map((d) => d.text)).toEqual([HOT_DEC, NEW_DEC]);
+      expect(shownUnresolved(pay).map((u) => u.q)).toEqual([HOT_Q]);
+      // 恒等式：显示 + 压缩 = 候选（决策 2+1=3、未决 1+2=3）
+      expect(shownDecisions(pay).length + (pay.counts.decisionsCompressed ?? 0)).toBe(3);
+      expect(shownUnresolved(pay).length + (pay.counts.unresolvedCompressed ?? 0)).toBe(3);
       // 渲染层用的文案（唯一一份）与两个计数一致
       expect(compressedNote((pay.counts.decisionsCompressed ?? 0) + (pay.counts.unresolvedCompressed ?? 0)))
-        .toBe('已按引用次数压缩 2 条');
+        .toBe('已按引用次数压缩 3 条');
     } finally { db.close(); }
   });
 
@@ -215,7 +230,8 @@ describe('[任务S] 接线：brief 超条数时按引用次数保留 + 说出淘
       };
       expect(pay.decisions.map((d) => d.text)).toEqual([HOT_DEC, NEW_DEC]);
       expect(pay.counts.decisionsCompressed).toBe(1);
-      expect(pay.counts.unresolvedCompressed).toBe(1);
+      // [1020] 未决名额层计入：候选 3 − 简报显示 1（UNR_SLOTS）= 2
+      expect(pay.counts.unresolvedCompressed).toBe(2);
     } finally {
       spy.mockRestore();
       process.chdir(prevCwd);
@@ -227,3 +243,149 @@ describe('[任务S] 接线：brief 超条数时按引用次数保留 + 说出淘
     }
   });
 });
+
+describe('[1020] 名额层压缩：不传 --limit（默认 200）也要在真机规模触发', () => {
+  // 病历：真机上压缩从来没出现过「已按引用次数压缩」字样 ——
+  //   48h 窗后的候选实测只有 1~15 条（agent1super 438 条决策里 1 条在窗内；
+  //   D:/dsh插件  记忆 38 条里 15 条），而预算是 --limit 默认 200 ⇒ selectByBudget 永远 total <= cap；
+  //   屏幕上只画 slice(0,5)，那 5 行既不走判据（pinned/引用次数全被无视），也**一个字都不说**少了 10 条。
+  // 修法：这两件事是同一件事 —— 简报名额（5 决策 / 1 未决）就是判据的容量。
+  //   这些用例用**默认**选项跑，证明它现在真的会触发。
+
+  const DEC_ROWS = [
+    { id: 'd1', text: '决定把发布节奏改为两周一次发版', h: 40, pinned: true }, // 最旧，但用户置顶
+    { id: 'd2', text: '决定把检索缓存改为本地落盘', h: 36 },                    // 被打开 6 次
+    { id: 'd3', text: '决定把日志保留期缩到十四天', h: 30 },                    // 名额外的较新条
+    { id: 'd4', text: '决定把面板配色换成浅色主题', h: 24 },                    // 名额外的较新条
+    { id: 'd5', text: '决定把导出格式统一成 markdown', h: 12 },
+    { id: 'd6', text: '决定把守护改成每两小时一轮', h: 6 },
+    { id: 'd7', text: '决定把版本号升到一零五版本', h: 1 },                     // 最新
+  ];
+
+  function seedDecisions(db: DB, projectId: string): void {
+    const stmt = db.prepare(`INSERT INTO sessions
+      (id, source, source_session_id, project_id, state, title, created_at, last_event_at, message_count, decisions, key_questions)
+      VALUES (?, 'zcode', ?, ?, 'confirmed', 't', ?, ?, 1, ?, '[]')`);
+    for (const r of DEC_ROWS) {
+      const at = iso(r.h);
+      stmt.run(r.id, 'src-' + r.id, projectId, at, at, JSON.stringify([{
+        text: r.text, seq: 1, at, msgId: 1,
+        ...(r.pinned === true ? { pinned: true } : {}),
+      }]));
+    }
+  }
+
+  it('⑨ 默认选项（无 --limit）：7 条候选 → 只显示 5 条、按 pinned > 引用次数 > 新鲜度 选，压缩 2 条说出来', () => {
+    const db = createDb(':memory:');
+    try {
+      seedDecisions(db, 'p');
+      // 注意：**不传 limit**（真机就是这么调的）—— 以前这里 compressed 必然 0
+      const pay = collectBrief(db, 'p', { refCounts: new Map([['d2', 6]]) });
+
+      // payload 契约没动：仍给到 --limit 以内（默认 200），调用方要的取数量还在
+      expect(pay.decisions).toHaveLength(DEC_ROWS.length);
+      expect(pay.counts.decisions).toBe(pay.decisions.length);
+
+      // 但简报只画 BRIEF_DECISION_SLOTS 行，而且这 5 行是判据选出来的（不是 payload 前 5 条）
+      const shown = shownDecisions(pay);
+      expect(shown).toHaveLength(BRIEF_DECISION_SLOTS);
+      expect(shown.map((d) => d.text)).toEqual([
+        DEC_ROWS[0].text, // ① pinned 压过一切（它是最旧的一条）
+        DEC_ROWS[1].text, // ② 被打开 6 次，压过更近的 d3/d4
+        DEC_ROWS[6].text, // ③ 其余按新鲜度：1h
+        DEC_ROWS[5].text, //    6h
+        DEC_ROWS[4].text, //    12h
+      ]);
+      // 名额外的两条（30h / 24h）就是压缩掉的
+      expect(pay.counts.decisionsCompressed).toBe(2);
+      expect(compressedNote(pay.counts.decisionsCompressed ?? 0)).toBe('已按引用次数压缩 2 条');
+      // 恒等式：显示 + 压缩 = 候选
+      expect(shown.length + (pay.counts.decisionsCompressed ?? 0)).toBe(DEC_ROWS.length);
+      // payload 仍是全量候选（客户端不会因为这次压缩少拿到东西）
+      expect(pay.decisions.map((d) => d.text)).toContain(DEC_ROWS[2].text);
+    } finally { db.close(); }
+  });
+
+  it('⑩ 未决同判据：名额 UNR_SLOTS 条，pinned 优先，其余计数说出来', () => {
+    const db = createDb(':memory:');
+    try {
+      const stmt = db.prepare(`INSERT INTO sessions
+        (id, source, source_session_id, project_id, state, title, created_at, last_event_at, message_count, decisions, key_questions)
+        VALUES (?, 'zcode', ?, ?, 'confirmed', 't', ?, ?, 1, '[]', ?)`);
+      const rows = [
+        { id: 'u1', q: '发布节奏多久复盘一次？', h: 40, pinned: true },
+        { id: 'u2', q: '异步写入失败如何回滚？', h: 30 },
+        { id: 'u3', q: '配置迁移顺序怎么安排？', h: 1 },
+      ];
+      for (const r of rows) {
+        const at = iso(r.h);
+        stmt.run(r.id, 'src-' + r.id, 'p', at, at, JSON.stringify([{
+          q: r.q, at, unresolved: true, msgId: 2,
+          ...(r.pinned === true ? { pinned: true } : {}),
+        }]));
+      }
+      const pay = collectBrief(db, 'p', { refCounts: new Map([['u2', 5]]) });
+      expect(pay.unresolved).toHaveLength(3);                       // payload 仍全量
+      const shown = shownUnresolved(pay);
+      expect(shown).toHaveLength(UNR_SLOTS);                        // 简报只画 1 行
+      // ⚠️ 这里**本该**是 pinned 的那条（u1）胜出，但未决读不到 pinned：
+      //   store/db.ts 的 UnresolvedRow 根本没有 pinned 字段（pin 只对 decisions 生效，
+      //   setDecisionPinned 也只写 decisions）⇒ 未决段判据实际退化成「引用次数 > 新鲜度」。
+      //   这是本次**没有**修掉的一处（改点在 store/db.ts，不在本轮可改范围），
+      //   用例如实钉住当前行为，别让它假装 pinned 在未决段有效。
+      expect(shown[0].q).toBe(rows[1].q);                           // 被打开 5 次的压过更新的 u3
+      expect(pay.counts.unresolvedCompressed).toBe(2);
+    } finally { db.close(); }
+  });
+
+  it('⑪ cmdBrief 端到端（默认选项）：人话输出出现「已按引用次数压缩 2 条」，且渲染的是判据选出的 5 条', async () => {
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'srelay-slots-'));
+    const project = path.join(tmp, 'app');
+    const pid = projectIdOf(project);
+    const prevHome = process.env.SRELAY_GLOBAL_HOME;
+    const prevCwd = process.cwd();
+    const logs: string[] = [];
+    const spy = vi.spyOn(console, 'log').mockImplementation((...a: unknown[]) => { logs.push(a.map(String).join(' ')); });
+    try {
+      fs.mkdirSync(path.join(project, '.sessionrelay'), { recursive: true });
+      saveConfig(project, { ...defaultConfig(), identity: { project_id: pid } });
+      process.env.SRELAY_GLOBAL_HOME = path.join(tmp, 'global'); // 没有反馈库：全部按引用次数 0
+      const db = createDb(dbFile(project));
+      seedDecisions(db, pid);
+      db.close();
+
+      process.chdir(project);
+      await cmdBrief({});   // ← 真机调法：不传 limit
+
+      expect(logs.some((l) => l.includes('已按引用次数压缩 2 条'))).toBe(true);
+      // 置顶那条（40 小时前）必须真的被画出来 —— 以前 slice(0,5) 取的是 payload 前 5 条，
+      // 而 payload 是最旧在前，它恰好能进；但 24~30 小时的那两条会被顶掉（新规则按判据选）。
+      expect(logs.some((l) => l.includes(DEC_ROWS[0].text))).toBe(true);
+      // 决策行恰好 5 行（名额），不是 7 行
+      const decisionRows = logs.filter((l) => l.includes('✓ ') || l.includes('✗ '));
+      expect(decisionRows).toHaveLength(BRIEF_DECISION_SLOTS);
+      // 计数行仍是"候选 7 条"（没显示的条数由说明行解释）
+      expect(logs.some((l) => l.includes('决策 7 条'))).toBe(true);
+
+      // --json 也说同一套数（两个面不许各说一套）
+      logs.length = 0;
+      await cmdBrief({ json: true });
+      const pay = JSON.parse(logs.find((l) => l.startsWith('{')) ?? '{}') as {
+        decisions: unknown[]; decisionsShown?: Array<{ text: string }>;
+        counts: { decisions: number; decisionsCompressed?: number };
+      };
+      expect(pay.decisions).toHaveLength(7);
+      expect(pay.decisionsShown).toHaveLength(BRIEF_DECISION_SLOTS);
+      expect(pay.counts.decisionsCompressed).toBe(2);
+    } finally {
+      spy.mockRestore();
+      process.chdir(prevCwd);
+      if (prevHome === undefined) delete process.env.SRELAY_GLOBAL_HOME;
+      else process.env.SRELAY_GLOBAL_HOME = prevHome;
+      for (let i = 0; i < 3; i++) {
+        try { fs.rmSync(tmp, { recursive: true, force: true }); break; } catch { /* Windows 句柄延迟 */ }
+      }
+    }
+  });
+});
+

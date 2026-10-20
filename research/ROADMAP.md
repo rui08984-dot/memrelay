@@ -79,6 +79,13 @@
 - 反馈偏差：只学到「被点开的」，学不到「没点开但其实更好」的；
 - 过拟合：必须用留出题集验证，涨了才写。
 
+## 三·五、上游同步（10-20 评估，结论：**不并**）
+
+- 本仓与上游 `EwanJasper/SessionRelay` **没有共同祖先**（10-18 全仓重写，根提交 `4fc676e` 无父）⇒ `git merge` 直接被拒（`refusing to merge unrelated histories`），强并要付 71 处 add/add 冲突 + 重加 11.8MB gif。
+- 落后 5 条逐条判定（证据见 `research/upstream-sync-1020.md`）：3 条是文档/发布号（不该并）· `0c77aa9` serve 根解析信号链 **我们已有且更强**（设计文档逐字节相同、9/9 用例通过、多出写侧闸门）· `e7fe17a`（测试污染真实家目录）**我们已有且多两道闸**（`maySpawn = !VITEST && !NO_DAEMON_SPAWN`；注册表现存 10 条 0 条 Temp）。
+- 保留 upstream 为**只读镜子**；将来只有出现"我们真没有"的提交才逐条处理（先 `git apply --check` 预演，再 `cherry-pick -n`）。
+- 版本号不动：上游 0.5.1 是另一个 npm 包（`@ewanjasper/sessionrelay`）的发布号，我们是 `memrelay` 1.0.0。
+
 ## 四、不做的事（已证否）
 
 - 三元组换主模型（论文不支持，SmartSearch 结论是 ranking 赢结构）；
