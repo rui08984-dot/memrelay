@@ -43,6 +43,19 @@ One command. No npm account, no clone, no build step — the tarball above alrea
 
 ![srelay brief — real output from a live project](./docs/diagrams/demo-brief.png)
 
+### DSH users: one command to install the plugin
+
+If you use DSH (DeepSeek Harness), the memory also needs the client plugin so it can **inject the opening brief**. The repo ships an installer that **defaults to dry-run**:
+
+```bash
+node tools/ses-install.mjs --source .            # show the plan (changes nothing)
+node tools/ses-install.mjs --source . --apply    # install: CLI mirror + plugin + real .pnpm path
+node tools/ses-install.mjs --uninstall --apply   # roll back from the backups it made
+```
+
+> Four circuit breakers guarantee it never "succeeds" while silently capturing nothing: source-feature check, build fingerprint, a real import after install, and a post-install doctor run. Any failure rolls the whole thing back.
+> To build a self-contained offline package for another machine: `node tools/ses-install.mjs --pack <out.zip> --apply` (measured 22MB / 4239 files).
+
 ---
 
 ## What is in the box
@@ -53,7 +66,7 @@ One command. No npm account, no clone, no build step — the tarball above alrea
 | Extract | Decisions / topics / files / open questions, versioned and re-computable | [docs/EXTRACT.md](./docs/EXTRACT.md) |
 | Store | Two databases, schema, FTS5, archive & rebuild | [docs/STORE.md](./docs/STORE.md) |
 | Search | Four fused arms, length penalty, time decay, multi-DB merge | [docs/SEARCH.md](./docs/SEARCH.md) |
-| Lifecycle | 11 independently scheduled stages | [docs/LIFECYCLE.md](./docs/LIFECYCLE.md) |
+| Lifecycle | 12 independently scheduled stages | [docs/LIFECYCLE.md](./docs/LIFECYCLE.md) |
 | Map | Structural source of truth for the plan: layers, dependency edges, reconciliation | [docs/MAP.md](./docs/MAP.md) |
 | Interfaces | CLI, MCP server, DSH plugin, panel | [docs/INTERFACES.md](./docs/INTERFACES.md) |
 

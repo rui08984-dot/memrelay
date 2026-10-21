@@ -73,6 +73,19 @@ srelay status                     # 会话数、消息数、各阶段最近一�
 
 最短验证：`srelay brief` 打印「下一场会话开场会看到什么」。如果它是空的，说明还没采到东西。
 
+### 给 DSH 用户：一条命令装插件（含自愈与卸载）
+
+如果你用 DSH（DeepSeek Harness），记忆要**注入开场简报**还得装客户端插件。仓里带一个安装器，**默认 dry-run**，看清楚了再加 `--apply`：
+
+```bash
+node tools/ses-install.mjs --source .            # 先看它打算做什么（不改任何东西）
+node tools/ses-install.mjs --source . --apply    # 真装：CLI 镜像 + 插件 + .pnpm 真实加载路径
+node tools/ses-install.mjs --uninstall --apply   # 反悔：按安装时的备份精确恢复
+```
+
+> 四道熔断保证它**不会装成「命令成功但永远采不到」**：源码特征校验、构建指纹、装完真 import、装完跑体检；任一不过整体回滚。
+> 想打一个自带运行时的离线包给别的机器：`node tools/ses-install.mjs --pack <out.zip> --apply`（实测 22MB / 4239 个文件）。
+
 ---
 
 ## 三、它由哪些部分组成
