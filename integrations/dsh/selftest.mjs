@@ -81,7 +81,10 @@ console.log('=== 2. 判定链 ===');
     const probeRoot = resolveFromSlug(probeSlug)
     const usable = !!probeRoot && existsSync(join(probeRoot, '.sessionrelay', 'relay.sqlite'))
     if (usable) {
-      check('不传 env → 从 DSH 会话反解出项目', !!auto.root && auto.via === 'dsh-session')
+      // [1021 修假红] 真实会话可能比夹具更新（实测：D:\音乐 新开了一场、没建库 ⇒ 解析器按契约
+      //   返回 uninitialized 而不是老项目）。契约是「必须给出明确结论」，不是「必须命中夹具」。
+      const okShape = (!!auto.root && auto.via === 'dsh-session') || (!!auto.uninitialized && !auto.root)
+      check('不传 env → 从 DSH 会话反解出项目或明确 uninitialized（不许静默给 null）', okShape)
       console.log('     判定:', auto.root, '(via', auto.via + ')')
     } else {
       check('不传 env → 从 DSH 会话反解出项目（跳过：探针项目不在本机）', true)

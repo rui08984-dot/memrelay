@@ -70,7 +70,7 @@ describe('审计契约（audit）', () => {
 
   it('runAudit 汇总：每项都有 status 与 note，不静默', () => {
     const rep = runAudit({ projectDb: createDb(), globalDb: null, projectId: 'p', root: null });
-    expect(rep.checks.length).toBe(7);
+    expect(rep.checks.length).toBe(8);
     for (const c of rep.checks) {
       expect(['ok', 'fail', 'skipped']).toContain(c.status);
       if (c.status === 'skipped') expect(String(c.note ?? '').length).toBeGreaterThan(0);

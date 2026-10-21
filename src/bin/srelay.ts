@@ -273,7 +273,7 @@ program
 
 program
   .command('audit')
-  .description('审计契约：七项只读检查（决策出处/碎片/冲突 · 经验草稿 · 归档未决 · 地图证据 · FTS 一致性），P0/P1 分级')
+  .description('审计契约：八项只读检查（决策出处/碎片/冲突 · 经验草稿 · 归档未决 · 地图证据 · 地图源码漂移 · FTS 一致性），P0/P1 分级')
   .option('--json', '机器格式')
   .option('--root <path>', '显式项目根（默认向上探测）')
   .action(async (opts) => {

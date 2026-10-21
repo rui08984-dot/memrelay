@@ -1,4 +1,4 @@
-// 审计契约（task-11）：七项**只读**健康检查，P0/P1 分级，各给条数 + 前 5 条样例 id。
+// 审计契约（task-11）：八项**只读**健康检查，P0/P1 分级，各给条数 + 前 5 条样例 id。
 //
 // ═══ 为什么要有它 ═══
 // 本仓的失败模式一直是「静默失效」：数据在降级，而每条命令都只说自己那一点，没人看全貌。
@@ -32,6 +32,7 @@ import { decisionAgeDays } from '../../store/decision-validity.js';
 import { vagueDecisionObject } from '../extract/extract.js';
 import { visibleWhere } from '../../store/global.js';
 import { listPages, readPageIfExists } from '../../map/index.js';
+import { checkSources } from '../../map/stale.js';
 import { findDecisionConflicts, CONFLICT_MIN_SHARED, CONFLICT_MIN_COVERAGE } from '../decisions/conflict.js';
 
 export type AuditSeverity = 'P0' | 'P1';
@@ -42,6 +43,7 @@ export type AuditCheckId =
   | 'lesson-draft-stale'
   | 'archived-unresolved'
   | 'map-node-no-sources'
+  | 'map-source-drift'
   | 'fts-integrity';
 
 /** 报告的三种结论。skipped 必须带 note —— 见文件头纪律 ③。 */
@@ -85,7 +87,7 @@ export interface AuditCheckMeta {
 }
 
 /**
- * 七项检查的**唯一清单**（顺序即输出顺序，与任务清单一致）。
+ * 八项检查的**唯一清单**（顺序即输出顺序，与任务清单一致）。
  * severity 为什么这么分：
  *   P0 = 修不回来或正在静默骗人 —— 归档会话的未决（正文已蒸发，出处永久指空）、
  *        FTS 与内容表不一致（检索双路都查不到，而界面上只表现为"搜不到"）。
@@ -128,6 +130,12 @@ export const AUDIT_CHECKS: readonly AuditCheckMeta[] = [
     severity: 'P1',
     title: '地图节点无 sources（没有证据声明）',
     criteria: '地图页里 sources 为空/缺省的节点数。sources 是证据声明：没有它 map check 覆盖不到该节点（无基线 ⇒ unknown，永远不会红），done 节点没有 sources 就是假绿',
+  },
+  {
+    id: 'map-source-drift',
+    severity: 'P1',
+    title: '地图声明的源码指纹已漂移',
+    criteria: '地图节点声明的 sources[].sha256 与磁盘现状不符的条数（即 map check 的 changed 态）。这些节点在看板上会显示「⛔ 待复验」，而原来只有主动跑 map check 才看得见；本项把它挂进每日审计，让漂移自动冒出来',
   },
   {
     id: 'fts-integrity',
@@ -307,6 +315,28 @@ export function auditArchivedUnresolved(db: DB, projectId: string): AuditFinding
 
 // ─────────────── 6) 地图节点无 sources ───────────────
 
+/**
+ * [1021 自动化] 地图源码指纹漂移：把 `map check` 的 changed 态挂进每日审计。
+ *
+ * 为什么需要它：地图节点的 sources[].sha256 是**证据基线**，源码一改基线就过期；
+ *   但原来只有人主动跑 `srelay map check` 才看得见 —— 于是「昨天还绿、今天早就漂了」没人知道。
+ *   本项只读、零写入（checkSources 自己就是只读实现），失败降级为 skipped，绝不假绿。
+ */
+export function auditMapSourceDrift(root: string | null | undefined): AuditFinding {
+  if (!root) return skipped('map-source-drift', '没有项目根，无法定位地图');
+  try {
+    // checkSources 一次只对一页（page 可选，缺省首页）——审计只查**默认页**，避免把 10 个项目 × N 页全扫一遍。
+    const rep = checkSources(root);
+    if (!rep.ok) return skipped('map-source-drift', '对账跑不起来：' + rep.error.message);
+    const changed = rep.value.nodes.filter((n) => n.changed.length > 0).map((n) => rep.value.page + '/' + n.id);
+    if (changed.length === 0) return finding('map-source-drift', 0, []);
+    return finding('map-source-drift', changed.length, changed,
+      '这些节点的源码指纹已过期：看板上会显示「⛔ 待复验」。复验后把新 sha256 写回 sources[].sha256，或把状态改回 doing');
+  } catch (e) {
+    return skipped('map-source-drift', '对账异常（不影响其它项）：' + String((e as Error)?.message ?? e).slice(0, 80));
+  }
+}
+
 export function auditMapNodesWithoutSources(root: string | null | undefined): AuditFinding {
   if (!root) return skipped('map-node-no-sources', '没有项目根，无法定位 .sessionrelay/map');
   const pages = listPages(root);
@@ -422,6 +452,7 @@ export function runAudit(input: AuditInput): AuditReport {
     guard('lesson-draft-stale', () => auditStaleLessonDrafts(input.global ?? null, sel, now)),
     guard('archived-unresolved', () => auditArchivedUnresolved(input.db, input.projectId)),
     guard('map-node-no-sources', () => auditMapNodesWithoutSources(root)),
+    guard('map-source-drift', () => auditMapSourceDrift(root)),
     guard('fts-integrity', () => auditFtsIntegrity(input.db)),
   ];
   const fail = checks.filter((c) => c.status === 'fail' && c.count > 0);

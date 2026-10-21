@@ -52,8 +52,8 @@ export const STAGES: StageSpec[] = [
   { id: 'tags', title: '标签图谱重建（检索扩展 / 逐词溯源用）', everySec: 21600, mutates: true, weight: 'heavy' },
   { id: 'aging', title: '老化压缩（老会话正文→摘要，结论留全）', everySec: 86400, mutates: true, lossy: true, weight: 'heavy' },
   { id: 'distribute', title: '分发（简报段 / 面板 / 导出）', everySec: 900, mutates: false, weight: 'light' },
-  // [1021 audit 生命周期化] 第 12 阶段：把 `srelay audit` 的**七项只读**检查挂进流水线
-  //   （10-19 加第 7 项 decision-conflict：同一 topic 下极性相反 + 时间序 ⇒ 后者可能推翻前者）。
+  // [1021 audit 生命周期化] 第 12 阶段：把 `srelay audit` 的**八项只读**检查挂进流水线
+  //   （10-19 加第 7 项 decision-conflict；10-21 加第 8 项 map-source-drift：地图声明的源码指纹漂移）。
   //   为什么必须进生命周期：audit 只能手动跑时，它等于"体检报告放在抽屉里" ——
   //   归档会话的未决（P0）会一直躺在库里，而每天跑的所有阶段都不看它一眼。
   //   节奏 24h：七项里最重的两项（FTS 双向差集、全量决策解析）在 10 万条消息的库上

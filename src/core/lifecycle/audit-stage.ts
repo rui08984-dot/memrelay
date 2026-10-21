@@ -1,12 +1,12 @@
-// audit-stage.ts —— 生命周期第 12 阶段：把 `srelay audit` 的七项**只读**检查挂进每日流水线。
+// audit-stage.ts —— 生命周期第 12 阶段：把 `srelay audit` 的八项**只读**检查挂进每日流水线。
 //
 // ═══ 为什么需要它 ═══
-// audit 之前只能手动跑：七项检查写得再好，也等于"体检报告放在抽屉里"。归档会话的未决（P0）
+// audit 之前只能手动跑：八项检查写得再好，也等于"体检报告放在抽屉里"。归档会话的未决（P0）
 // 会一直躺在库里，而每天跑的所有阶段都不看它一眼 —— 这就是本仓最嫌恶的「绿着的坏」。
 // 挂进生命周期后：每天一次，有 P0 就写 health_events（warn）+ 进简报顶部。
 //
 // ═══ 三条纪律 ═══
-// ① 判据只许一份：七项检查全部走 core/audit/audit.ts 的 runAudit。本文件只做
+// ① 判据只许一份：八项检查全部走 core/audit/audit.ts 的 runAudit。本文件只做
 //    「逐项目开只读句柄 → 汇总 → 生成告警文案」，**不复制任何检查逻辑**。
 // ② 只读：项目库用 openReadonly（fileMustExist），全局库用 openGlobalAuditReadonly。
 //    本文件不写任何库；运行记录（lifecycle / health_events）由 runner 拿到报告后写。
@@ -79,7 +79,7 @@ export interface AuditStageOptions {
   openGlobalDb?: () => { db: DB | null; reason?: string | null };
 }
 
-/** 单项目：七项检查 → 命中摘要 + 告警。只读；失败不抛给调用方（打包成 skipped）。 */
+/** 单项目：八项检查 → 命中摘要 + 告警。只读；失败不抛给调用方（打包成 skipped）。 */
 function auditOne(root: string, opts: AuditStageOptions, global: DB | null): AuditStageProject {
   const file = dbFile(root);
   if (!existsSync(file)) {
@@ -93,7 +93,7 @@ function auditOne(root: string, opts: AuditStageOptions, global: DB | null): Aud
   }
   try {
     // project_id 必须走 config 优先（与 capture/listDecisions 同源）；配置坏了用路径推导兜底。
-    // 绝不能退回 root —— 库里存的是 project_id，退回 root 会让七项全部报 0（假绿）。
+    // 绝不能退回 root —— 库里存的是 project_id，退回 root 会让八项全部报 0（假绿）。
     let projectId = projectIdOf(root);
     try { projectId = loadConfig(root).identity?.project_id ?? projectId; } catch { /* 配置坏了不阻塞审计 */ }
     const report = runAudit({
@@ -115,7 +115,7 @@ function auditOne(root: string, opts: AuditStageOptions, global: DB | null): Aud
       skipped: report.totals.skipped,
       hits,
       alert: alert || null,
-      ...(hits.length === 0 && report.totals.skipped > 0 ? { note: '七项中 ' + String(report.totals.skipped) + ' 项没测到（原因见 health_events）' } : {}),
+      ...(hits.length === 0 && report.totals.skipped > 0 ? { note: '八项中 ' + String(report.totals.skipped) + ' 项没测到（原因见 health_events）' } : {}),
     };
   } finally {
     try { db.close(); } catch { /* 已关 */ }
@@ -125,7 +125,7 @@ function auditOne(root: string, opts: AuditStageOptions, global: DB | null): Aud
 /**
  * 跑一轮审计（**零写入**）。roots 由 runner 的 registry 给；测试直接传临时项目根。
  *
- * 全局库整轮只开一次（不是每项目一次）：七项里只有"经验草稿超期"读全局库，
+ * 全局库整轮只开一次（不是每项目一次）：八项里只有"经验草稿超期"读全局库，
  * 而 N 个项目各开一个只读句柄再忘关，是典型的句柄泄漏 —— 守护每天跑一轮，
  * 几天后就是几十个悬挂句柄。
  */

@@ -75,15 +75,15 @@ function addMessages(sessionId: string, n: number): number[] {
 }
 
 describe('审计契约 · 清单与分级', () => {
-  it('七项齐全、P0/P1 分级固定（分级一变，CI 的退出码语义就跟着变）', () => {
+  it('八项齐全、P0/P1 分级固定（分级一变，CI 的退出码语义就跟着变）', () => {
     expect(AUDIT_CHECKS.map((c) => c.id)).toEqual([
       'decision-missing-msgid', 'decision-fragment', 'decision-conflict', 'lesson-draft-stale',
-      'archived-unresolved', 'map-node-no-sources', 'fts-integrity',
+      'archived-unresolved', 'map-node-no-sources', 'map-source-drift', 'fts-integrity',
     ]);
     const p0 = AUDIT_CHECKS.filter((c) => c.severity === 'P0').map((c) => c.id);
     const p1 = AUDIT_CHECKS.filter((c) => c.severity === 'P1').map((c) => c.id);
     expect(p0).toEqual(['archived-unresolved', 'fts-integrity']);
-    expect(p1).toEqual(['decision-missing-msgid', 'decision-fragment', 'decision-conflict', 'lesson-draft-stale', 'map-node-no-sources']);
+    expect(p1).toEqual(['decision-missing-msgid', 'decision-fragment', 'decision-conflict', 'lesson-draft-stale', 'map-node-no-sources', 'map-source-drift']);
     // 每项都必须写清"这个数怎么算的"——没有判据的条目等于不可审计
     for (const c of AUDIT_CHECKS) expect(c.criteria.length).toBeGreaterThan(20);
   });
@@ -292,12 +292,12 @@ describe('审计契约 · FTS 一致性（只读等价实现）', () => {
 });
 
 describe('审计契约 · 汇总报告', () => {
-  it('runAudit 七项全跑一遍；单项抛错降级 skipped 而不拖垮整场审计', () => {
+  it('runAudit 八项全跑一遍；单项抛错降级 skipped 而不拖垮整场审计', () => {
     const broken = {
       prepare: () => { throw new Error('模拟坏库'); },
     } as unknown as DB;
     const r = runAudit({ db: broken, projectId: PID, global: null, root: tmp });
-    expect(r.checks).toHaveLength(7);
+    expect(r.checks).toHaveLength(8);
     expect(r.checks.map((c) => c.id)).toEqual(AUDIT_CHECKS.map((c) => c.id));
     // 读库的五项 + 地图项全部因坏库 skipped；经验项因 global=null 也 skipped
     expect(r.totals.skipped).toBeGreaterThanOrEqual(5);
@@ -378,7 +378,7 @@ describe('审计契约 · CLI 退出码（srelay audit --json）', () => {
         expect(okRun.code).toBe(0);
         const okReport = JSON.parse(okRun.out) as { exitCode: number; checks: Array<{ id: string; status: string }> };
         expect(okReport.exitCode).toBe(0);
-        expect(okReport.checks).toHaveLength(7);
+        expect(okReport.checks).toHaveLength(8);
         // 没有地图 ⇒ 该项 skipped（未建图 ≠ 有债），但结论仍是 0
         expect(okReport.checks.find((c) => c.id === 'map-node-no-sources')?.status).toBe('skipped');
 
