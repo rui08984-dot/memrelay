@@ -89,8 +89,27 @@ export function buildHandoff(opts: { db: DB; project: string; root: string; now?
   return { project: opts.project, payload, markdown };
 }
 
-export async function cmdHandoff(opts: { out?: string; json?: boolean }): Promise<void> {
-  const root = requireRoot();
+export async function cmdHandoff(opts: { out?: string; json?: boolean; root?: string }): Promise<void> {
+  // [1022 修「在 DSH 里点交接包却报未初始化」] 命令面板/工具调用拿不到会话 cwd 时，
+  //   进程 cwd 会落到 DSH 安装目录 ⇒ requireRoot 找不到 .sessionrelay。
+  //   现在支持显式 --root（由调用方传当前工作区），并在目录不对时说清楚该传什么。
+  let root: string;
+  if (opts.root && String(opts.root).trim()) {
+    const want = String(opts.root).trim();
+    if (!fs.existsSync(want)) {
+      console.error('✗ 交接包目标目录不存在：' + want);
+      process.exitCode = 2;
+      return;
+    }
+    root = want;
+    if (!fs.existsSync(root + '/.sessionrelay/config.json') && !fs.existsSync(root + '/.sessionrelay/relay.sqlite')) {
+      console.error('✗ 这个目录还没初始化记忆库：' + root + '（在该项目根运行 srelay init）');
+      process.exitCode = 2;
+      return;
+    }
+  } else {
+    root = requireRoot();
+  }
   const cfg = loadConfig(root);
   const db = openRelayDb(root);
   try {

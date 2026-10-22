@@ -7,7 +7,7 @@
 // 3. 绝不起 MCP serve 子进程，底层通过 cli.js 瞬态调用 CLI 命令。
 // 4. srelay_bind_project 必须是两段式：模型调用只提议（propose），绝不直接更改生效项目。
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, dirname, resolve as pathResolve } from 'node:path'
 import { homedir } from 'node:os'
 import { defineTool as defineToolRaw } from './define-tool.js'
 
@@ -49,6 +49,25 @@ import { getActiveProject, proposeProject, confirmProject, cancelProposal } from
  * 兜底仍用 getActiveProject()：显式绑定过的项目应当**压过**会话 cwd（用户可能在一个
  * 跨项目的窗口里，明确指定了要看哪个库）。
  */
+/**
+ * 从某个目录向上找最近的记忆库（.sessionrelay/config.json 或 relay.sqlite）。
+ *
+ * [1022 修「在 DSH 里点交接包报未初始化」] 命令面板/某些执行路径拿不到会话 cwd，
+ *   进程 cwd 会落到 DSH 安装目录 ⇒ 之前直接把 cwd=null 传下去，CLI 在**错的目录**里
+ *   找 .sessionrelay，于是报「本项目尚未初始化」（其实项目好好地在 D:\agent1super）。
+ *   现在多一层兜底：从进程 cwd 向上找；找不到才报错，并且报错要说清该传什么。
+ */
+function nearestProjectRoot(start) {
+  let p = pathResolve(String(start || process.cwd()))
+  for (let i = 0; i < 12; i++) {
+    if (existsSync(join(p, '.sessionrelay', 'config.json')) || existsSync(join(p, '.sessionrelay', 'relay.sqlite'))) return p
+    const up = dirname(p)
+    if (up === p) break
+    p = up
+  }
+  return null
+}
+
 function resolveToolRoot(args, exec) {
   const explicit = String(args?.projectPath ?? '').trim()
   if (explicit) return explicit
@@ -56,7 +75,8 @@ function resolveToolRoot(args, exec) {
   if (bound) return bound;
   const cwd = exec?.agent?.session?.header?.cwd
   if (typeof cwd === 'string' && cwd.trim()) return cwd.trim()
-  return null
+  // 兜底：从进程 cwd 向上找（DSH 安装目录向上找不到 ⇒ null，交给调用方报清晰错误）
+  return nearestProjectRoot(process.cwd())
 }
 import { isInternalDir } from '../project-resolve.mjs'
 
@@ -472,6 +492,9 @@ function describeTextTool({ name, description, parameters, buildArgs, emptyHint,
     },
     async execute(args, exec) {
       const cwd = resolveToolRoot(args, exec)
+      if (!cwd) {
+        return { ok: false, payload: '', error: '找不到项目工作区：当前目录不是记忆库，也没传 projectPath。请传 projectPath=项目根（例如 D:/agent1super），或先 srelay init。' }
+      }
       const res = await execSrelay(buildArgs(args), { cwd })
       if (!res.ok) return { ok: false, payload: '', error: res.stderr || '执行异常' }
       const output = (res.stdout || '').trim()
@@ -630,9 +653,14 @@ export const pinTool = describeTextTool({
 /** 交接包：五段固定格式的交接文档（程序拼、每条带出处）。 */
 export const handoffTool = describeTextTool({
   name: 'srelay_handoff',
-  description: '交接包：五段（现状/定过什么/还欠什么/下一步/坑），每条带 sessionId+msgId 出处。用户说「交接一下 / 换会话继续」时用。只读。',
-  parameters: {},
-  buildArgs: () => ['handoff'],
+  description: '交接包：五段（现状/定过什么/还欠什么/下一步/坑），每条带 sessionId+msgId 出处。用户说「交接一下 / 换会话继续」时用。只读。默认用当前工作区；要指定别的项目就传 projectPath。',
+  parameters: {
+    projectPath: { type: 'string', description: '可选：项目根目录（默认＝当前会话的工作区）' },
+  },
+  buildArgs: (a) => {
+    const p = String(a?.projectPath ?? '').trim()
+    return p ? ['handoff', '--root', p] : ['handoff']
+  },
   emptyHint: '交接包生成失败（项目尚未初始化或库里没有可交接的内容）。',
 })
 

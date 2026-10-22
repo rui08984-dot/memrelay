@@ -241,6 +241,7 @@ program
   .command('handoff')
   .description('一键交接包：五段（现在到哪了 / 定过什么 / 还欠什么 / 下一步 / 坑），带出处，可 --out 落盘')
   .option('--out <file>', '写入文件（默认打印到 stdout）')
+  .option('--root <path>', '显式指定项目根（从别的目录调用时必须给）')
   .option('--json', '机器格式（原始 payload）')
   .action(async (opts) => { const { cmdHandoff } = await import('../cli/handoff.js'); await cmdHandoff(opts); });
 
