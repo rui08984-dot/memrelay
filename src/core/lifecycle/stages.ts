@@ -49,7 +49,9 @@ export const STAGES: StageSpec[] = [
   //   体量 light：实测 620 会话全量重建 1.3s，可跑在宿主进程内；每天一次足够。
   // [1021 修「标签一直不更新」] 24h → **6h**：实测单库重建约 1.3s，代价可忽略；
   //   换来「白天聊的内容最晚 6 小时进图谱」（原来要等 24 小时）。
-  { id: 'tags', title: '标签图谱重建（检索扩展 / 逐词溯源用）', everySec: 21600, mutates: true, weight: 'heavy' },
+  // [1022] 6h → 1h：用户反馈「标签感觉不实时更新」。单库重建实测 ~1.3s，多库 ~2.8s，
+  //   1 小时一次成本可忽略，换来「当天聊的内容 1 小时内进图谱」。
+  { id: 'tags', title: '标签图谱重建（检索扩展 / 逐词溯源用）', everySec: 3600, mutates: true, weight: 'heavy' },
   { id: 'aging', title: '老化压缩（老会话正文→摘要，结论留全）', everySec: 86400, mutates: true, lossy: true, weight: 'heavy' },
   { id: 'distribute', title: '分发（简报段 / 面板 / 导出）', everySec: 900, mutates: false, weight: 'light' },
   // [1021 audit 生命周期化] 第 12 阶段：把 `srelay audit` 的**八项只读**检查挂进流水线

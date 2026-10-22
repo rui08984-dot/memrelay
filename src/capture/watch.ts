@@ -26,6 +26,7 @@ import { recomputeExtractions } from './recompute.js';
 import { runJudge } from './judge.js';
 import { consumeHookEvents } from './hook-spool.js';
 import { ensureRegistered, get, adapterConfig } from '../adapters/registry.js';
+import { autoRegisterNewProjects } from './auto-register.js';
 import { registryCandidates } from '../shared/registry.js';
 
 export interface WatchOptions {
@@ -498,6 +499,15 @@ export async function runWatchGlobal(opts: { log?: (msg: string) => void } = {})
   heartbeatTimer.unref?.();
 
   const adopt = async (why: string) => {
+    // [1022] 先自动接入「真用过但没注册」的新工作区：采集是按项目做的，不接进来就永远看不见。
+    //   判据与保守边界全在 capture/auto-register.ts（单轮最多 3 个、临时目录/盘根/重叠一律不收）。
+    //   失败只记日志、绝不拖垮采集。
+    try {
+      const auto = autoRegisterNewProjects({ log });
+      if (auto.created.length > 0) log(`${why}: 自动接入 ${auto.created.length} 个新工作区`);
+    } catch (e) {
+      log(`${why}: 自动接入失败（不影响采集）：` + (e as Error).message);
+    }
     for (const c of registryCandidates()) {
       const key = path.resolve(c.root).toLowerCase();
       if (workers.has(key)) continue;
