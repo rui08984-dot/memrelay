@@ -19,7 +19,18 @@ export interface ReviewResult { updated: number; to: 'verified' | 'rejected'; }
  */
 export function reviewLessons(db: DB, ids: readonly number[], action: ReviewAction, now = new Date().toISOString()): ReviewResult {
   const to = action === 'confirm' ? 'verified' : 'rejected';
-  const upd = db.prepare('UPDATE lessons SET status = ?, updated_at = ?, grade = CASE WHEN ? = ? AND grade = ? THEN ? ELSE grade END, importance = CASE WHEN ? = ? AND grade = ? THEN ? ELSE importance END WHERE id = ?');
+  // needs_review 必须一起清掉：否则驳回后这条仍带「待人工复核」标记，
+  //   继续躺在「待审核」筛选里、按钮还在 —— 用户点了第二次就是 updated=0，看起来"没反应"（实测反馈）。
+  // 老库可能没有 needs_review 列（PRAGMA 检查比 try/catch 干净，但 prepare 本身就会编译）：
+  //   有该列就顺手清标记，没有就退化成只改状态——不为一个可选列让复核整个失败。
+  const hasFlag = (() => {
+    try { return (db.prepare('PRAGMA table_info(lessons)').all() as Array<{ name?: string }>).some((c) => c.name === 'needs_review'); }
+    catch { return false; }
+  })();
+  const upd = db.prepare(
+    'UPDATE lessons SET status = ?, updated_at = ?' + (hasFlag ? ', needs_review = 0' : '') +
+    ', grade = CASE WHEN ? = ? AND grade = ? THEN ? ELSE grade END,'
+    + ' importance = CASE WHEN ? = ? AND grade = ? THEN ? ELSE importance END WHERE id = ?');
   let updated = 0;
   for (const id of ids) {
     const r = upd.run(to, now, to, 'verified', 'inferred', 'verified-file', to, 'verified', 'inferred', 6.0, id);

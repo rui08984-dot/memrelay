@@ -7,7 +7,7 @@ import { reviewLessons } from '../../src/store/lesson-review.js';
 let db: DB;
 beforeEach(() => {
   db = createDb(':memory:');
-  db.exec('CREATE TABLE lessons (id INTEGER PRIMARY KEY, status TEXT, grade TEXT, importance REAL, updated_at TEXT)');
+  db.exec('CREATE TABLE lessons (id INTEGER PRIMARY KEY, status TEXT, grade TEXT, importance REAL, updated_at TEXT, needs_review INTEGER DEFAULT 0)');
   db.prepare('INSERT INTO lessons (id,status,grade,importance) VALUES (1,?,?,?)').run('draft', 'inferred', 1.5);
   db.prepare('INSERT INTO lessons (id,status,grade,importance) VALUES (2,?,?,?)').run('draft', 'verified-user', 7.5);
 });
@@ -36,6 +36,13 @@ describe('经验复核', () => {
     const row = db.prepare('SELECT status, grade FROM lessons WHERE id = 1').get() as { status: string; grade: string };
     expect(row.status).toBe('rejected');
     expect(row.grade).toBe('inferred');
+  });
+
+  it('复核后清掉 needs_review（否则驳回后还赖在「待审核」里，看起来没反应）', () => {
+    db.prepare('UPDATE lessons SET needs_review = 1 WHERE id = 1').run();
+    reviewLessons(db, [1], 'reject');
+    const row = db.prepare('SELECT needs_review FROM lessons WHERE id = 1').get() as { needs_review: number };
+    expect(row.needs_review).toBe(0);
   });
 
   it('不存在的 id 不计入 updated', () => {
