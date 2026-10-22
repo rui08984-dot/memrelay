@@ -184,6 +184,9 @@ const EMPTY_LESSONS = (error: string | null): PanelLessons => ({
 });
 
 /** 全局经验层（~/.sessionrelay/global.sqlite）。判据走 lesson-gate 的唯一一份实现 */
+// [1022] 经验审核**不放这里**：panel/* 有「零原生依赖」纪律（不许 import store/db|store/global），
+//   而复核要写全局库。面板的做法是调 CLI `srelay lesson confirm|reject`（见 lib/index.js 的 lessonReview），
+//   判据仍只有一份（store/lesson-review.ts，CLI 与面板共用同一实现路径）。
 export function panelLessons(limit = 200): PanelLessons {
   const f = globalDbFile();
   if (!fs.existsSync(f)) return EMPTY_LESSONS('还没有全局经验库（跑过任何一次采集后才会建）');

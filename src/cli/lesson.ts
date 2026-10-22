@@ -54,17 +54,9 @@ export async function cmdLesson(sub: string | undefined, text: string[], f: Less
     if (sub === 'confirm' || sub === 'reject') {
       const ids = text.map((t) => Number(String(t).replace(/^#/, ''))).filter((n) => Number.isInteger(n) && n > 0);
       if (ids.length === 0) { console.error('用法: srelay lesson confirm <id...>   （id 见 lesson list；reject = 标 rejected 终态：maintain 不会把它复活）'); process.exit(2); }
-      const to = sub === 'confirm' ? 'verified' : 'rejected';
-      // ⚠️ 只改状态是不够的：注入还有一道"等级"闸，inferred 一律进不去。
-      // **人工确认本身就是证据**（强于"文件里读到"），所以 confirm 时把 inferred 抬到 verified-file（6.0）。
-      // 实测踩过：只改状态 → 复核完了还是 ○、还是进不了注入层，看起来"确认没生效"。
-      const upd = db.prepare('UPDATE lessons SET status = ?, updated_at = ?, grade = CASE WHEN ? = ? AND grade = ? THEN ? ELSE grade END, importance = CASE WHEN ? = ? AND grade = ? THEN ? ELSE importance END WHERE id = ?');
-      const now = new Date().toISOString();
-      let n = 0;
-      for (const id of ids) {
-        const r = upd.run(to, now, to, 'verified', 'inferred', 'verified-file', to, 'verified', 'inferred', 6.0, id);
-        if (Number(r.changes) > 0) n++;
-      }
+      // 判据只有一份：store/lesson-review.ts（面板的「通过/驳回」按钮走同一函数）。
+      const { reviewLessons } = await import('../store/lesson-review.js');
+      const { updated: n, to } = reviewLessons(db, ids, sub);
       console.log(pc.green('✓ ' + n + ' 条 → ' + to) + pc.dim('（' + (to === 'verified' ? '下次注入就可能带上它们' : '已退休：不再默认注入，但仍可 lesson search 到') + '）'));
       return;
     }
