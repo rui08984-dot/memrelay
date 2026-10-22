@@ -26,6 +26,7 @@ import { isInjectable, liveImportance, INJECT_THRESHOLD, DECAY_PER_DAY, type Les
 import { planAging, strengthOf, strengthGateOf, ARCHIVE_CAP_PER_ROUND } from '../core/compact/aging.js';
 import { compactExactSessions } from '../core/compact/exact.js';
 import { EXTRACT_VERSION } from '../core/extract/version.js';
+import { contentFingerprint, GRAPH_TAG_VERSION } from '../core/graph/tags.js';
 import { STAGES, loadLifecycle, dueStages, heartbeatAgeMs, type LifecycleDb } from '../core/lifecycle/stages.js';
 import { KNOB_SPECS, knobStates, validateKnob, setPath, type KnobState } from './knobs.js';
 import { withDb, openReadonly, type ReadonlyDb } from './db.js';
@@ -448,7 +449,11 @@ export function panelOverview(opts: { focus?: string | null } = {}): PanelOvervi
     if (card.error) errors.push(card.name + '：' + card.error);
     projects.push(card);
   }
-  projects.sort((a, b) => b.sessions - a.sessions || a.name.localeCompare(b.name));
+  // [1022 修「面板永远显示同一份旧数字」] 原来按**会话数**降序 —— 于是 941 场的 `work`
+  //   （10-16 之后没再动过）永远排第一，面板默认打开它：用户看到的 567/971/941 几天不变。
+  //   改成按**最近活跃**降序：默认落到用户今天真在用的项目。
+  projects.sort((a, b) => String(b.lastActiveAt ?? '').localeCompare(String(a.lastActiveAt ?? ''))
+    || b.sessions - a.sessions || a.name.localeCompare(b.name));
   const focus = opts.focus && projects.some((p) => p.root === opts.focus) ? opts.focus : null;
   const totals = projects.reduce((a, p) => ({
     projects: a.projects + (p.ok ? 1 : 0),
@@ -1004,7 +1009,16 @@ export { KNOB_SPECS };
 export interface PanelGraphTag { name: string; sessions: number; degree: number }
 export interface PanelGraph {
   root: string; generatedAt: string; ok: boolean; error: string | null;
-  stats: { tags: number; edges: number; sessions: number; builtAt: string | null; builtSessions: number | null; stale: boolean };
+  stats: {
+    tags: number; edges: number; sessions: number;
+    builtAt: string | null; builtSessions: number | null;
+    /** 图与库不一致（版本 / 会话数 / **内容指纹** 任一不同，或图是空的） */
+    stale: boolean;
+    /** stale 的分项：内容真的变过（让 UI 能说清「变了」还是「从没建过」） */
+    contentChanged: boolean;
+    /** 挂上来的共享经验条数（includeShared=true 时） */
+    sharedLessons?: number;
+  };
   hubs: PanelGraphTag[];
   /** [1021] 力导向图：节点（标签）+ 边（共现）。nodes 里的 id 是 graph_tags.id，links 的 a/b 是 nodes 数组下标。 */
   nodes: Array<{ id: number; name: string; kind: string; sessions: number; degree: number }>;
@@ -1012,10 +1026,10 @@ export interface PanelGraph {
   roleNote: string;
 }
 
-export function panelGraph(root: string, limit = 20): PanelGraph {
+export function panelGraph(root: string, limit = 20, opts: { includeShared?: boolean } = {}): PanelGraph {
   const out: PanelGraph = {
     root, generatedAt: new Date().toISOString(), ok: false, error: null,
-    stats: { tags: 0, edges: 0, sessions: 0, builtAt: null, builtSessions: null, stale: false },
+    stats: { tags: 0, edges: 0, sessions: 0, builtAt: null, builtSessions: null, stale: false, contentChanged: false },
     hubs: [],
     nodes: [],
     links: [],
@@ -1023,7 +1037,7 @@ export function panelGraph(root: string, limit = 20): PanelGraph {
   };
   const f = dbFile(root);
   if (!fs.existsSync(f)) { out.error = '这个项目还没有库文件'; return out; }
-  type Got = { tags: number; edges: number; sess: number; builtAt: string | null; builtSessions: number | null; stale: boolean; hubs: Array<{ name: string; sessions: number; degree: number }>; nodes: Array<{ id: number; name: string; kind: string; sessions: number; degree: number }>; links: Array<{ a: number; b: number; w: number }> };
+  type Got = { tags: number; edges: number; sess: number; builtAt: string | null; builtSessions: number | null; stale: boolean; contentChanged: boolean; sharedLessons: number; hubs: Array<{ name: string; sessions: number; degree: number }>; nodes: Array<{ id: number; name: string; kind: string; sessions: number; degree: number }>; links: Array<{ a: number; b: number; w: number }> };
   const got = withDb(f, (db): Got | null => {
     const has = (t: string): boolean => { try { db.prepare('SELECT 1 FROM ' + t + ' LIMIT 1').get(); return true; } catch { return false; } };
     if (!has('graph_tags')) return null;
@@ -1031,9 +1045,12 @@ export function panelGraph(root: string, limit = 20): PanelGraph {
     const edges = Number((db.prepare('SELECT COUNT(*) AS c FROM graph_tag_edges').get() as { c?: number })?.c ?? 0);
     const sess = Number((db.prepare('SELECT COUNT(*) AS c FROM sessions').get() as { c?: number })?.c ?? 0);
     let builtAt: string | null = null, builtSessions: number | null = null;
+    let builtVersion: number | null = null, builtFingerprint: string | null = null;
     try {
-      const m = db.prepare('SELECT built_at, session_count FROM graph_meta WHERE id = 1').get() as { built_at?: string; session_count?: number } | undefined;
+      const m = db.prepare('SELECT built_at, session_count, version, fingerprint FROM graph_meta WHERE id = 1')
+        .get() as { built_at?: string; session_count?: number; version?: number; fingerprint?: string } | undefined;
       builtAt = m?.built_at ?? null; builtSessions = m?.session_count ?? null;
+      builtVersion = m?.version ?? null; builtFingerprint = m?.fingerprint ?? null;
     } catch { /* 老库没有这张表：当作没建过（stale=true），不静默 */ }
     // ⚠️ [1021 修 图谱页从来没工作过] 这张表的列是 **a / b / w**（见 ensureGraphSchema 的建表语句），
     //   而这里原来写的是 `e.tag_a` / `e.tag_b` —— **两个列都不存在**。
@@ -1074,8 +1091,48 @@ export function panelGraph(root: string, limit = 20): PanelGraph {
           .filter((l) => typeof l.a === 'number' && typeof l.b === 'number' && l.a !== l.b);
       }
     } catch { /* 图画不出来不影响统计与枢纽榜：退化成空图，不静默改别的结果 */ }
-    const stale = builtSessions === null ? true : builtSessions !== sess;
-    return { tags, edges, sess, builtAt, builtSessions, stale, hubs, nodes, links };
+    // [1022 修] 原来只比「会话数」：work 项目 941 场没变 ⇒ 永远判「新鲜」，
+    //   而图谱其实停在 10-20。现在复用 buildTagGraph 的**同一套**判据（版本 + 会话数 + 内容指纹），
+    //   判据只此一份：contentFingerprint / GRAPH_TAG_VERSION 都从 tags.ts import。
+    let contentChanged = false;
+    try {
+      const fp = contentFingerprint(db as never);
+      contentChanged = builtFingerprint === null || builtFingerprint !== fp || builtVersion !== GRAPH_TAG_VERSION;
+    } catch { contentChanged = true; }   // 指纹算不出 ⇒ 当作变了（宁可提示重建）
+    // ── [1022] 共享经验节点（可选）：把全局经验库里与本图相关的几条挂上来 ──
+    //   为什么放在这里而不是前端拼：节点/边/索引口径只有这一份，前端只会画。
+    //   只在 includeShared 时读全局库；读不到就静默跳过（不影响主图）。
+    let sharedLessons = 0;
+    if (opts.includeShared) {
+      try {
+        const gf = globalDbFile();
+        if (fs.existsSync(gf)) {
+          const rows = withDb(gf, (gdb) => gdb.prepare(
+            "SELECT text FROM lessons WHERE status <> 'rejected' ORDER BY importance DESC LIMIT 80",
+          ).all() as Array<{ text: string }>) || [];
+          const byName = new Map<string, number>();
+          nodes.forEach((n, i) => byName.set(String(n.name).toLowerCase(), i));
+          for (const r of rows) {
+            if (sharedLessons >= 12) break;
+            const text = String(r.text ?? '');
+            const low = text.toLowerCase();
+            const hits: number[] = [];
+            for (const [name, idx] of byName) {
+              if (name.length >= 2 && low.includes(name)) hits.push(idx);
+              if (hits.length >= 3) break;
+            }
+            if (hits.length === 0) continue;   // 挂不上任何标签的经验不画（画了也是孤点）
+            const idxNew = nodes.length;
+            nodes.push({ id: 900000 + idxNew, name: text.slice(0, 10), kind: 'lesson', sessions: 1, degree: hits.length });
+            for (const hIdx of hits) links.push({ a: idxNew, b: hIdx, w: 2 });
+            sharedLessons++;
+          }
+        }
+      } catch { /* 共享经验读不到不影响主图 */ }
+    }
+
+    const stale = builtSessions === null ? true : (builtSessions !== sess || contentChanged || tags === 0);
+    return { tags, edges, sess, builtAt, builtSessions, stale, contentChanged, sharedLessons, hubs, nodes, links };
   },
   // ⚠️ [1021] **必须传 onError**：不传时 withDb 把异常吞成 null，于是「查询报错」和「没建过图谱」
   //   长得一模一样。上面那个 `e.tag_b` 列名错误（真实列是 `a`/`b`/`w`）就靠这个躲了一整个版本，
@@ -1086,7 +1143,7 @@ export function panelGraph(root: string, limit = 20): PanelGraph {
     return out;
   }
   out.ok = true;
-  out.stats = { tags: got.tags, edges: got.edges, sessions: got.sess, builtAt: got.builtAt, builtSessions: got.builtSessions, stale: got.stale };
+  out.stats = { tags: got.tags, edges: got.edges, sessions: got.sess, builtAt: got.builtAt, builtSessions: got.builtSessions, stale: got.stale, contentChanged: got.contentChanged, sharedLessons: got.sharedLessons };
   out.nodes = (got.nodes || []).map((n) => ({ id: Number(n.id), name: String(n.name ?? ''), kind: String(n.kind ?? ''), sessions: Number(n.sessions ?? 0), degree: Number(n.degree ?? 0) }));
   out.links = (got.links || []).map((l) => ({ a: Number(l.a), b: Number(l.b), w: Number(l.w ?? 0) }));
   out.hubs = got.hubs.map((h) => ({ name: String(h.name ?? ''), sessions: Number(h.sessions ?? 0), degree: Number(h.degree ?? 0) }));
