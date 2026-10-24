@@ -312,10 +312,22 @@ export async function startWatchWorker(opts: WatchOptions): Promise<WatchWorker 
   let warnedMode = String(opts.config.capture.mode);
   // [1021 省重复] safety 是兜底：tick 在 20s 内刚跑过就跳过，别把同一份活儿干两遍
   let lastCycleAt = 0
+  // [1024 省 CPU] 空闲退避：连续多拍没有任何新消息 ⇒ 把有效节拍降到 30s / 60s，
+  //   一旦有活动立刻回到 15s。为什么做：11 个项目 × 15s 一拍，全天 99% 的拍次都是「+0 消息」，
+  //   而每拍都要扫会话目录（scan 缓存 30s 过期那一下约 0.5s CPU）。退避不牺牲新鲜度：
+  //   有活动时仍是 15s。想关掉：SRELAY_IDLE_BACKOFF=0。
+  let idleStreak = 0
+  const IDLE_BACKOFF_ON = String(process.env.SRELAY_IDLE_BACKOFF ?? '1') !== '0'
   const cycle = (why: string) => {
     chain = chain.then(async () => {
       if (why === 'safety' && Date.now() - lastCycleAt < 20_000) return
+      // 空闲退避只作用于定时 tick；safety/manual 永远照跑（它们是兜底，不许被省掉）
+      if (why === 'tick' && IDLE_BACKOFF_ON && lastCycleAt > 0) {
+        const need = idleStreak >= 8 ? 60_000 : idleStreak >= 3 ? 30_000 : 0
+        if (need > 0 && Date.now() - lastCycleAt < need) return
+      }
       lastCycleAt = Date.now()
+      const cycleT0 = Date.now()
       try {
         // ── [修 #02] 每轮热读配置：runSync / runJudge / digestSemantic 一律用它 ──
         const tick = resolveTickConfig(root, lastCfg);
@@ -350,6 +362,12 @@ export async function startWatchWorker(opts: WatchOptions): Promise<WatchWorker 
         // 用户关了开关，后台还在默默补嵌向量（调研件 §4 的头号风险：看起来在工作）。
         const { digestSemantic } = await import('../search-svc/semantic.js');
         await digestSemantic(db, cfgNow, { projectId: projectIdNow, limit: 20 });
+        // 空闲退避记账：本拍完全没活儿才算 idle（有 hook 信号/confirmed 都算活动）
+        const didWork = s.newMessages > 0 || s.resumed > 0 || j.confirmed > 0 || spool.endSignals > 0;
+        idleStreak = didWork ? 0 : idleStreak + 1;
+        // 慢周期留痕：>1.5s 才打（否则日志全是噪声）。CPU 异常时这是唯一能定位的线索。
+        const cost = Date.now() - cycleT0;
+        if (cost > 1500) log(`慢周期 ${cost}ms（${why} · envIdle=${idleStreak}）`);
       } catch (e) {
         log(`周期失败（不退出）: ${(e as Error).message}`);
       }

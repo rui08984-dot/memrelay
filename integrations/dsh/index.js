@@ -75,7 +75,23 @@ try {
 const SRELAY = process.env.SRELAY_CLI_PATH
   || (fs.existsSync(VENDOR_SRELAY) ? VENDOR_SRELAY
       : path.join(process.env.APPDATA || '', 'npm', 'node_modules', '@ewanjasper', 'sessionrelay', 'dist', 'srelay.js'))
-const NODE = process.execPath
+// [1024 修「CPU 一直 60-70% 却说不清是谁」] 原来直接用 `process.execPath`。
+//   在 DSH 里它等于 **DeepSeek Harness.exe**（Electron 主程序）⇒ 每个 CLI 子进程、
+//   以及常驻的 watch 守护（pid 实测 46528）都在跑一整套 Electron 运行时：
+//   134MB / 13 线程 / 且 CPU 全部记在「DeepSeek Harness」名下，用户根本定位不到。
+//   现在优先用真正的 node.exe；实在没有才退回 Electron + ELECTRON_RUN_AS_NODE=1。
+function resolveNodeBin() {
+  const cands = [
+    String(process.env.SRELAY_NODE_BIN || '').trim(),
+    'C:\\Program Files\\nodejs\\node.exe',
+    'C:\\Program Files (x86)\\nodejs\\node.exe',
+  ].filter(Boolean)
+  for (const p of cands) { try { if (existsSync(p)) return p } catch { /* 继续找 */ } }
+  return process.execPath
+}
+const NODE = resolveNodeBin()
+/** 用 Electron 兜底跑 CLI 时必须带这个环境变量，否则它按 GUI 程序启动、根本不执行脚本 */
+const NODE_ENV_EXTRA = NODE === process.execPath ? { ELECTRON_RUN_AS_NODE: '1' } : {}
 
 const MAX_CHARS = 1200
 const FRESH_MS = 48 * 3600_000
@@ -160,7 +176,7 @@ function ensureDaemon(root) {
     if (Date.now() - last < DAEMON_CHECK_COOLDOWN_MS) return
     daemonLastTry.set(root, Date.now())
     const child = spawn(NODE, [SRELAY, 'watch', '--foreground', '--global'], {
-      cwd: root, detached: true, stdio: 'ignore', windowsHide: true,
+      cwd: root, detached: true, stdio: 'ignore', windowsHide: true, env: { ...process.env, ...NODE_ENV_EXTRA },
     })
     child.on('error', () => { /* 起不来不影响简报，下个冷却周期再试 */ })
     if (typeof child.unref === 'function') child.unref()
@@ -169,7 +185,7 @@ function ensureDaemon(root) {
 function runSrelay(args, root, timeoutMs) {
   return new Promise((resolve) => {
     execFile(NODE, [SRELAY, ...args],
-      { cwd: root, timeout: timeoutMs, windowsHide: true, maxBuffer: 8 * 1024 * 1024, encoding: 'utf8' },
+      { cwd: root, timeout: timeoutMs, windowsHide: true, maxBuffer: 8 * 1024 * 1024, encoding: 'utf8', env: { ...process.env, ...NODE_ENV_EXTRA } },
       (err, stdout) => resolve(err ? null : String(stdout || '')))
   })
 }
