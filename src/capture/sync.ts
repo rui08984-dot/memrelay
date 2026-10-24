@@ -52,6 +52,11 @@ export interface SyncStats {
   /** [1021 好用] 因「内容没变」而跳过的会话数：用来解释「发现 1000 场却 0 新增」。 */
   skipped: number;
   warnings: string[];  // 改动 3：compaction 丢数据警告等
+  /**
+   * [1024 可观测] 分阶段耗时（毫秒）。只有慢周期才看，用于回答「2.5 秒到底花在哪」。
+   * 为什么放进返回值而不是打日志：sync 是纯函数式调用方各异的层，日志由调用方（守护/CLI）决定。
+   */
+  timings?: Record<string, number>;
 }
 
 export interface SyncOptions {
@@ -161,6 +166,10 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
   const cfg = opts.config;
   const mode = cfg.capture.mode;
   const result: SyncStats = { mode, discovered: 0, newSessions: 0, newMessages: 0, updatedMessages: 0, resumed: 0, badLines: 0, blocked: 0, skipped: 0, warnings: [] };
+  // [1024] 分阶段计时（累计到 timings，调用方决定是否打日志）
+  const tm: Record<string, number> = {};
+  result.timings = tm;
+  const since = (k: string, t0: number) => { tm[k] = (tm[k] ?? 0) + (Date.now() - t0); };
 
   if (mode === 'off') return result;
   loadWatermark(root);   // [1021 性能] 冷进程先装回签名表（跳过靠它，不靠猜）
@@ -189,16 +198,27 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
 
   // 改动 1：注册表初始化（含 custom adapter 加载）——[fork] 原 here 连调两次，
   // 第二次因 customLoaded 守卫恒返回空结果，custom adapter 的加载错误从未上报
+  const tReg = Date.now();
   const customResult = ensureRegistered(root);
+  since('register', tReg);
   for (const err of customResult.errors) result.warnings.push(`custom adapter 加载失败：${err}`);
 
   const own = !opts.db;
   const db = opts.db ?? createDb(dbFile(root));
   const projectId = cfg.identity.project_id ?? projectIdOf(root);
   // [fork 0922] 已知会话集：库里现存 (source, source_session_id)——水位线跳过的第二个必要条件
-  const knownSessions = new Set<string>(
-    (db.prepare("SELECT source || ':' || source_session_id AS k FROM sessions WHERE project_id = ?").all(projectId) as Array<{ k: string }>).map(r => r.k)
-  );
+  const knownSessions = new Set<string>();
+  // [1024 修「整机卡顿 / 慢周期 sync=2-3 秒」] 顺手把 origin 一起读进来。
+  //   原来每轮对**每个发现的会话**都无条件执行一条 `UPDATE sessions SET origin=?`，
+  //   且 prepare 写在循环里 ⇒ 几百场 × 11 个项目 × 每分钟 = 持续写库，实测单周期 2-3 秒。
+  //   现在先读全量 origin，只有「真的不一样」才写（绝大多数会话一次写入后再也不变）。
+  const knownOrigin = new Map<string, string>();
+  for (const r of db.prepare("SELECT source || ':' || source_session_id AS k, origin FROM sessions WHERE project_id = ?").all(projectId) as Array<{ k: string; origin: string | null }>) {
+    knownSessions.add(r.k);
+    if (r.origin) knownOrigin.set(r.k, r.origin);
+  }
+  const updOriginStmt = db.prepare("UPDATE sessions SET origin = ? WHERE source = ? AND source_session_id = ? AND origin != 'manual'");
+  let originUpdates = 0;
   const ignoreRules = loadIgnoreRules(root);
   // forget 防复活次级防线（设计 v4 §3.2）：入口整表载入一次，ingest 内 Set 判定
   const tombstones = loadTombstones(db);
@@ -224,15 +244,19 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
       //   红队实测：boom 源崩掉后，健康的 claude-code 入库 0 条（应该 1 条）。
       //   单个源坏不该有这么大的连坐面。
       let discovered: DiscoveredSession[] = [];
+      const tDisc = Date.now();
       try {
         discovered = adapter.discover(root, aConfig);
       } catch (e) {
         result.warnings.push('源 ' + source + ' 发现阶段失败（本轮跳过该源）：' + String((e as Error).message).slice(0, 80));
         sweepCompleted = false;
         continue;
-      }
+      } finally { since('discover', tDisc); }
       // [fork 0922] 内容签名探针：每源每周期一次聚合查询；无探针的源退回 mtime+size
+      const tProbe = Date.now();
       const probe = adapter.changeProbe?.(aConfig);
+      since('probe', tProbe);
+      const tLoop = Date.now();
 
       for (const ds of discovered) {
         result.discovered++;
@@ -245,10 +269,12 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
         //   根本走不到落库那段；另有一批空闲会话因水位线跳过同样拿不到新分类。
         // 语义：ignore 管的是「别再存新内容」，**已存在的会话其分类应随时幂等收敛**；只动 origin 一列，
         //   manual（用户显式 save）不可降级；墓碑会话早已不在库里，UPDATE 自然 0 行。
-        if (ds.originHint) {
+        const originKey = ds.source + ':' + ds.sourceSessionId;
+        if (ds.originHint && knownOrigin.get(originKey) !== ds.originHint && knownOrigin.get(originKey) !== 'manual') {
           try {
-            db.prepare("UPDATE sessions SET origin = ? WHERE source = ? AND source_session_id = ? AND origin != 'manual' AND origin IS NOT ?")
-              .run(ds.originHint, ds.source, ds.sourceSessionId, ds.originHint);
+            updOriginStmt.run(ds.originHint, ds.source, ds.sourceSessionId);
+            knownOrigin.set(originKey, ds.originHint);
+            originUpdates++;
           } catch { /* 单行失败不阻塞整批 */ }
         }
 
@@ -306,16 +332,21 @@ export async function runSync(opts: SyncOptions): Promise<SyncStats> {
           result.warnings.push('会话 ' + ds.source + ':' + ds.sourceSessionId + ' 采集失败（其余会话继续）：' + String((e as Error).message).slice(0, 60));
         }
       }
+      since('loop', tLoop);
     }
   } catch (e) {
     // [修 #15] 中途抛错的轮次不算"完整扫描"：保持旧时间戳，下一轮重试（finally 里也不会推进）
     sweepCompleted = false;
     throw e;
   } finally {
+    const tClose = Date.now();
     if (own) db.close();
+    since('close', tClose);
+    const tWm = Date.now();
     // [修 #15] 只有**真正完整**的一轮才推进兜底时间戳；中途抛错/缺源时保持旧时间戳，下一轮重试。
     if (sweepDue && sweepCompleted) noteFullSweepDone(nowMs);
     saveWatermark(root);   // [1021 性能] 写回，供下一个进程用（源文件没变就不重读）
+    since('watermark', tWm);
   }
   // ── 采集告警必须**有人说出来**（2026-10-18 红队 P1#2）──
   //   病历：result.warnings 与 source_files.suspect/bad_lines 全仓**没有任何读取方**。

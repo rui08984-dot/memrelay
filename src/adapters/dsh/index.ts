@@ -84,7 +84,17 @@ interface ScanIndex {
 // ⚠️ 缓存必须**按 sessionsDir 分键**：测试每个用例换一个临时目录、生产里 DSH_HOME 也可能变，
 // 用单槽缓存会让新目录读到旧索引（本回归测试第一版就是这么红的）。
 const scanCache = new Map<string, ScanIndex>();
-const SCAN_TTL_MS = 30_000;
+// [1024 修「整机卡顿」] 原 TTL=30s。实测这台机器 ~/.dsh/sessions 有 12.8 万个文件、1500+ 会话，
+//   一次全量扫描（每个会话目录都要 readdir + stat + 读头帧）约 **2.5 秒**；
+//   而 11 个项目的采集周期各自都会调 discover() ⇒ 缓存 30 秒过期后不断重扫，
+//   日志里就是 **sync=2599ms 且 0 条新消息** 的慢周期，用户体验是「卡」。
+//   现在默认 5 分钟（可用 SRELAY_DSH_SCAN_TTL_MS 覆盖）。代价：新委派出来的子代理会话
+//   （originHint=workflow，本来就不进简报）最多晚 5 分钟被归属，可接受；
+//   本项目自己的会话**完全不受影响**（走 ① 那条只扫自己分组的路径，毫秒级）。
+const SCAN_TTL_MS = (() => {
+  const v = Number(process.env.SRELAY_DSH_SCAN_TTL_MS);
+  return Number.isFinite(v) && v >= 5_000 ? v : 5 * 60_000;
+})();
 const MAX_PARENT_HOPS = 6;
 
 const normPath = (p: string) => path.resolve(p).replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();

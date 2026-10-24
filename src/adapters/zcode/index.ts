@@ -88,6 +88,28 @@ export function dbSig(dbPath: string): string {
 let probeGate: { key: string; result: Map<string, string> } | null = null;
 
 /**
+ * [1024 修「整机卡顿」] 全量探针的**时间节流**。
+ *
+ * 病历：ZCode 在跑的时候，它的库一直在写 ⇒ `data_version` 变 ⇒ 跨进程缓存的 dbSig 也变 ⇒
+ *   每轮都重跑 `message/part` 两张大表 GROUP BY（实测 message 16.5 万 + part 61.5 万行、
+ *   这两列**没有索引**）⇒ **单次 2.7–5.0 秒**。而 11 个项目每轮各自调一次 ⇒ 守护几乎一直在扫，
+ *   用户感知就是「机器卡、拖窗口顿」。
+ *
+ * 修法：同一源库的全量探针**最多每 TTL 一次**（默认 60s），期间复用上次结果。
+ *   代价：ZCode 新消息最多晚 60 秒被采集（DSH 会话不受影响——它没有 probe，走 mtime 签名）。
+ *   可调：SRELAY_ZCODE_PROBE_TTL_MS（0 = 关闭节流，恢复旧行为）。
+ */
+// ⚠️ 每次调用时**现读**环境变量，不在模块加载时固化：
+//   测试要在 import 之后关掉节流（ES import 是提升的，模块级常量那时已经定死了）。
+function probeTtlMs(): number {
+  const v = Number(process.env.SRELAY_ZCODE_PROBE_TTL_MS);
+  // 默认 20 秒：比采集节拍（15s）略长 ⇒ 最坏「晚一拍」看到 ZCode 更新，
+  //   同时把全表探针从「每项目每轮一次」降到「每 20 秒最多一次」。
+  return Number.isFinite(v) && v >= 0 ? v : 20_000;
+}
+let probeLast: { dbPath: string; at: number; result: Map<string, string> } | null = null;
+
+/**
  * [1021 性能] changeProbe 结果的**跨进程**缓存。
  *
  * 病历（本机 CPU profile 实测）：一次冷 srelay sync 的 22.5s 采样里，changeProbe 独占 3.7s ——
@@ -450,12 +472,21 @@ export const adapter: SessionSourceAdapter = {
       // 为什么不用 dbSig（主库+wal 的 mtime:size）当主闸：它也行（实测 0.41ms），
       //   但 data_version 是 SQLite 自己记账，比文件时间戳更难骗；dbSig 保留给 discover，
       //   两者职责不同，不为"统一"把它们硬合成一个。
+      // ① 时间节流（最外层，O(1)）：TTL 内直接复用上一轮结果，不碰 data_version 也不碰大表。
+      const ttl = probeTtlMs();
+      if (ttl > 0 && probeLast && probeLast.dbPath === dbPath
+        && Date.now() - probeLast.at < ttl) {
+        return new Map(probeLast.result);
+      }
       const dv = String(z.pragma('data_version', { simple: true }));
       const cols = schemaOf(z, dbPath);
       const mTouch = touchCol(cols.message);
       const pTouch = touchCol(cols.part);
       const gateKey = dbPath + '#' + dv;
-      if (probeGate && probeGate.key === gateKey) return new Map(probeGate.result);
+      if (probeGate && probeGate.key === gateKey) {
+        probeLast = { dbPath, at: Date.now(), result: new Map(probeGate.result) };
+        return new Map(probeGate.result);
+      }
       // [1021 性能] 跨进程缓存：data_version 是**连接级**的，新进程里必然为空 ⇒ 每次冷启动都要
       //   两张大表全扫（实测 3.7s）。dbSig（主库+WAL 的 mtime:size）是稳定信号：
       //   源库一写入它就变，所以命中缓存 ≠ 数据陈旧。未命中才付全扫的钱。
@@ -471,6 +502,7 @@ export const adapter: SessionSourceAdapter = {
       for (const r of msg) out.set(r.session_id, 'm' + (r.t ?? 0) + '/' + r.n);
       for (const r of part) out.set(r.session_id, (out.get(r.session_id) ?? 'm0/0') + ';p' + (r.t ?? 0) + '/' + r.n);
       probeGate = { key: gateKey, result: new Map(out) };
+      probeLast = { dbPath, at: Date.now(), result: new Map(out) };   // [1024] 供 TTL 节流复用
       saveProbeCache(dbPath, sigNow, out);   // [1021 性能] 落盘供下一个进程用（源库没变就不重算）
       return out;
     } catch (e) {

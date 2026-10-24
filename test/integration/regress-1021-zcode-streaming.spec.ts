@@ -15,6 +15,12 @@
 // 用例全部用**临时假库**（schema 照真实 ZCode 库：message/part 都有 time_created + time_updated），
 // 不碰真实数据、不发网络请求。
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
+// [1024] 本用例钉的是**适配器语义**（半截必须被追平），不是在钉守护的节流策略。
+//   守护默认对全表探针做 20s 节流（否则 ZCode 一写入就要扫 16.5 万+61.5 万行，整机卡），
+//   那会让「同一进程内连续两次 runSync」复用旧签名、把这里判红。
+//   ⇒ 测试里关掉节流（生产默认仍开，可用同名环境变量调整）。
+process.env.SRELAY_ZCODE_PROBE_TTL_MS = '0';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';

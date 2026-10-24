@@ -351,9 +351,15 @@ export async function startWatchWorker(opts: WatchOptions): Promise<WatchWorker 
           warnedMode = String(cfgNow.capture.mode);
         }
         const projectIdNow = cfgNow.identity.project_id ?? projectIdOf(root);
+        // [1024 可观测] 分步计时：慢周期只说"4900ms"没法定位，必须拆开。
+        //   实测某项目稳态出现 4.8–7.0s 的周期（用户反馈「卡」），需要知道是读文件还是抽词。
+        const tSync0 = Date.now();
         const s = await runSync({ projectRoot: root, config: cfgNow, db, stats });
+        const msSync = Date.now() - tSync0;
         const spool = consumeHookEvents(root, db, new Date()); // R4：hook 事件 → 立即转 pending
+        const tJudge0 = Date.now();
         const j = runJudge(db, { projectId: projectIdNow, now: new Date(), idleMin: cfgNow.capture.idle_threshold_min, cooldownH: cfgNow.capture.cooldown_hours, stats });
+        const msJudge = Date.now() - tJudge0;
         if (s.newMessages > 0 || s.resumed > 0 || j.confirmed > 0 || spool.endSignals > 0 || why !== 'tick') {
           log(`${why}: +${s.newMessages} 消息 · resumed ${s.resumed} · pending ${j.toPending} · confirmed ${j.confirmed}${spool.endSignals ? ` · hook信号 ${spool.endSignals}` : ''}`);
         }
@@ -361,13 +367,21 @@ export async function startWatchWorker(opts: WatchOptions): Promise<WatchWorker 
         // [1017 夜] **每 tick 重读配置**：守护是常驻进程，缓存 config 会让"关掉语义档"不生效 ——
         // 用户关了开关，后台还在默默补嵌向量（调研件 §4 的头号风险：看起来在工作）。
         const { digestSemantic } = await import('../search-svc/semantic.js');
+        const tSem0 = Date.now();
         await digestSemantic(db, cfgNow, { projectId: projectIdNow, limit: 20 });
+        const msSem = Date.now() - tSem0;
         // 空闲退避记账：本拍完全没活儿才算 idle（有 hook 信号/confirmed 都算活动）
         const didWork = s.newMessages > 0 || s.resumed > 0 || j.confirmed > 0 || spool.endSignals > 0;
         idleStreak = didWork ? 0 : idleStreak + 1;
         // 慢周期留痕：>1.5s 才打（否则日志全是噪声）。CPU 异常时这是唯一能定位的线索。
         const cost = Date.now() - cycleT0;
-        if (cost > 1500) log(`慢周期 ${cost}ms（${why} · envIdle=${idleStreak}）`);
+        if (cost > 1500) {
+          const tm = (s as { timings?: Record<string, number> }).timings ?? {};
+          const detail = Object.entries(tm).map(([k, v]) => k + '=' + v).join(' ');
+          log(`慢周期 ${cost}ms（sync=${msSync} judge=${msJudge} semantic=${msSem} · ${why} · envIdle=${idleStreak}`
+            + ` · 发现 ${(s as { discovered?: number }).discovered ?? '?'} 场/${(s as { newMessages?: number }).newMessages ?? '?'} 新`
+            + (detail ? ` · ${detail}` : '') + '）');
+        }
       } catch (e) {
         log(`周期失败（不退出）: ${(e as Error).message}`);
       }
