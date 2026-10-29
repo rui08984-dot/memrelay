@@ -6,9 +6,19 @@
 import { autoRegisterNewProjects } from '../src/capture/auto-register.js';
 
 const r = autoRegisterNewProjects({ dryRun: true });
-console.log('候选（会接入）：' + r.candidates.length + ' 个');
-for (const c of r.candidates) console.log('  + ' + c.root + '（' + c.sessions + ' 个会话）');
+// created = 过了保守过滤、本轮**真正会建库**的目录（单轮上限 3）
+console.log('会接入：' + r.created.length + ' 个');
+for (const root of r.created) {
+  const c = r.candidates.find((x) => x.root === root);
+  console.log('  + ' + root + (c ? '（' + c.sessions + ' 个会话）' : ''));
+}
 console.log('跳过：' + r.skipped.length + ' 个');
-const byReason = new Map<string, number>();
-for (const s of r.skipped) byReason.set(s.reason, (byReason.get(s.reason) ?? 0) + 1);
-for (const [reason, n] of byReason) console.log('  - ' + reason + '：' + n);
+const byReason = new Map<string, string[]>();
+for (const s of r.skipped) {
+  const key = s.reason.replace(/（.*$/, '');
+  if (!byReason.has(key)) byReason.set(key, []);
+  byReason.get(key)!.push(s.root);
+}
+for (const [reason, roots] of byReason) {
+  console.log('  - ' + reason + '：' + roots.length + (roots.length <= 3 ? '（' + roots.join(' | ') + '）' : ''));
+}

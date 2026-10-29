@@ -17,6 +17,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
+
+// ⚠️ 本文件是 ESM：`require` 在 ESM 里**不存在**。原来直接在函数里写 require('better-sqlite3')，
+//   抛出的 ReferenceError 被 catch 吞成「没有候选」—— 看起来像「ZCode 没数据」，
+//   实际是代码路径根本没跑。用 createRequire 拿一个真正的 require。
+const nodeRequire = createRequire(import.meta.url);
 import { isTransientRoot, registryCandidates } from '../shared/registry.js';
 
 const MAX_NEW_PER_RUN = 3;
@@ -82,6 +88,36 @@ export function decodeDshSlug(slug: string): string | null {
 
 export interface RootCandidate { root: string; sessions: number }
 
+/**
+ * ZCode 库里的「工作区目录」候选。
+ *
+ * [1029] 为什么需要：自动接入原来只扫 DSH 的会话分组目录（`~/.dsh/sessions/--D-xxx--`），
+ *   于是 **ZCode 用过的新工作区永远不会被自动建库** —— 实测本机就有 2 个真实工作区
+ *   （`D:\新建文件夹 (4)` 9 场、`E:\super-agent-party` 8 场）从来没进过记忆层。
+ *
+ * ZCode 的归属字段是 `session.directory`（会话启动时的 cwd），与 DSH 的会话组等价。
+ * 只读打开、只做一次 GROUP BY；库不存在/没有 session 表 ⇒ 返回空（不抛）。
+ */
+export function discoverZcodeRootCandidates(dbPath?: string): RootCandidate[] {
+  const envDb = String(process.env.SRELAY_ZCODE_DB || '').trim();
+  const file = dbPath || envDb || path.join(os.homedir(), '.zcode', 'cli', 'db', 'db.sqlite');
+  if (!fs.existsSync(file)) return [];
+  let db: { prepare: (s: string) => { all: () => unknown[] }; close: () => void } | null = null;
+  try {
+    // 延迟 require：非 ZCode 用户不该为它付出原生模块加载成本（本文件可能在纯 DSH 环境跑）
+    const Database = nodeRequire('better-sqlite3') as new (p: string, o?: Record<string, unknown>) => typeof db;
+    db = new Database(file, { readonly: true, fileMustExist: true });
+    const rows = db!.prepare('SELECT directory AS d, COUNT(*) AS n FROM session GROUP BY lower(directory)').all() as Array<{ d?: string; n?: number }>;
+    const out: RootCandidate[] = [];
+    for (const r of rows) {
+      const root = String(r.d ?? '').trim();
+      if (!root) continue;
+      out.push({ root, sessions: Number(r.n ?? 0) });
+    }
+    return out;
+  } catch { return []; }
+  finally { try { db?.close(); } catch { /* 已关 */ } }
+}
 /** 扫 DSH 会话组，返回「会话数 ≥ 1」的候选根（未过滤注册状态） */
 export function discoverDshRootCandidates(sessionsDir = defaultDshSessionsDir()): RootCandidate[] {
   let groups: string[] = [];
@@ -104,6 +140,10 @@ export function discoverDshRootCandidates(sessionsDir = defaultDshSessionsDir())
 
 export interface AutoRegisterOptions {
   sessionsDir?: string;
+  /** ZCode 的会话库（默认 ~/.zcode/cli/db/db.sqlite；也可用 SRELAY_ZCODE_DB） */
+  zcodeDb?: string;
+  /** 关掉 ZCode 来源（测试用） */
+  includeZcode?: boolean;
   /** 只报告不落盘（测试与手工体检用） */
   dryRun?: boolean;
   maxNew?: number;
@@ -128,16 +168,41 @@ export function autoRegisterNewProjects(opts: AutoRegisterOptions = {}): AutoReg
   const log = opts.log ?? (() => { /* 静默：由调用方决定是否打日志 */ });
   const dryRun = opts.dryRun === true;
   const maxNew = Number.isFinite(opts.maxNew) && (opts.maxNew as number) > 0 ? Number(opts.maxNew) : MAX_NEW_PER_RUN;
+  // [1029] 自动接入的回填窗口默认 **all**（不只 30 天）。
+  //   病历：实测 ZCode 那两个工作区（`D:\新建文件夹 (4)` 9 场、`E:\super-agent-party` 8 场）
+  //   最近活动停在 8–9 月，而 init 的 30 天窗口正好把它们全挡在外面 ⇒ 库建好了、会话 0 条，
+  //   用户看到的就是「接进来了但什么都没有」。
+  //   窗口对**单个目录**的会话数是有界的（这里 8–9 场），所以 all 不会失控；
+  //   想省时间：SRELAY_AUTO_REGISTER_BACKFILL=30d。
+  const backfill = String(process.env.SRELAY_AUTO_REGISTER_BACKFILL || 'all').trim() || 'all';
   const init = opts.init ?? ((root: string) => {
     const cli = resolveCliPath();
     if (!cli) throw new Error('找不到内核 CLI（dist/srelay.js）—— 无法自动 init');
     execFileSync(process.execPath, [cli, 'init', '--yes', '--backfill', '30d'], {
       cwd: root, stdio: 'pipe', timeout: INIT_TIMEOUT_MS,
     });
+    // 再把「窗口之外的旧会话」补进来（init 只认 30d/90d/none，sync 才支持 all）
+    try {
+      execFileSync(process.execPath, [cli, 'sync', '--backfill', backfill], {
+        cwd: root, stdio: 'pipe', timeout: INIT_TIMEOUT_MS,
+      });
+    } catch { /* 回填失败不影响「库已建好」这个结果；下轮采集会继续追新 */ }
   });
   const transient = opts.isTransient ?? isTransientRoot;
   const registered = registryCandidates().map((c) => norm(c.root));
-  const all = discoverDshRootCandidates(opts.sessionsDir);
+  // [1029] 两个来源合起来看：DSH 会话组 + ZCode 的 session.directory。
+  //   同一个目录两边都有时取会话数较大的那条（去重键 = 归一化路径）。
+  const merged = new Map<string, RootCandidate>();
+  const addAll = (list: RootCandidate[]) => {
+    for (const c of list) {
+      const k = norm(c.root);
+      const prev = merged.get(k);
+      if (!prev || c.sessions > prev.sessions) merged.set(k, c);
+    }
+  };
+  addAll(discoverDshRootCandidates(opts.sessionsDir));
+  if (opts.includeZcode !== false) addAll(discoverZcodeRootCandidates(opts.zcodeDb));
+  const all = [...merged.values()];
   const candidates: RootCandidate[] = [];
   const skipped: Array<{ root: string; reason: string }> = [];
   for (const c of all.sort((a, b) => b.sessions - a.sessions)) {
@@ -149,7 +214,22 @@ export function autoRegisterNewProjects(opts: AutoRegisterOptions = {}): AutoReg
     if (overlap) { skipped.push({ root: c.root, reason: '已注册或与已注册项目重叠' }); continue; }
     candidates.push(c);
   }
-  const todo = candidates.slice(0, maxNew);
+  // [1029] 两条保守过滤（自动建库是「不可撤销的副作用」，宁可少建）：
+  //   ① 候选之间互为父子时只保留父目录（`D:\新建文件夹 (4)` 与它的 `\work\paper` 只建一个）；
+  //   ② 全场只有 1 个会话的目录先不建（一次性临时用，等它有第 2 场再自动进来）。
+  const MIN_SESSIONS = 2;
+  const byLen = [...candidates].sort((a, b) => a.root.length - b.root.length);
+  const kept: RootCandidate[] = [];
+  for (const c of byLen) {
+    const r = norm(c.root);
+    if (c.sessions < MIN_SESSIONS) { skipped.push({ root: c.root, reason: '会话太少（' + c.sessions + ' < ' + MIN_SESSIONS + '）' }); continue; }
+    if (kept.some((p) => r === norm(p.root) || r.startsWith(norm(p.root) + '/'))) {
+      skipped.push({ root: c.root, reason: '被父目录覆盖（' + kept.find((p) => r.startsWith(norm(p.root) + '/'))?.root + '）' });
+      continue;
+    }
+    kept.push(c);
+  }
+  const todo = kept.slice(0, maxNew);
   const created: string[] = [];
   for (const c of todo) {
     if (dryRun) { created.push(c.root); continue; }
