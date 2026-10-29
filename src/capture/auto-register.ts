@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { isTransientRoot, registryCandidates } from '../shared/registry.js';
 
 const MAX_NEW_PER_RUN = 3;
@@ -27,6 +28,35 @@ export function defaultDshSessionsDir(): string {
 }
 
 const norm = (p: string): string => path.resolve(p).replace(/\\/g, '/').replace(/\/+$/, '').toLowerCase();
+
+/**
+ * 解析「内核 CLI 在哪」。
+ *
+ * ⚠️ [1029 修] 原来直接用 `process.argv[1]`：在守护里它确实是 dist/srelay.js，
+ *   但在 **tsx / 单元测试 / 被当作库调用** 时它是调用方脚本 —— 于是 init 子进程
+ *   会去 `node xxx.ts init`，直接报错。实测表现：候选目录识别到了，created 却是空的。
+ *   顺序：env 指定 → argv[1]（必须是存在的 .js）→ 相对本文件 ../../dist/srelay.js。
+ */
+function resolveCliPath(): string | null {
+  const env = String(process.env.SRELAY_CLI_PATH ?? '').trim();
+  if (env && fs.existsSync(env)) return env;
+  const argv1 = String(process.argv[1] ?? '');
+  if (argv1.endsWith('.js') && fs.existsSync(argv1)) return argv1;
+  // ⚠️ 必须用 fileURLToPath：new URL().pathname 会把中文目录名做百分号编码，
+  //   实测 `D:\dsh插件  记忆\...` 变成 `%E6%8F%92...` ⇒ existsSync 恒 false。
+  try {
+    const here = path.dirname(fileURLToPath(import.meta.url));
+    for (const rel of [['..', '..'], ['..'], []]) {
+      const guess = path.resolve(here, ...rel, 'dist', 'srelay.js');
+      if (fs.existsSync(guess)) return guess;
+    }
+  } catch { /* 拿不到就返回 null，由调用方报错 */ }
+  try {
+    const cwdGuess = path.resolve(process.cwd(), 'dist', 'srelay.js');
+    if (fs.existsSync(cwdGuess)) return cwdGuess;
+  } catch { /* 忽略 */ }
+  return null;
+}
 const SEG_RE = /~([0-9A-Fa-f]{4})/g;
 const SESSION_DIR_RE = /^(session-)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -98,9 +128,10 @@ export function autoRegisterNewProjects(opts: AutoRegisterOptions = {}): AutoReg
   const log = opts.log ?? (() => { /* 静默：由调用方决定是否打日志 */ });
   const dryRun = opts.dryRun === true;
   const maxNew = Number.isFinite(opts.maxNew) && (opts.maxNew as number) > 0 ? Number(opts.maxNew) : MAX_NEW_PER_RUN;
-  const cliPath = process.argv[1];
   const init = opts.init ?? ((root: string) => {
-    execFileSync(process.execPath, [cliPath, 'init', '--yes', '--backfill', '30d'], {
+    const cli = resolveCliPath();
+    if (!cli) throw new Error('找不到内核 CLI（dist/srelay.js）—— 无法自动 init');
+    execFileSync(process.execPath, [cli, 'init', '--yes', '--backfill', '30d'], {
       cwd: root, stdio: 'pipe', timeout: INIT_TIMEOUT_MS,
     });
   });
