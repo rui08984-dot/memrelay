@@ -16,7 +16,7 @@ import { registryCandidates } from '../shared/registry.js';
 import { watchServiceStatus } from './watch.js';
 import { detectSources } from './init.js';
 import { pc } from './ui.js';
-import { listPages } from '../map/index.js';
+import { listPages, readPage } from '../map/index.js';
 import { checkSources } from '../map/stale.js';
 import { renderMapMermaid } from '../map/bridge.js';
 import { readKanbanRows } from './kanban.js';
@@ -380,6 +380,32 @@ export async function runDoctorChecks(opts: DoctorOptions = {}): Promise<DoctorR
           stale > 0 || unknown > 0
             ? 'srelay map check 看是哪些文件；复验通过后把新 sha256 写回 sources[].sha256（或先把状态改回 doing）'
             : undefined));
+
+        // ①.65 done 节点的 detail 是否够用（[1110 反馈修]）
+        //
+        // 病历：有人因为某个节点的 detail 只写了「任务卡 + CLI 派活」，看不出里面**已经有** guiRoute，
+        //   于是又实现了一遍（641 行早就有的函数）。地图是给模型读的结构真值 ——
+        //   detail 写的是「这个模块有什么能力」，不是「这个模块大概叫什么」。
+        //   这里只**提示**不改数据：写什么是人的判断，判据只负责把「写完等于没写」的那几个点出来。
+        const DETAIL_MIN = 12
+        const thin: string[] = []
+        for (const p of pages.value) {
+          const got = readPage(root, p.id)
+          if (!got.ok) continue
+          for (const n of got.value.page.nodes) {
+            if (n.status !== 'done') continue   // 只有 done 才要求「说得清楚做了什么」
+            const d = String(n.detail ?? '').trim()
+            if (d.length < DETAIL_MIN) thin.push(n.id)
+          }
+        }
+        if (thin.length > 0) {
+          checks.push(c('地图 detail', 'warn',
+            thin.length + ' 个 done 节点的 detail 不足 ' + String(DETAIL_MIN) + ' 字（接手的人看不出它已经会什么）：'
+              + thin.slice(0, 3).join('、') + (thin.length > 3 ? ' 等' : ''),
+            '把「已实现哪些关键函数/命令」写进 detail（见 docs/MAP.md 第一节 detail 写什么）；只写模块名等于没写'))
+        } else {
+          checks.push(c('地图 detail', 'ok', 'done 节点的 detail 都够说明已经会什么'))
+        }
       }
     } catch (e) { checks.push(c('地图层', 'warn', (e as Error).message)); }
 

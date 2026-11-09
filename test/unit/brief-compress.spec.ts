@@ -30,6 +30,16 @@ import { SEARCH_FEEDBACK_DDL } from '../../src/search-svc/feedback.js';
 
 // 必须相对**真实 now** 造时间：collectBrief 的 48h 窗口用的是 Date.now()，
 // 写死一个日期会让 ⑥⑧ 在两天后变成红（时间炸弹）。
+/**
+ * 去掉 ANSI 颜色码再断言。
+ *
+ * [1110 修一条长期红的用例] 原来断言 `l.includes('✓ ')` —— 而实际输出是
+ * `\u001b[32m✓\u001b[39m `（✓ 与空格之间夹着颜色复位码）⇒ 永远匹配不上，
+ * 于是「恰好 5 行决策」这条**产品行为正确**的断言被判红。
+ * 断言该看内容，不该看颜色；颜色是渲染层的事。
+ */
+const stripAnsi = (s: string): string => s.replace(/\u001b\[[0-9;]*m/g, '');
+
 const NOW = Date.now();
 const iso = (hoursAgo: number) => new Date(NOW - hoursAgo * 3600_000).toISOString();
 
@@ -194,7 +204,7 @@ describe('[任务S] 接线：brief 超条数时按引用次数保留 + 说出淘
     const prevHome = process.env.SRELAY_GLOBAL_HOME;
     const prevCwd = process.cwd();
     let logs: string[] = [];
-    const spy = vi.spyOn(console, 'log').mockImplementation((...a: unknown[]) => { logs.push(a.map(String).join(' ')); });
+    const spy = vi.spyOn(console, 'log').mockImplementation((...a: unknown[]) => { logs.push(stripAnsi(a.map(String).join(' '))); });
     try {
       fs.mkdirSync(path.join(project, '.sessionrelay'), { recursive: true });
       saveConfig(project, { ...defaultConfig(), identity: { project_id: pid } });
@@ -345,7 +355,7 @@ describe('[1020] 名额层压缩：不传 --limit（默认 200）也要在真机
     const prevHome = process.env.SRELAY_GLOBAL_HOME;
     const prevCwd = process.cwd();
     const logs: string[] = [];
-    const spy = vi.spyOn(console, 'log').mockImplementation((...a: unknown[]) => { logs.push(a.map(String).join(' ')); });
+    const spy = vi.spyOn(console, 'log').mockImplementation((...a: unknown[]) => { logs.push(stripAnsi(a.map(String).join(' '))); });
     try {
       fs.mkdirSync(path.join(project, '.sessionrelay'), { recursive: true });
       saveConfig(project, { ...defaultConfig(), identity: { project_id: pid } });
