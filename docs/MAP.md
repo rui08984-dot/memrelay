@@ -49,6 +49,27 @@ srelay kanban graph                 # 看板全图（Mermaid，--html 附离线�
 状态只有五个值（`src/map/domain/types.ts:14`）：`todo` / `doing` / `blocked` / `done` / `regressed`。
 同一份词表也决定看板字形与颜色，**只此一份**（`src/map/semantics/vocabulary.ts`）。
 
+### `detail` 写什么：**这个模块的公开能力清单**
+
+地图是给**模型**读的结构真值。模型查地图是为了回答「这件事做了没有、已经会什么、还差什么」。
+所以 `detail` 的正确内容是**已经实现了哪些关键函数/命令/入口**，而不只是「这个模块大概干什么」。
+
+```jsonc
+// ❌ 只写意图：模型看完仍不知道里面已有什么 ⇒ 会重复实现同一个函数
+{ "id": "dispatch", "detail": "任务卡 + CLI 派活" }
+
+// ✅ 写清已实现能力：模型一眼看到「已经会这个了」
+{ "id": "dispatch",
+  "detail": "已实现：guiRoute / click_element / mouse / visual_read / sendKeys；入口 dispatch.mjs；待办：批量重试" }
+```
+
+这条不是风格偏好，是**实测踩出来的**：有人（模型）因为 `detail` 只写了「任务卡 + CLI 派活」，
+没看到 `guiRoute` 已经存在，于是**又实现了一遍**（641 行早就有的函数）。
+写 `detail` 时问自己一句：**下一个接手的人看完这句，还会不会重复造同一个轮子？**
+
+同理，`evidence` 写「怎么证明它做完了」（测试名/命令/实测数字），`sources` 写「证据绑在哪些源码上」。
+三者分工：`detail` = 有什么能力 · `evidence` = 凭什么说做完了 · `sources` = 拿什么文件对账。
+
 ## 二、三条硬规则
 
 1. **边必须严格跨层向下**：`rank(from) > rank(to)`。同层边、向上边一律 REFUSED。

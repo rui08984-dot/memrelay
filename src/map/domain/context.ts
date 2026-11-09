@@ -53,14 +53,21 @@ export function sourcesError(raw: unknown, where = 'sources'): string | undefine
   if (raw.length > SOURCES_MAX) return where + ' 最多 ' + String(SOURCES_MAX) + ' 条（现在 ' + String(raw.length) + ' 条）';
   for (const [i, item] of raw.entries()) {
     const at = where + '[' + String(i) + ']';
-    if (!isRecord(item)) return at + ' 必须是对象（现在是 ' + describeValue(item) + '）';
+    if (!isRecord(item)) {
+      return at + ' 必须是对象（现在是 ' + describeValue(item) + '）；'
+        + '正确形状：{"path": "src/store/db.ts", "sha256": "<64 位小写十六进制>"}；只认 path 与 sha256 两个键';
+    }
     const unk = unknownKeysError(item, SOURCE_FIELDS, at);
     if (unk !== undefined) return unk;
     const pe = sourcePathError(item['path']);
     if (pe !== undefined) return at + '.path ' + pe;
     const hash = item['sha256'];
     if (hash !== undefined && (typeof hash !== 'string' || !SOURCE_HASH_RULE.test(hash))) {
-      return at + '.sha256 必须是小写 64 位十六进制（现在是 ' + describeValue(hash) + '）';
+      // [1110 反馈修] 报错只说「允许什么」不给**正确形状** ⇒ 调用方（人和模型）要试错四五轮。
+      //   实测反馈：字符串 → 对象 → 未知字段 → sha256 格式，猜了 4 轮才对。
+      //   自查的前提是错误信息本身可学习 ⇒ 带上一个能直接照抄的样例。
+      return at + '.sha256 必须是小写 64 位十六进制（现在是 ' + describeValue(hash) + '）；'
+        + '正确形状：{"path": "src/store/db.ts", "sha256": "<64 位小写十六进制，用 sha256sum 实算>"}';
     }
   }
   return undefined;

@@ -380,14 +380,17 @@ const KANBAN_MAX_ROWS = 2
 // 地图的「下一步」已经写进 progress.md 的 auto:map 行，但简报只取**前 2 个** 🔄/⛔ 行 ——
 // 人写的两条占满名额，地图的 next 永远看不见 ⇒ 这套自动化在你**不开口**的时候是隐形的。
 // 这里只读守护每轮落下的 brief.txt，**不做任何判断**（判断只在 core 的 mapBriefLine 一处）。
-const MAP_BRIEF_CAP = 240   // 防呆：文件被手改坏成一大段时整行不渲染
+const MAP_BRIEF_CAP = 240   // 防呆：文件被手改坏成一大段时截断，不整行丢
+// [1110 反馈修] 原来是 `s.length > CAP ⇒ return ''`：context.next 一写长，
+//   「地图多少节点 / 多少天没更新」这条自查信号就**静默消失**（没人报错、也不进日志）。
+//   这与本仓「容错不许静默」的铁律冲突 ⇒ 改成截断 + 明说截断。
 function mapBriefText(root) {
   try {
     const p = path.join(root, '.sessionrelay', 'map', 'brief.txt')
     if (!fs.existsSync(p)) return ''
     const s = fs.readFileSync(p, 'utf8').trim()
-    if (!s || s.length > MAP_BRIEF_CAP) return ''
-    return s
+    if (!s) return ''
+    return s.length > MAP_BRIEF_CAP ? s.slice(0, MAP_BRIEF_CAP) + '…（已截断）' : s
   } catch { return '' }
 }
 // ── 体检分一行（[1020 全自动]）──
